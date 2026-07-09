@@ -1,0 +1,35 @@
+{
+  "receipt_version": "0.1",
+  "receipt_type": "ai_governance_update",
+  "tool": "external_governance_submodule_updater",
+  "tool_mode": "apply",
+  "repo_root": "E:\\BackUp\\Git_EE\\ai-assisted-ssdlc-docs",
+  "framework_root": "E:\\BackUp\\Git_EE\\ai-assisted-ssdlc-docs\\ai-governance-framework",
+  "framework_before": "0a9abb747405fe47e59e3776f37fb7e641edccca",
+  "framework_after": "0a9abb747405fe47e59e3776f37fb7e641edccca",
+  "lock_adopted_commit": null,
+  "lock_matches_checkout": false,
+  "update_status": "already_current",
+  "generated_at_utc": "2026-07-09T10:03:05Z",
+  "claim_boundary": [
+    "receipt is review evidence, not proof",
+    "no fetch truth is implied unless explicitly recorded",
+    "consumer repo adoption is not proven complete"
+  ],
+  "not_claimed": [
+    "full governance adoption",
+    "hook/CI enforcement",
+    "memory completeness",
+    "domain correctness",
+    "release readiness"
+  ],
+  "remote_evidence": {
+    "target_ref": "origin/main",
+    "fetch_remote": "origin",
+    "fetch_ref": "main",
+    "target_source": "fresh_remote_fetch_head",
+    "target_fresh_upstream_verified": true,
+    "target_claim_boundary": "fresh upstream target verified; already_current/updated claims are allowed",
+    "target_head": "0a9abb747405fe47e59e3776f37fb7e641edccca"
+  }
+}
