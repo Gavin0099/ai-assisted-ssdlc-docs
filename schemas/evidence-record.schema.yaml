@@ -1,0 +1,27 @@
+schema_name: evidence-record
+required_fields:
+  - evidence_id
+  - source_ref
+  - artifact_type
+  - supports_claim
+  - strength
+  - review_status
+allowed_strength:
+  - strong
+  - medium
+  - weak
+allowed_review_status:
+  - pending
+  - needs_changes
+  - accepted
+  - accepted_with_review_due
+  - deferred
+  - rejected
+review_due_required_when:
+  strength:
+    - weak
+  review_status:
+    - pending
+    - needs_changes
+    - accepted_with_review_due
+    - deferred

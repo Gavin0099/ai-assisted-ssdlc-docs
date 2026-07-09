@@ -1,0 +1,76 @@
+# AI-Assisted SSDLC Docs
+
+This repository is a lightweight, evidence-first documentation governance framework for SSDLC work.
+
+The goal is not to claim that AI-generated security documentation is automatically correct. The goal is to structure SSDLC documentation evidence, review status, decision records, and claim boundaries for AI-assisted engineering workflows.
+
+## Core Workflow
+
+```text
+source artifact
+  -> risk classification
+  -> control mapping
+  -> evidence record
+  -> review queue
+  -> security decision record
+  -> review_due follow-up
+  -> audit trail
+```
+
+## Minimum Useful Scope
+
+Version 0 starts with three document surfaces:
+
+- Security Decision Record: what was decided, why risk was accepted or mitigated, what compensating controls exist, and when it must be reviewed again.
+- Evidence Index: which PRs, tests, scans, incidents, design notes, or reviews support each security claim.
+- Review Queue: which risks, weak evidence, exceptions, or decisions need human review.
+
+## Claim Ceiling
+
+This repo may support claims such as:
+
+- documented security decision
+- evidence-linked SSDLC artifact
+- reviewer status recorded
+- review due date tracked
+- AI-assisted summary bounded by source references
+
+This repo must not claim:
+
+- compliant
+- production safe
+- remediated
+- risk closed
+- vulnerability fixed
+- evidence complete
+
+unless the referenced source artifacts and reviewer decisions explicitly support that claim.
+
+## Entrypoints
+
+- Workflow: [docs/workflow.md](docs/workflow.md)
+- Claim ceiling: [docs/claim-ceiling.md](docs/claim-ceiling.md)
+- AI agent instructions: [docs/ai-agent-instructions.md](docs/ai-agent-instructions.md)
+- Reviewer guide: [docs/reviewer-guide.md](docs/reviewer-guide.md)
+- Templates: [templates/](templates/)
+- Schemas: [schemas/](schemas/)
+- Primary demo: [examples/feature-file-upload/](examples/feature-file-upload/)
+- Secondary demo: [examples/feature-auth-flow/](examples/feature-auth-flow/)
+
+## Validation
+
+Run the local validators:
+
+```powershell
+python tools\validate_evidence_index.py examples\feature-auth-flow\evidence-index.md
+python tools\validate_review_queue.py examples\feature-auth-flow\review-queue.md
+python tools\validate_security_decision.py examples\feature-file-upload\security-decision-record.md
+python tools\generate_due_reviews.py examples --today 2026-07-09
+```
+
+Run AI Governance checks:
+
+```powershell
+python -X utf8 ai-governance-framework\governance_tools\governance_drift_checker.py --repo . --framework-root ai-governance-framework
+python -X utf8 ai-governance-framework\governance_tools\external_repo_readiness.py --repo . --framework-root ai-governance-framework --format human
+```

@@ -1,0 +1,29 @@
+schema_name: security-decision
+required_frontmatter:
+  - decision_id
+  - title
+  - status
+  - owner
+  - created
+  - review_due
+  - risk_categories
+  - source_refs
+  - evidence_refs
+allowed_status:
+  - pending
+  - needs_changes
+  - accepted
+  - accepted_with_review_due
+  - deferred
+  - rejected
+required_sections:
+  - Decision
+  - Context
+  - Risk
+  - Control Mapping
+  - Cannot Claim
+semantic_requirements:
+  - evidence_refs must identify source evidence records before implementation or remediation claims.
+  - review_due must exist when risk remains open, deferred, or accepted with review due.
+  - Cannot Claim must preserve unsupported claims such as compliance, remediation, production safety, and audit readiness.
+  - AI-generated summaries are not primary evidence.

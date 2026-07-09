@@ -1,0 +1,25 @@
+name: ai-assisted-ssdlc-docs-contract
+plugin_version: "1.0.0"
+framework_interface_version: "1"
+framework_compatible: ">=1.0.0,<2.0.0"
+domain: ai-assisted-ssdlc-docs
+documents:
+  - AGENTS.base.md
+  - PLAN.md
+  - README.md
+  - docs/workflow.md
+  - docs/claim-ceiling.md
+  - docs/ai-agent-instructions.md
+  - docs/reviewer-guide.md
+  - governance/TESTING.md
+  - governance/ARCHITECTURE.md
+ai_behavior_override:
+  - AGENTS.base.md
+  - AGENTS.md
+rule_roots:
+  - governance/rules
+validators:
+  - tools/validate_evidence_index.py
+  - tools/validate_review_queue.py
+  - tools/validate_security_decision.py
+  - tools/generate_due_reviews.py

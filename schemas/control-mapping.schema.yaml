@@ -1,0 +1,11 @@
+schema_name: control-mapping
+required_fields:
+  - control
+  - status
+  - evidence
+allowed_status:
+  - required
+  - implemented
+  - planned
+  - not_applicable
+  - accepted_exception

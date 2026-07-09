@@ -1,0 +1,22 @@
+schema_name: review-queue
+required_fields:
+  - review_id
+  - source_ref
+  - risk_category
+  - reason
+  - priority
+  - status
+  - owner
+  - review_due
+allowed_priority:
+  - P0
+  - P1
+  - P2
+  - P3
+allowed_status:
+  - pending
+  - needs_changes
+  - accepted
+  - accepted_with_review_due
+  - deferred
+  - rejected
