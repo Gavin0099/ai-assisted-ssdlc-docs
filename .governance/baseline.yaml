@@ -11,9 +11,9 @@
 # ── PROVENANCE ────────────────────────────────────────────────────────────────
 schema_version: "1"
 baseline_version: 1.0.0
-source_commit: unknown
+source_commit: 90aa8acee2b2e241c910ade355bd614527e157a9
 framework_root: E:\BackUp\Git_EE\ai-assisted-ssdlc-docs\ai-governance-framework
-initialized_at: 2026-07-09T09:58:33Z
+initialized_at: 2026-07-09T10:02:16Z
 initialized_by: governance_tools/adopt_governance.py
 
 # ── INTEGRITY ─────────────────────────────────────────────────────────────────
