@@ -2,7 +2,7 @@
 <!-- governance-baseline: overridable -->
 <!-- baseline_version: 1.0.0 -->
 
-> **最後更新**: 2026-07-09
+> **最後更新**: 2026-07-16
 > **Owner**: TODO
 > **Freshness**: Sprint (7d)
 
@@ -13,7 +13,8 @@
 <!-- Required: fill in current phase ID and description -->
 
 - [x] Phase A: Initial AI Governance adoption and SSDLC documentation scaffold
-- [ ] Phase B: Add more example packs for file upload, dependency upgrade, and incident follow-up
+- [x] Phase B: Add example packs for file upload, dependency upgrade, and incident follow-up
+- [ ] Phase C: Expand schema-aware validation and reviewer-ready reporting
 
 ## Active Sprint
 
@@ -23,12 +24,12 @@
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
 - [x] Add lightweight validators for evidence index, review queue, security decision, and due reviews.
 - [x] Add CI wiring for SSDLC validators.
+- [x] Add dependency-upgrade and production-incident example packs.
 
 ## Backlog
 
 <!-- Required: prioritized items not yet started -->
 
-- P1: Add examples for `dependency-upgrade` and `production-incident`.
 - P1: Expand schema-aware validation beyond the Security Decision Record.
 - P2: Add reviewer-ready report generation from queue and evidence files.
 
@@ -41,6 +42,7 @@
 -->
 - 2026-07-09: Start with Decision + Evidence + Review Queue instead of a heavy compliance platform.
 - 2026-07-09: Treat AI summaries as secondary evidence and preserve claim ceilings by default.
+- 2026-07-16: Keep dependency and incident examples synthetic, metadata-only, and bounded by explicit cannot-claim statements.
 
 ## Known Risks
 

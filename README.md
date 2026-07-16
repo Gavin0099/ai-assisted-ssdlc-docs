@@ -54,8 +54,9 @@ unless the referenced source artifacts and reviewer decisions explicitly support
 - Reviewer guide: [docs/reviewer-guide.md](docs/reviewer-guide.md)
 - Templates: [templates/](templates/)
 - Schemas: [schemas/](schemas/)
-- Primary demo: [examples/feature-file-upload/](examples/feature-file-upload/)
-- Secondary demo: [examples/feature-auth-flow/](examples/feature-auth-flow/)
+- Feature demos: [examples/feature-file-upload/](examples/feature-file-upload/) and [examples/feature-auth-flow/](examples/feature-auth-flow/)
+- Change-management demo: [examples/dependency-upgrade/](examples/dependency-upgrade/)
+- Incident follow-up demo: [examples/production-incident/](examples/production-incident/)
 
 ## Validation
 
@@ -65,7 +66,13 @@ Run the local validators:
 python tools\validate_evidence_index.py examples\feature-auth-flow\evidence-index.md
 python tools\validate_review_queue.py examples\feature-auth-flow\review-queue.md
 python tools\validate_security_decision.py examples\feature-file-upload\security-decision-record.md
-python tools\generate_due_reviews.py examples --today 2026-07-09
+python tools\validate_evidence_index.py examples\dependency-upgrade\evidence-index.md
+python tools\validate_review_queue.py examples\dependency-upgrade\review-queue.md
+python tools\validate_security_decision.py examples\dependency-upgrade\security-decision-record.md
+python tools\validate_evidence_index.py examples\production-incident\evidence-index.md
+python tools\validate_review_queue.py examples\production-incident\review-queue.md
+python tools\validate_security_decision.py examples\production-incident\security-decision-record.md
+python tools\generate_due_reviews.py examples --today 2026-07-16
 ```
 
 Run AI Governance checks:

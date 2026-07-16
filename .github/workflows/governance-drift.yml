@@ -78,5 +78,17 @@ jobs:
       - name: Validate security decision record
         run: python tools/validate_security_decision.py examples/feature-file-upload/security-decision-record.md
 
+      - name: Validate dependency-upgrade example pack
+        run: |
+          python tools/validate_evidence_index.py examples/dependency-upgrade/evidence-index.md
+          python tools/validate_review_queue.py examples/dependency-upgrade/review-queue.md
+          python tools/validate_security_decision.py examples/dependency-upgrade/security-decision-record.md
+
+      - name: Validate production-incident example pack
+        run: |
+          python tools/validate_evidence_index.py examples/production-incident/evidence-index.md
+          python tools/validate_review_queue.py examples/production-incident/review-queue.md
+          python tools/validate_security_decision.py examples/production-incident/security-decision-record.md
+
       - name: Generate due-review report
         run: python tools/generate_due_reviews.py examples
