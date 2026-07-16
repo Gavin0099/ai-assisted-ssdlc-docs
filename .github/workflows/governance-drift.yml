@@ -1,24 +1,38 @@
-name: Governance Drift
+name: SSDLC and Governance Validation
 
 on:
   push:
     branches: [main]
     paths:
+      - ".github/workflows/governance-drift.yml"
+      - ".gitmodules"
       - ".governance/**"
       - "AGENTS.base.md"
       - "AGENTS.md"
       - "PLAN.md"
+      - "ai-governance-framework"
       - "contract.yaml"
+      - "examples/**"
       - "governance/**"
+      - "schemas/**"
+      - "templates/**"
+      - "tools/**"
   pull_request:
     branches: [main]
     paths:
+      - ".github/workflows/governance-drift.yml"
+      - ".gitmodules"
       - ".governance/**"
       - "AGENTS.base.md"
       - "AGENTS.md"
       - "PLAN.md"
+      - "ai-governance-framework"
       - "contract.yaml"
+      - "examples/**"
       - "governance/**"
+      - "schemas/**"
+      - "templates/**"
+      - "tools/**"
   workflow_dispatch:
 
 jobs:
@@ -35,8 +49,31 @@ jobs:
           python-version: "3.11"
 
       - name: Run governance drift check
-        run: |
-          python governance/governance_tools/governance_drift_checker.py \
-            --repo . \
-            --framework-root governance \
-            --format human
+        working-directory: ai-governance-framework
+        run: python -m governance_tools.governance_drift_checker --repo ..
+
+      - name: Run external repo readiness check
+        working-directory: ai-governance-framework
+        run: python -m governance_tools.external_repo_readiness --repo .. --framework-root .
+
+  ssdlc-validators:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate evidence index
+        run: python tools/validate_evidence_index.py examples/feature-auth-flow/evidence-index.md
+
+      - name: Validate review queue
+        run: python tools/validate_review_queue.py examples/feature-auth-flow/review-queue.md
+
+      - name: Validate security decision record
+        run: python tools/validate_security_decision.py examples/feature-file-upload/security-decision-record.md
+
+      - name: Generate due-review report
+        run: python tools/generate_due_reviews.py examples

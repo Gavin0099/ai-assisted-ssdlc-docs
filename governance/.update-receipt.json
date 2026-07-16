@@ -6,11 +6,11 @@
   "repo_root": "E:\\BackUp\\Git_EE\\ai-assisted-ssdlc-docs",
   "framework_root": "E:\\BackUp\\Git_EE\\ai-assisted-ssdlc-docs\\ai-governance-framework",
   "framework_before": "0a9abb747405fe47e59e3776f37fb7e641edccca",
-  "framework_after": "0a9abb747405fe47e59e3776f37fb7e641edccca",
+  "framework_after": "fd4b2f9c364bfe4d7e391d9b62ed59c847a4ef7b",
   "lock_adopted_commit": null,
   "lock_matches_checkout": false,
-  "update_status": "already_current",
-  "generated_at_utc": "2026-07-09T10:03:05Z",
+  "update_status": "updated",
+  "generated_at_utc": "2026-07-16T09:11:52Z",
   "claim_boundary": [
     "receipt is review evidence, not proof",
     "no fetch truth is implied unless explicitly recorded",
@@ -30,6 +30,6 @@
     "target_source": "fresh_remote_fetch_head",
     "target_fresh_upstream_verified": true,
     "target_claim_boundary": "fresh upstream target verified; already_current/updated claims are allowed",
-    "target_head": "0a9abb747405fe47e59e3776f37fb7e641edccca"
+    "target_head": "fd4b2f9c364bfe4d7e391d9b62ed59c847a4ef7b"
   }
 }

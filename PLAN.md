@@ -22,7 +22,7 @@
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
 - [x] Add lightweight validators for evidence index, review queue, security decision, and due reviews.
-- [ ] Add CI wiring for SSDLC validators.
+- [x] Add CI wiring for SSDLC validators.
 
 ## Backlog
 

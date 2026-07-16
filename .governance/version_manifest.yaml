@@ -1,0 +1,14 @@
+# Repo-side governance layout versions deliberately adopted from
+# ai-governance-framework at fd4b2f9c364bfe4d7e391d9b62ed59c847a4ef7b.
+# Compared with governance/runtime/required_versions.yaml by
+# governance_tools.governance_version_check at session start.
+
+schema_version: "1.0"
+last_updated: "2026-07-16"
+governance_version: "0.4.0"
+
+contract_schema_version: "1.2.0"
+runtime_entrypoint_version: "1.1.0"
+hook_wiring_version: "1.0.0"
+artifact_layout_version: "1.0.0"
+memory_layout_version: "1.0.0"
