@@ -52,6 +52,7 @@ unless the referenced source artifacts and reviewer decisions explicitly support
 - Claim ceiling: [docs/claim-ceiling.md](docs/claim-ceiling.md)
 - AI agent instructions: [docs/ai-agent-instructions.md](docs/ai-agent-instructions.md)
 - Reviewer guide: [docs/reviewer-guide.md](docs/reviewer-guide.md)
+- Security Decision validator contract: [docs/security-decision-validator-contract.md](docs/security-decision-validator-contract.md)
 - Reviewer report contract: [docs/reviewer-report-contract.md](docs/reviewer-report-contract.md)
 - Templates: [templates/](templates/)
 - Schemas: [schemas/](schemas/)
@@ -68,6 +69,7 @@ python -m pip install -r requirements-validation.txt
 python -m unittest discover -s tests -p "test_*.py"
 python tools\validate_evidence_index.py examples\feature-auth-flow\evidence-index.md
 python tools\validate_review_queue.py examples\feature-auth-flow\review-queue.md
+python tools\validate_security_decision.py examples\feature-auth-flow\security-decision-record.md
 python tools\validate_security_decision.py examples\feature-file-upload\security-decision-record.md
 python tools\validate_evidence_index.py examples\dependency-upgrade\evidence-index.md
 python tools\validate_review_queue.py examples\dependency-upgrade\review-queue.md
@@ -80,6 +82,8 @@ python tools\generate_reviewer_report.py examples\feature-file-upload --today 20
 ```
 
 The Evidence Index and Review Queue validators load required fields, allowed values, and conditional due-date rules from `schemas/evidence-record.schema.yaml` and `schemas/review-queue.schema.yaml`. Invalid or malformed schemas fail closed.
+
+The Security Decision validator loads frontmatter, section, forbidden-claim, and control-mapping rules from `schemas/security-decision.schema.yaml` and `schemas/control-mapping.schema.yaml`. It requires canonical dates, keeps evidence references opaque, and fails closed when a forbidden claim appears outside `Cannot Claim`.
 
 Reviewer reports validate both inputs before rendering, aggregate queue and evidence metadata into separate attention sections, and never infer cross-file joins from `source_ref`.
 

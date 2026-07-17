@@ -9,6 +9,17 @@ required_frontmatter:
   - risk_categories
   - source_refs
   - evidence_refs
+scalar_frontmatter:
+  - decision_id
+  - title
+  - status
+  - owner
+  - created
+  - review_due
+list_frontmatter:
+  - risk_categories
+  - source_refs
+  - evidence_refs
 allowed_status:
   - pending
   - needs_changes
@@ -16,12 +27,29 @@ allowed_status:
   - accepted_with_review_due
   - deferred
   - rejected
+review_due_required_when:
+  - pending
+  - needs_changes
+  - accepted_with_review_due
+  - deferred
+date_fields:
+  - created
+  - review_due
 required_sections:
   - Decision
   - Context
   - Risk
   - Control Mapping
   - Cannot Claim
+forbidden_claims:
+  - compliant
+  - production safe
+  - production-safe
+  - remediated
+  - vulnerability fixed
+  - risk eliminated
+  - all controls effective
+  - audit ready
 semantic_requirements:
   - evidence_refs must identify source evidence records before implementation or remediation claims.
   - review_due must exist when risk remains open, deferred, or accepted with review due.

@@ -88,7 +88,9 @@ jobs:
         run: python tools/validate_review_queue.py examples/feature-auth-flow/review-queue.md
 
       - name: Validate security decision record
-        run: python tools/validate_security_decision.py examples/feature-file-upload/security-decision-record.md
+        run: |
+          python tools/validate_security_decision.py examples/feature-auth-flow/security-decision-record.md
+          python tools/validate_security_decision.py examples/feature-file-upload/security-decision-record.md
 
       - name: Validate dependency-upgrade example pack
         run: |

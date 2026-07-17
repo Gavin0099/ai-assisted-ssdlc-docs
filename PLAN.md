@@ -15,6 +15,7 @@
 - [x] Phase A: Initial AI Governance adoption and SSDLC documentation scaffold
 - [x] Phase B: Add example packs for file upload, dependency upgrade, and incident follow-up
 - [x] Phase C: Expand schema-aware validation and reviewer-ready reporting
+- [x] Phase D: Harden Security Decision claim-boundary and control-mapping validation
 
 ## Active Sprint
 
@@ -27,12 +28,14 @@
 - [x] Add dependency-upgrade and production-incident example packs.
 - [x] Make Evidence Index and Review Queue validation schema-driven with executable pass/fail fixtures.
 - [x] Generate deterministic reviewer reports with aggregation-only, no-inferred-join claim boundaries.
+- [x] Make Security Decision validation schema-aware and fail closed on claim-boundary, control-mapping, and canonical-date violations.
 
 ## Backlog
 
 <!-- Required: prioritized items not yet started -->
 
-- None. Next phase not yet selected.
+- P2: Apply a shared strict date parser to due-review generation.
+- P2: Add a status-only Review Receipt schema and validator.
 
 ## Decision Log
 
@@ -46,6 +49,7 @@
 - 2026-07-16: Keep dependency and incident examples synthetic, metadata-only, and bounded by explicit cannot-claim statements.
 - 2026-07-17: Treat YAML schemas as executable validator inputs and require CLI-level positive and negative fixtures.
 - 2026-07-17: Keep reviewer reports aggregation-only; `source_ref` is opaque metadata and cannot establish queue-to-evidence joins or closure.
+- 2026-07-17: Treat Control Mapping evidence as an opaque reference and reject unsupported claims outside the `Cannot Claim` boundary without inferring evidence joins.
 
 ## Known Risks
 
