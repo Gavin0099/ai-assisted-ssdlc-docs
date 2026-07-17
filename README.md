@@ -52,6 +52,7 @@ unless the referenced source artifacts and reviewer decisions explicitly support
 - Claim ceiling: [docs/claim-ceiling.md](docs/claim-ceiling.md)
 - AI agent instructions: [docs/ai-agent-instructions.md](docs/ai-agent-instructions.md)
 - Reviewer guide: [docs/reviewer-guide.md](docs/reviewer-guide.md)
+- Reviewer report contract: [docs/reviewer-report-contract.md](docs/reviewer-report-contract.md)
 - Templates: [templates/](templates/)
 - Schemas: [schemas/](schemas/)
 - Feature demos: [examples/feature-file-upload/](examples/feature-file-upload/) and [examples/feature-auth-flow/](examples/feature-auth-flow/)
@@ -75,9 +76,12 @@ python tools\validate_evidence_index.py examples\production-incident\evidence-in
 python tools\validate_review_queue.py examples\production-incident\review-queue.md
 python tools\validate_security_decision.py examples\production-incident\security-decision-record.md
 python tools\generate_due_reviews.py examples --today 2026-07-16
+python tools\generate_reviewer_report.py examples\feature-file-upload --today 2026-07-17
 ```
 
 The Evidence Index and Review Queue validators load required fields, allowed values, and conditional due-date rules from `schemas/evidence-record.schema.yaml` and `schemas/review-queue.schema.yaml`. Invalid or malformed schemas fail closed.
+
+Reviewer reports validate both inputs before rendering, aggregate queue and evidence metadata into separate attention sections, and never infer cross-file joins from `source_ref`.
 
 Run AI Governance checks:
 
