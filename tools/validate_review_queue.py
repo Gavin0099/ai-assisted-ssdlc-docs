@@ -5,41 +5,29 @@ import sys
 from pathlib import Path
 
 from _markdown_tables import read_table
+from _schema_rules import load_schema, require_fields, string_list
 
 
-COLUMNS = [
-    "review_id",
-    "source_ref",
-    "risk_category",
-    "reason",
-    "priority",
-    "status",
-    "owner",
-    "review_due",
-]
-
-ALLOWED_PRIORITY = {"P0", "P1", "P2", "P3"}
-ALLOWED_STATUS = {
-    "pending",
-    "needs_changes",
-    "accepted",
-    "accepted_with_review_due",
-    "deferred",
-    "rejected",
-}
+DEFAULT_SCHEMA = Path(__file__).resolve().parents[1] / "schemas" / "review-queue.schema.yaml"
 
 
-def validate(path: Path) -> list[str]:
+def validate(path: Path, schema_path: Path = DEFAULT_SCHEMA) -> list[str]:
+    schema = load_schema(schema_path, "review-queue")
+    required_fields = string_list(schema, "required_fields")
+    require_fields("review-queue", required_fields, {"review_id", "priority", "status"})
+    allowed_priority = set(string_list(schema, "allowed_priority"))
+    allowed_status = set(string_list(schema, "allowed_status"))
+
     errors: list[str] = []
-    rows = read_table(path, COLUMNS)
+    rows = read_table(path, required_fields)
     for number, row in enumerate(rows, start=1):
         prefix = f"row {number} ({row.get('review_id') or 'missing id'})"
-        for column in COLUMNS:
+        for column in required_fields:
             if not row[column]:
                 errors.append(f"{prefix}: missing {column}")
-        if row["priority"] not in ALLOWED_PRIORITY:
+        if row["priority"] not in allowed_priority:
             errors.append(f"{prefix}: invalid priority {row['priority']!r}")
-        if row["status"] not in ALLOWED_STATUS:
+        if row["status"] not in allowed_status:
             errors.append(f"{prefix}: invalid status {row['status']!r}")
     return errors
 
@@ -47,8 +35,14 @@ def validate(path: Path) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("path", type=Path)
+    parser.add_argument("--schema", type=Path, default=DEFAULT_SCHEMA)
     args = parser.parse_args()
-    errors = validate(args.path)
+    try:
+        errors = validate(args.path, args.schema)
+    except (OSError, ValueError) as exc:
+        print("review_queue: FAIL")
+        print(f"- schema/table error: {exc}")
+        return 1
     if errors:
         print("review_queue: FAIL")
         for error in errors:

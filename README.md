@@ -63,6 +63,8 @@ unless the referenced source artifacts and reviewer decisions explicitly support
 Run the local validators:
 
 ```powershell
+python -m pip install -r requirements-validation.txt
+python -m unittest discover -s tests -p "test_*.py"
 python tools\validate_evidence_index.py examples\feature-auth-flow\evidence-index.md
 python tools\validate_review_queue.py examples\feature-auth-flow\review-queue.md
 python tools\validate_security_decision.py examples\feature-file-upload\security-decision-record.md
@@ -74,6 +76,8 @@ python tools\validate_review_queue.py examples\production-incident\review-queue.
 python tools\validate_security_decision.py examples\production-incident\security-decision-record.md
 python tools\generate_due_reviews.py examples --today 2026-07-16
 ```
+
+The Evidence Index and Review Queue validators load required fields, allowed values, and conditional due-date rules from `schemas/evidence-record.schema.yaml` and `schemas/review-queue.schema.yaml`. Invalid or malformed schemas fail closed.
 
 Run AI Governance checks:
 
