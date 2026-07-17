@@ -14,7 +14,13 @@ FIXTURES = ROOT / "tests" / "fixtures" / "schema-validation"
 def run_validator(
     tool: str, fixture: str, schema: Path | None = None
 ) -> subprocess.CompletedProcess[str]:
-    command = [sys.executable, str(ROOT / "tools" / tool), str(FIXTURES / fixture)]
+    return run_validator_path(tool, FIXTURES / fixture, schema)
+
+
+def run_validator_path(
+    tool: str, artifact: Path, schema: Path | None = None
+) -> subprocess.CompletedProcess[str]:
+    command = [sys.executable, str(ROOT / "tools" / tool), str(artifact)]
     if schema is not None:
         command.extend(["--schema", str(schema)])
     return subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
@@ -106,6 +112,46 @@ class SchemaAwareValidatorTests(unittest.TestCase):
             invalid_schema.write_text(schema_text, encoding="utf-8")
             result = run_validator(
                 "validate_evidence_index.py", "evidence-valid.md", invalid_schema
+            )
+
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("references unknown field 'strenght'", result.stdout)
+
+    def test_schema_condition_value_outside_allowed_enum_fails_closed(self) -> None:
+        default_schema = ROOT / "schemas" / "evidence-record.schema.yaml"
+        schema_text = default_schema.read_text(encoding="utf-8").replace(
+            "review_due_required_when:\n  strength:\n    - weak\n",
+            "review_due_required_when:\n  strength:\n    - wek\n",
+            1,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            invalid_schema = Path(directory) / "evidence-record.schema.yaml"
+            invalid_schema.write_text(schema_text, encoding="utf-8")
+            result = run_validator(
+                "validate_evidence_index.py", "evidence-valid.md", invalid_schema
+            )
+
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("contains values outside the allowed enum: wek", result.stdout)
+
+    def test_schema_condition_validation_runs_for_zero_row_table(self) -> None:
+        default_schema = ROOT / "schemas" / "evidence-record.schema.yaml"
+        schema_text = default_schema.read_text(encoding="utf-8").replace(
+            "  strength:\n", "  strenght:\n", 1
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            temp_dir = Path(directory)
+            invalid_schema = temp_dir / "evidence-record.schema.yaml"
+            invalid_schema.write_text(schema_text, encoding="utf-8")
+            empty_artifact = temp_dir / "evidence-empty.md"
+            empty_artifact.write_text(
+                "| evidence_id | source_ref | artifact_type | supports_claim | "
+                "strength | review_status | review_due |\n"
+                "| --- | --- | --- | --- | --- | --- | --- |\n",
+                encoding="utf-8",
+            )
+            result = run_validator_path(
+                "validate_evidence_index.py", empty_artifact, invalid_schema
             )
 
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)

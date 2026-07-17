@@ -5,7 +5,13 @@ import sys
 from pathlib import Path
 
 from _markdown_tables import read_table
-from _schema_rules import condition_matches, load_schema, require_fields, string_list
+from _schema_rules import (
+    compile_condition,
+    condition_matches,
+    load_schema,
+    require_fields,
+    string_list,
+)
 
 
 DEFAULT_SCHEMA = Path(__file__).resolve().parents[1] / "schemas" / "evidence-record.schema.yaml"
@@ -19,6 +25,14 @@ def validate(path: Path, schema_path: Path = DEFAULT_SCHEMA) -> list[str]:
     )
     allowed_strength = set(string_list(schema, "allowed_strength"))
     allowed_review_status = set(string_list(schema, "allowed_review_status"))
+    review_due_condition = compile_condition(
+        schema,
+        "review_due_required_when",
+        {
+            "strength": allowed_strength,
+            "review_status": allowed_review_status,
+        },
+    )
     columns = list(required_fields)
     if "review_due" not in columns:
         columns.append("review_due")
@@ -34,7 +48,7 @@ def validate(path: Path, schema_path: Path = DEFAULT_SCHEMA) -> list[str]:
             errors.append(f"{prefix}: invalid strength {row['strength']!r}")
         if row["review_status"] not in allowed_review_status:
             errors.append(f"{prefix}: invalid review_status {row['review_status']!r}")
-        if condition_matches(row, schema, "review_due_required_when") and not row["review_due"]:
+        if condition_matches(row, review_due_condition) and not row["review_due"]:
             errors.append(f"{prefix}: review_due required for weak or open evidence")
     return errors
 

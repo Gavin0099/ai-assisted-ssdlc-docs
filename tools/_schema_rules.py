@@ -46,17 +46,19 @@ def require_fields(schema_name: str, fields: list[str], required: set[str]) -> N
         )
 
 
-def condition_matches(
-    row: Mapping[str, str], schema: Mapping[str, Any], rule_key: str
-) -> bool:
+def compile_condition(
+    schema: Mapping[str, Any],
+    rule_key: str,
+    allowed_values_by_field: Mapping[str, set[str]],
+) -> dict[str, set[str]]:
     conditions = schema.get(rule_key)
     if not isinstance(conditions, Mapping) or not conditions:
         raise SchemaDefinitionError(f"schema key {rule_key!r} must be a non-empty mapping")
-    matches: list[bool] = []
+    compiled: dict[str, set[str]] = {}
     for field, values in conditions.items():
         if not isinstance(field, str):
             raise SchemaDefinitionError(f"schema key {rule_key!r} has a non-string field")
-        if field not in row:
+        if field not in allowed_values_by_field:
             raise SchemaDefinitionError(
                 f"schema condition {rule_key!r} references unknown field {field!r}"
             )
@@ -66,5 +68,18 @@ def condition_matches(
             raise SchemaDefinitionError(
                 f"schema condition {rule_key!r}.{field} must be a non-empty string list"
             )
-        matches.append(row.get(field) in values)
-    return any(matches)
+        condition_values = set(values)
+        unsupported = sorted(condition_values - allowed_values_by_field[field])
+        if unsupported:
+            raise SchemaDefinitionError(
+                f"schema condition {rule_key!r}.{field} contains values outside "
+                f"the allowed enum: {', '.join(unsupported)}"
+            )
+        compiled[field] = condition_values
+    return compiled
+
+
+def condition_matches(
+    row: Mapping[str, str], conditions: Mapping[str, set[str]]
+) -> bool:
+    return any(row.get(field) in values for field, values in conditions.items())
