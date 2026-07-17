@@ -9,6 +9,17 @@ required_frontmatter:
   - risk_categories
   - source_refs
   - evidence_refs
+scalar_frontmatter:
+  - decision_id
+  - title
+  - status
+  - owner
+  - created
+  - review_due
+list_frontmatter:
+  - risk_categories
+  - source_refs
+  - evidence_refs
 allowed_status:
   - pending
   - needs_changes

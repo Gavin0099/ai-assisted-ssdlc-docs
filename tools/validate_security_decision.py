@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -30,8 +31,20 @@ def validate(
     for field in required_frontmatter:
         if field not in frontmatter:
             errors.append(f"missing frontmatter field: {field}")
-        elif field != "review_due" and _empty(frontmatter[field]):
-            errors.append(f"empty frontmatter field: {field}")
+            continue
+        value = frontmatter[field]
+        if field in rules["scalar_frontmatter"]:
+            if not isinstance(value, str):
+                errors.append(f"frontmatter field {field} must be a scalar string")
+            elif field != "review_due" and not value.strip():
+                errors.append(f"empty frontmatter field: {field}")
+        elif field in rules["list_frontmatter"]:
+            if not isinstance(value, list) or not value or any(
+                not isinstance(item, str) or not item.strip() for item in value
+            ):
+                errors.append(
+                    f"frontmatter field {field} must be a non-empty string list"
+                )
 
     status = _scalar(frontmatter.get("status"))
     if status and status not in rules["allowed_status"]:
@@ -86,6 +99,35 @@ def _load_rules(schema_path: Path, control_schema_path: Path) -> dict[str, Any]:
         required_frontmatter,
         {"decision_id", "status", "created", "review_due"},
     )
+    scalar_frontmatter = set(string_list(schema, "scalar_frontmatter"))
+    require_fields(
+        "security-decision scalar frontmatter",
+        list(scalar_frontmatter),
+        {"status", "created", "review_due"},
+    )
+    list_frontmatter = set(string_list(schema, "list_frontmatter"))
+    overlap = sorted(scalar_frontmatter & list_frontmatter)
+    if overlap:
+        raise ValueError(
+            "schema frontmatter type classifications overlap: " + ", ".join(overlap)
+        )
+    classified_frontmatter = scalar_frontmatter | list_frontmatter
+    unclassified_frontmatter = sorted(
+        set(required_frontmatter) - classified_frontmatter
+    )
+    if unclassified_frontmatter:
+        raise ValueError(
+            "required_frontmatter fields missing type classification: "
+            + ", ".join(unclassified_frontmatter)
+        )
+    unknown_classifications = sorted(
+        classified_frontmatter - set(required_frontmatter)
+    )
+    if unknown_classifications:
+        raise ValueError(
+            "frontmatter type classifications reference non-required fields: "
+            + ", ".join(unknown_classifications)
+        )
     allowed_status = set(string_list(schema, "allowed_status"))
     review_due_required_when = set(string_list(schema, "review_due_required_when"))
     unsupported_due_statuses = sorted(review_due_required_when - allowed_status)
@@ -121,6 +163,8 @@ def _load_rules(schema_path: Path, control_schema_path: Path) -> dict[str, Any]:
 
     return {
         "required_frontmatter": required_frontmatter,
+        "scalar_frontmatter": scalar_frontmatter,
+        "list_frontmatter": list_frontmatter,
         "allowed_status": allowed_status,
         "review_due_required_when": review_due_required_when,
         "date_fields": date_fields,
@@ -152,16 +196,6 @@ def _frontmatter(text: str) -> dict[str, Any]:
     return payload
 
 
-def _empty(value: Any) -> bool:
-    if value is None:
-        return True
-    if isinstance(value, str):
-        return not value.strip()
-    if isinstance(value, list):
-        return not value
-    return False
-
-
 def _scalar(value: Any) -> str:
     return value.strip() if isinstance(value, str) else ""
 
@@ -177,14 +211,13 @@ def _validate_strict_date(value: str, field: str, errors: list[str]) -> None:
 
 
 def _section_span(text: str, name: str) -> tuple[int, int] | None:
-    marker = f"## {name}"
-    start = text.find(marker)
-    if start < 0:
+    heading = re.compile(rf"(?m)^## {re.escape(name)}[ \t]*$")
+    match = heading.search(text)
+    if match is None:
         return None
-    end = text.find("\n## ", start + len(marker))
-    if end < 0:
-        end = len(text)
-    return start, end
+    next_heading = re.compile(r"(?m)^## [^\r\n]+[ \t]*$").search(text, match.end())
+    end = next_heading.start() if next_heading is not None else len(text)
+    return match.start(), end
 
 
 def _section(text: str, name: str) -> str:
@@ -209,6 +242,11 @@ def _control_rows(section: str, required_fields: list[str]) -> list[dict[str, st
     for index, line in enumerate(lines):
         cells = _split_row(line)
         if cells == expected_header:
+            separator_index = index + 1
+            if separator_index >= len(lines) or not _is_separator_row(
+                lines[separator_index], len(required_fields)
+            ):
+                raise ValueError("invalid Control Mapping separator")
             rows: list[dict[str, str]] = []
             for row_line in lines[index + 2 :]:
                 row = _split_row(row_line)
@@ -228,6 +266,13 @@ def _split_row(line: str) -> list[str]:
     if not stripped.startswith("|") or not stripped.endswith("|"):
         return []
     return [cell.strip() for cell in stripped.strip("|").split("|")]
+
+
+def _is_separator_row(line: str, column_count: int) -> bool:
+    cells = _split_row(line)
+    return len(cells) == column_count and all(
+        re.fullmatch(r":?-{3,}:?", cell) is not None for cell in cells
+    )
 
 
 def main() -> int:

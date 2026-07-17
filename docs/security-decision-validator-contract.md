@@ -18,8 +18,11 @@ the Control Mapping table contains zero data rows.
 
 ## Frontmatter
 
-Every key named by `required_frontmatter` must be present. Scalar values must be
-non-empty unless this contract explicitly permits an empty `review_due`.
+Every key named by `required_frontmatter` must be present. Fields named by
+`scalar_frontmatter` must be YAML scalar strings; fields named by
+`list_frontmatter` must be non-empty lists of non-empty strings. Scalar values
+must be non-empty unless this contract explicitly permits an empty
+`review_due`.
 
 - `status` must belong to `allowed_status`.
 - `created` must be an exact calendar date in `YYYY-MM-DD` form.
@@ -31,8 +34,9 @@ non-empty unless this contract explicitly permits an empty `review_due`.
 
 ## Required Sections
 
-Every heading named by `required_sections` must exist. `Cannot Claim` must
-contain non-whitespace content.
+Every heading named by `required_sections` must exist as an exact, line-anchored
+level-two Markdown heading. A level-three heading or prose substring does not
+satisfy the requirement. `Cannot Claim` must contain non-whitespace content.
 
 ## Control Mapping
 
@@ -45,6 +49,8 @@ The `Control Mapping` section must contain exactly this table header:
 The table must contain at least one data row. Each row must satisfy the
 `control-mapping` schema:
 
+- the header is followed by a Markdown separator row containing only valid
+  three-or-more-dash cells with optional alignment colons
 - every required field is non-empty
 - `Status` belongs to `allowed_status`
 - `Evidence` remains an opaque reference string

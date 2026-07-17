@@ -81,6 +81,25 @@ class SecurityDecisionValidatorTests(unittest.TestCase):
             self.assertIn(message, result.stdout)
             self.assertIn("expected YYYY-MM-DD", result.stdout)
 
+    def test_non_scalar_frontmatter_fails_closed(self) -> None:
+        result = run_validator("non-scalar-frontmatter.md")
+
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("frontmatter field status must be a scalar string", result.stdout)
+        self.assertIn("frontmatter field created must be a scalar string", result.stdout)
+
+    def test_non_h2_cannot_claim_heading_fails_closed(self) -> None:
+        result = run_validator("non-h2-cannot-claim.md")
+
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("missing section: Cannot Claim", result.stdout)
+
+    def test_invalid_control_separator_fails_closed(self) -> None:
+        result = run_validator("invalid-control-separator.md")
+
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("invalid Control Mapping separator", result.stdout)
+
     def test_custom_control_schema_changes_outcome(self) -> None:
         schema_text = CONTROL_SCHEMA.read_text(encoding="utf-8").replace(
             "  - accepted_exception\n", "  - accepted_exception\n  - implmented\n", 1
