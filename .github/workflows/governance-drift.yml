@@ -13,6 +13,7 @@ on:
       - "requirements-validation.txt"
       - "ai-governance-framework"
       - "contract.yaml"
+      - "docs/**"
       - "examples/**"
       - "governance/**"
       - "schemas/**"
@@ -31,6 +32,7 @@ on:
       - "requirements-validation.txt"
       - "ai-governance-framework"
       - "contract.yaml"
+      - "docs/**"
       - "examples/**"
       - "governance/**"
       - "schemas/**"
@@ -102,3 +104,6 @@ jobs:
 
       - name: Generate due-review report
         run: python tools/generate_due_reviews.py examples
+
+      - name: Generate aggregation-only reviewer report
+        run: python tools/generate_reviewer_report.py examples/feature-file-upload --today 2026-07-17

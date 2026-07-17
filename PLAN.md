@@ -14,7 +14,7 @@
 
 - [x] Phase A: Initial AI Governance adoption and SSDLC documentation scaffold
 - [x] Phase B: Add example packs for file upload, dependency upgrade, and incident follow-up
-- [ ] Phase C: Expand schema-aware validation and reviewer-ready reporting
+- [x] Phase C: Expand schema-aware validation and reviewer-ready reporting
 
 ## Active Sprint
 
@@ -26,12 +26,13 @@
 - [x] Add CI wiring for SSDLC validators.
 - [x] Add dependency-upgrade and production-incident example packs.
 - [x] Make Evidence Index and Review Queue validation schema-driven with executable pass/fail fixtures.
+- [x] Generate deterministic reviewer reports with aggregation-only, no-inferred-join claim boundaries.
 
 ## Backlog
 
 <!-- Required: prioritized items not yet started -->
 
-- P2: Add reviewer-ready report generation from queue and evidence files.
+- None. Next phase not yet selected.
 
 ## Decision Log
 
@@ -44,6 +45,7 @@
 - 2026-07-09: Treat AI summaries as secondary evidence and preserve claim ceilings by default.
 - 2026-07-16: Keep dependency and incident examples synthetic, metadata-only, and bounded by explicit cannot-claim statements.
 - 2026-07-17: Treat YAML schemas as executable validator inputs and require CLI-level positive and negative fixtures.
+- 2026-07-17: Keep reviewer reports aggregation-only; `source_ref` is opaque metadata and cannot establish queue-to-evidence joins or closure.
 
 ## Known Risks
 
