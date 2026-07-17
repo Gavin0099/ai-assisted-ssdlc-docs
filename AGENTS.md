@@ -350,7 +350,7 @@ Prompt yourself:
 
 - `tools/validate_evidence_index.py`: run against `examples/feature-auth-flow/evidence-index.md`.
 - `tools/validate_review_queue.py`: run against `examples/feature-auth-flow/review-queue.md`.
-- `tools/validate_security_decision.py`: run against `examples/feature-file-upload/security-decision-record.md`.
+- `tools/validate_security_decision.py`: run against every `examples/*/security-decision-record.md` and the focused pass/fail fixtures.
 - `tools/generate_due_reviews.py`: run against `examples/`.
 - `tools/generate_reviewer_report.py`: run against `examples/feature-file-upload/` and preserve the aggregation-only, no-inferred-join contract.
 - Governance changes require drift and readiness checks using `ai-governance-framework`.
