@@ -29,12 +29,12 @@
 - [x] Make Evidence Index and Review Queue validation schema-driven with executable pass/fail fixtures.
 - [x] Generate deterministic reviewer reports with aggregation-only, no-inferred-join claim boundaries.
 - [x] Make Security Decision validation schema-aware and fail closed on claim-boundary, control-mapping, and canonical-date violations.
+- [x] Apply a shared strict date parser to due-review generation.
 
 ## Backlog
 
 <!-- Required: prioritized items not yet started -->
 
-- P2: Apply a shared strict date parser to due-review generation.
 - P2: Add a status-only Review Receipt schema and validator.
 
 ## Decision Log
@@ -50,6 +50,7 @@
 - 2026-07-17: Treat YAML schemas as executable validator inputs and require CLI-level positive and negative fixtures.
 - 2026-07-17: Keep reviewer reports aggregation-only; `source_ref` is opaque metadata and cannot establish queue-to-evidence joins or closure.
 - 2026-07-17: Treat Control Mapping evidence as an opaque reference and reject unsupported claims outside the `Cannot Claim` boundary without inferring evidence joins.
+- 2026-07-17: Require due-review reports to validate every row with the shared canonical date parser before terminal-status filtering and to fail without partial output.
 
 ## Known Risks
 

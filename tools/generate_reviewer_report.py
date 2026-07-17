@@ -7,6 +7,7 @@ from pathlib import Path
 
 from _markdown_tables import read_table
 from _schema_rules import load_schema, string_list
+from _strict_dates import parse_strict_date
 from validate_evidence_index import DEFAULT_SCHEMA as EVIDENCE_SCHEMA
 from validate_evidence_index import validate as validate_evidence_index
 from validate_review_queue import DEFAULT_SCHEMA as REVIEW_QUEUE_SCHEMA
@@ -191,7 +192,7 @@ def _annotate_due_dates(
             item["_review_due_date"] = date.max
         else:
             identifier = row.get(id_field) or "missing id"
-            review_due = _parse_strict_date(
+            review_due = parse_strict_date(
                 raw_due, f"{filename} ({identifier})", "review_due"
             )
             item["_review_due_date"] = review_due
@@ -205,20 +206,6 @@ def _annotate_due_dates(
     return annotated
 
 
-def _parse_strict_date(value: str, context: str, field: str) -> date:
-    try:
-        parsed = date.fromisoformat(value)
-    except ValueError as exc:
-        raise ReportInputError(
-            f"{context}: invalid {field} {value!r}; expected YYYY-MM-DD"
-        ) from exc
-    if parsed.isoformat() != value:
-        raise ReportInputError(
-            f"{context}: invalid {field} {value!r}; expected YYYY-MM-DD"
-        )
-    return parsed
-
-
 def _cell(value: str | date) -> str:
     return str(value).replace("|", "\\|").replace("\r", " ").replace("\n", " ")
 
@@ -229,7 +216,7 @@ def main() -> int:
     parser.add_argument("--today", default=date.today().isoformat())
     args = parser.parse_args()
     try:
-        today = _parse_strict_date(args.today, "command line", "--today")
+        today = parse_strict_date(args.today, "command line", "--today")
         report = generate_report(args.package_dir, today)
     except (OSError, ValueError) as exc:
         print("reviewer_report: FAIL", file=sys.stderr)

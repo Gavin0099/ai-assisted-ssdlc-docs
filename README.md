@@ -52,6 +52,7 @@ unless the referenced source artifacts and reviewer decisions explicitly support
 - Claim ceiling: [docs/claim-ceiling.md](docs/claim-ceiling.md)
 - AI agent instructions: [docs/ai-agent-instructions.md](docs/ai-agent-instructions.md)
 - Reviewer guide: [docs/reviewer-guide.md](docs/reviewer-guide.md)
+- Due-review generator contract: [docs/due-review-generator-contract.md](docs/due-review-generator-contract.md)
 - Security Decision validator contract: [docs/security-decision-validator-contract.md](docs/security-decision-validator-contract.md)
 - Reviewer report contract: [docs/reviewer-report-contract.md](docs/reviewer-report-contract.md)
 - Templates: [templates/](templates/)
@@ -86,6 +87,10 @@ The Evidence Index and Review Queue validators load required fields, allowed val
 The Security Decision validator loads frontmatter, section, forbidden-claim, and control-mapping rules from `schemas/security-decision.schema.yaml` and `schemas/control-mapping.schema.yaml`. It requires canonical dates, keeps evidence references opaque, and fails closed when a forbidden claim appears outside `Cannot Claim`.
 
 Reviewer reports validate both inputs before rendering, aggregate queue and evidence metadata into separate attention sections, and never infer cross-file joins from `source_ref`.
+
+The due-review generator and reviewer report share a strict date parser. Both
+reject compact, week-date, and invalid calendar forms, require exact
+`YYYY-MM-DD` input, and fail without partial report output.
 
 Run AI Governance checks:
 
