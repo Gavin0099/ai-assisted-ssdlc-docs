@@ -190,13 +190,10 @@ def _annotate_due_dates(
             item["due_state"] = "not_applicable"
             item["_review_due_date"] = date.max
         else:
-            try:
-                review_due = date.fromisoformat(raw_due)
-            except ValueError as exc:
-                identifier = row.get(id_field) or "missing id"
-                raise ReportInputError(
-                    f"{filename} ({identifier}): invalid review_due {raw_due!r}"
-                ) from exc
+            identifier = row.get(id_field) or "missing id"
+            review_due = _parse_strict_date(
+                raw_due, f"{filename} ({identifier})", "review_due"
+            )
             item["_review_due_date"] = review_due
             if review_due < today:
                 item["due_state"] = "overdue"
@@ -206,6 +203,20 @@ def _annotate_due_dates(
                 item["due_state"] = "upcoming"
         annotated.append(item)
     return annotated
+
+
+def _parse_strict_date(value: str, context: str, field: str) -> date:
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError as exc:
+        raise ReportInputError(
+            f"{context}: invalid {field} {value!r}; expected YYYY-MM-DD"
+        ) from exc
+    if parsed.isoformat() != value:
+        raise ReportInputError(
+            f"{context}: invalid {field} {value!r}; expected YYYY-MM-DD"
+        )
+    return parsed
 
 
 def _cell(value: str | date) -> str:
@@ -218,7 +229,7 @@ def main() -> int:
     parser.add_argument("--today", default=date.today().isoformat())
     args = parser.parse_args()
     try:
-        today = date.fromisoformat(args.today)
+        today = _parse_strict_date(args.today, "command line", "--today")
         report = generate_report(args.package_dir, today)
     except (OSError, ValueError) as exc:
         print("reviewer_report: FAIL", file=sys.stderr)

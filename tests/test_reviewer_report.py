@@ -71,6 +71,35 @@ class ReviewerReportTests(unittest.TestCase):
         self.assertEqual(result.stdout, "")
         self.assertIn("invalid review_due '2026-99-99'", result.stderr)
 
+    def test_noncanonical_review_due_formats_fail_without_partial_report(self) -> None:
+        for value in ("20260718", "2026-W29-6"):
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as directory:
+                temp_package = Path(directory) / "package"
+                shutil.copytree(PACKAGE, temp_package)
+                queue_path = temp_package / "review-queue.md"
+                queue_path.write_text(
+                    queue_path.read_text(encoding="utf-8").replace(
+                        "2026-07-18", value, 1
+                    ),
+                    encoding="utf-8",
+                )
+                result = run_report(temp_package)
+
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertEqual(result.stdout, "")
+            self.assertIn(f"invalid review_due {value!r}", result.stderr)
+            self.assertIn("expected YYYY-MM-DD", result.stderr)
+
+    def test_noncanonical_today_formats_fail_without_partial_report(self) -> None:
+        for value in ("20260717", "2026-W29-5"):
+            with self.subTest(value=value):
+                result = run_report(PACKAGE, today=value)
+
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertEqual(result.stdout, "")
+            self.assertIn(f"invalid --today {value!r}", result.stderr)
+            self.assertIn("expected YYYY-MM-DD", result.stderr)
+
     def test_missing_input_fails_without_partial_report(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             temp_package = Path(directory) / "package"
