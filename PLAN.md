@@ -2,7 +2,7 @@
 <!-- governance-baseline: overridable -->
 <!-- baseline_version: 1.0.0 -->
 
-> **最後更新**: 2026-07-16
+> **最後更新**: 2026-07-17
 > **Owner**: TODO
 > **Freshness**: Sprint (7d)
 
@@ -25,12 +25,12 @@
 - [x] Add lightweight validators for evidence index, review queue, security decision, and due reviews.
 - [x] Add CI wiring for SSDLC validators.
 - [x] Add dependency-upgrade and production-incident example packs.
+- [x] Make Evidence Index and Review Queue validation schema-driven with executable pass/fail fixtures.
 
 ## Backlog
 
 <!-- Required: prioritized items not yet started -->
 
-- P1: Expand schema-aware validation beyond the Security Decision Record.
 - P2: Add reviewer-ready report generation from queue and evidence files.
 
 ## Decision Log
@@ -43,6 +43,7 @@
 - 2026-07-09: Start with Decision + Evidence + Review Queue instead of a heavy compliance platform.
 - 2026-07-09: Treat AI summaries as secondary evidence and preserve claim ceilings by default.
 - 2026-07-16: Keep dependency and incident examples synthetic, metadata-only, and bounded by explicit cannot-claim statements.
+- 2026-07-17: Treat YAML schemas as executable validator inputs and require CLI-level positive and negative fixtures.
 
 ## Known Risks
 
