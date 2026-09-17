@@ -26,8 +26,7 @@
 - [x] S0-A: Assessment Contract definition and source-type bounding.
 - [x] S0-B: Hand-crafted Golden Fixture for 7 NIST SSDF tasks.
 - [x] S0-C: Deterministic assessment YAML linter and CI wiring.
-- [x] S0-D: AI Semantic Evaluation (S0-D-r1 blind run verified with 20 atoms, provenance frozen, and Remote CI PASS on PR #10).
-- [x] S1-A-r1: Target Manifest Contract Hardening (Schema-driven validator, strict string types, source_type identity, and glob boundary constraints).
+- [x] S1-A-r2: Target Manifest Schema Authority & Repo Identity Closure (Zero-fallback executable schema validation, source_type syntax binding, and glob semantics layering).
 - [ ] S1-B: Repo Corpus Resolver (Materialize authoritative repository files into an immutable corpus based on Target Manifest include/exclude surface).
 
 - [x] Adopt AI Governance baseline with a framework checkout.
@@ -64,6 +63,7 @@
 - 2026-09-17: Phase S0-D-r1 blind rerun with isolated subagent verified direct assessment capability without golden contamination using 20 Golden Gap Atoms; attribution defect in RV.1.3 resolved by separating reviewer inference; pending PR remote CI.
 - 2026-09-17: Phase S0 qualified and Remote CI (PR #10, Run 35212697108) verified ssdlc-validators and governance-drift green; delivery pending PR merge to main.
 - 2026-09-17: Phase S1-A-r1 Target Manifest Contract Hardening: transformed target-manifest.schema.yaml into executable validator source of truth, added target.source_type (local_git | github), enforced strict string type for baseline.version (prohibiting float 1.1), and established fail-closed glob boundaries (no absolute paths, no '..', normalized '/').
+- 2026-09-17: Phase S1-A-r2 Schema Authority & Repo Identity Closure: eliminated all silent Python fallbacks from validator (schema fails closed if rules missing), syntax-bound target.repo to source_type (github strictly owner/repo, local_git strictly local path), and clarified S1-A pattern boundaries vs S1-B materialization obligations.
 - 2026-09-17: Phase S1 Architecture Decision: Treat target SSDLC documentation as a Git repository corpus pinned to a fixed commit SHA with explicit Target Manifest (include/exclude authority surface). Decouple Layer 1 (Document Coverage Assessment on policy repo) from Layer 2 (Implementation Evidence Assessment on product repos).
 
 ## Known Risks

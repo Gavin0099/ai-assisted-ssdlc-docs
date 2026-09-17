@@ -12,6 +12,7 @@ from tools.validate_target_manifest import (
     DEFAULT_SCHEMA_PATH,
     TargetManifest,
     TargetManifestValidationError,
+    load_manifest_schema,
     parse_target_manifest,
     validate_target_manifest_dict,
     validate_target_manifest_file,
@@ -26,6 +27,8 @@ class TargetManifestValidatorTests(unittest.TestCase):
         self.maxDiff = None
         with open(SAMPLE_MANIFEST_PATH, "r", encoding="utf-8") as f:
             self.valid_manifest = yaml.safe_load(f)
+        with open(DEFAULT_SCHEMA_PATH, "r", encoding="utf-8") as f:
+            self.valid_schema = yaml.safe_load(f)
 
     def test_sample_manifest_passes(self) -> None:
         errors = validate_target_manifest_dict(self.valid_manifest)
@@ -67,7 +70,7 @@ class TargetManifestValidatorTests(unittest.TestCase):
         errors = validate_target_manifest_dict(data)
         self.assertTrue(any("cannot be empty" in err for err in errors))
 
-    def test_target_source_type_validation(self) -> None:
+    def test_target_source_type_and_repo_syntax_binding(self) -> None:
         # missing source_type
         data = dict(self.valid_manifest)
         data["target"] = dict(self.valid_manifest["target"])
@@ -80,8 +83,27 @@ class TargetManifestValidatorTests(unittest.TestCase):
         errors = validate_target_manifest_dict(data)
         self.assertTrue(any("is not supported; allowed types" in err for err in errors))
 
-        # valid github source_type
+        # github with invalid local path format fails closed
         data["target"]["source_type"] = "github"
+        data["target"]["repo"] = "E:/Company/company-software-ssdlc"
+        errors = validate_target_manifest_dict(data)
+        self.assertTrue(any("must match 'owner/repo' format" in err for err in errors))
+
+        # github with valid owner/repo passes
+        data["target"]["source_type"] = "github"
+        data["target"]["repo"] = "Gavin0099/company-software-ssdlc"
+        errors = validate_target_manifest_dict(data)
+        self.assertEqual(errors, [])
+
+        # local_git with owner/repo format fails closed
+        data["target"]["source_type"] = "local_git"
+        data["target"]["repo"] = "Gavin0099/company-software-ssdlc"
+        errors = validate_target_manifest_dict(data)
+        self.assertTrue(any("is invalid for source_type 'local_git'" in err for err in errors))
+
+        # local_git with path passes
+        data["target"]["source_type"] = "local_git"
+        data["target"]["repo"] = "E:/Company/company-software-ssdlc"
         errors = validate_target_manifest_dict(data)
         self.assertEqual(errors, [])
 
@@ -201,9 +223,29 @@ class TargetManifestValidatorTests(unittest.TestCase):
         errors = validate_target_manifest_dict(data)
         self.assertTrue(any("mode.read_only must be boolean True" in err for err in errors))
 
-    def test_schema_missing_raises_validation_error(self) -> None:
-        with self.assertRaises(TargetManifestValidationError):
-            validate_target_manifest_file(SAMPLE_MANIFEST_PATH, schema_path=Path("nonexistent-schema.yaml"))
+    def test_schema_missing_required_definitions_fails_closed(self) -> None:
+        # Verify schema itself fails closed if required definitions are missing
+        rules_to_delete = [
+            ("target", "commit_format"),
+            ("target", "allowed_source_types"),
+            ("target", "repo_formats"),
+            ("authority_surface", "disallow_absolute_paths"),
+            ("authority_surface", "disallow_parent_traversal"),
+            ("authority_surface", "path_separator"),
+            ("baseline", "allowed_versions"),
+            ("mode", "required_values"),
+        ]
+        for section, key in rules_to_delete:
+            with self.subTest(section=section, key=key):
+                with TemporaryDirectory() as tmpdir:
+                    bad_schema = dict(self.valid_schema)
+                    bad_schema[section] = dict(self.valid_schema[section])
+                    del bad_schema[section][key]
+                    bad_schema_path = Path(tmpdir) / "broken-schema.yaml"
+                    bad_schema_path.write_text(yaml.safe_dump(bad_schema), encoding="utf-8")
+
+                    with self.assertRaises(TargetManifestValidationError):
+                        load_manifest_schema(bad_schema_path)
 
     def test_cli_invocation_passes(self) -> None:
         res = subprocess.run(
@@ -214,7 +256,7 @@ class TargetManifestValidatorTests(unittest.TestCase):
         self.assertEqual(res.returncode, 0)
         self.assertIn("PASS", res.stdout)
 
-    def test_cli_invocation_fails(self) -> None:
+    def test_cli_invocation_manifest_fails_gracefully(self) -> None:
         with TemporaryDirectory() as tmpdir:
             bad_file = Path(tmpdir) / "bad-manifest.yaml"
             bad_file.write_text("target:\n  repo: test\n", encoding="utf-8")
@@ -224,7 +266,25 @@ class TargetManifestValidatorTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual(res.returncode, 1)
-            self.assertIn("FAIL", res.stderr)
+            self.assertIn("[FAIL] Target manifest validation failed", res.stderr)
+
+    def test_cli_invocation_schema_error_fails_gracefully(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            bad_schema = Path(tmpdir) / "corrupt-schema.yaml"
+            bad_schema.write_text("schema_name: wrong-name\n", encoding="utf-8")
+            res = subprocess.run(
+                [
+                    sys.executable,
+                    str(REPO_ROOT / "tools" / "validate_target_manifest.py"),
+                    str(SAMPLE_MANIFEST_PATH),
+                    "--schema",
+                    str(bad_schema),
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(res.returncode, 1)
+            self.assertIn("[FAIL] Target manifest schema error", res.stderr)
 
 
 if __name__ == "__main__":
