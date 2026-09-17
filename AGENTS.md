@@ -47,7 +47,16 @@ A valid `already_current` conclusion for a submodule consumer must include:
 - target upstream framework HEAD
 - dry-run update result
 
-Required response shape:
+For completion or partial-completion update reports, retain the first three
+non-empty lines as 結果 / 原因 / 下一步 (translated in other session languages).
+Explain local completion, commit/push/merge state, and important unverified
+behavior in plain language before the complete adoption table and technical
+fields. Other task classes retain their existing rendering rules. Follow
+`governance/AI_GOVERNANCE_UPDATE_PROTOCOL.md`; suggested actions do not grant
+authorization. Installed hooks or writers do not prove real-session execution.
+
+Required technical evidence shape (after the plain-language opening; not a
+replacement for the complete adoption table):
 
 ```text
 AI Governance update check: <already_current | update_available | updated | manual_update | destructive_manual_update | not_submodule_consumer | not_verified>
@@ -72,6 +81,26 @@ adoption cannot claim: <short cannot-claim list from the summary | NOT REPORTED>
 human_readable_adoption_summary: REPORTED | NOT REPORTED
 ```
 
+### Response Envelope Boundary
+
+- Response envelope contract version: v0.8. Compact human responses are the
+  default.
+- Ordinary expanded reporting retains three trigger IDs:
+  `full_evidence_request`, `owner_decision_required`, and `failed_or_partial`.
+- Failed/partial work and owner decisions may remain compact only when the
+  blocker, ability to proceed, risks, non-claims, and required choice or
+  authorization stay clear. Expand when a short answer cannot preserve those
+  boundaries, canonical evidence cannot be preserved, or full evidence is
+  requested. Existing F-7 expanded-report exceptions remain.
+- Keep all raw fields in canonical evidence; display exact tokens only when
+  their value affects the current decision / claim boundary or full evidence is
+  requested. Explain each displayed token in plain language.
+- The three-line preface applies to completion-class reports. Diagnosis,
+  review, and concept requests use the contract's Engineering Explanation shape
+  without forcing an irrelevant next action.
+- Keep validation commands, counts, and diagnostics under `驗證` or
+  `evidence_refs`; use `注意` only for one decision-relevant limitation.
+
 If the session only updates `AGENTS.md` or other local instruction files, report
 that as an instruction-file update and mark the AI Governance Framework update
 as `not_verified`. Do not collapse instruction-file sync into framework update
@@ -86,7 +115,10 @@ AGENTS.md was updated and the parent repo is up to date, so AI Governance is cur
 Valid partial conclusion:
 
 ```text
-AGENTS.md was updated, but the AI Governance Framework submodule was not checked.
+結果：這次只更新了指令文件，尚不能確認治理框架更新完成；沒有建立提交，上傳與合併狀態未確認。
+原因：治理框架的版本與導入狀態尚未檢查。
+下一步：先檢查框架版本及導入狀態，再判定是否需要更新；不因此取得更新或上傳授權。
+
 AI Governance update check: not_verified
 governance submodule path: NOT CHECKED
 nested governance HEAD: NOT CHECKED
@@ -117,9 +149,11 @@ Action: verify-only. Do not update the submodule pointer.
 - "更新 AI Governance 到最新版"
 - "Update AI Governance to latest"
 
-Action: perform the governed update flow for a submodule consumer: detect the
-governance submodule path, run dry-run, then apply the scoped submodule pointer
-update if dry-run is safe and no blocker exists.
+Action: route the request to `governance_tools.f7_full_update` as the primary
+orchestrator. This applies to "幫我更新最新版 AI Governance" and equivalent
+natural-language update requests even when the user does not name F-7. The
+governed submodule updater is an F-7 backend/stage, not a substitute for the
+complete F-7 report.
 
 For `update` intent, do not stop after direct HEAD comparison when nested
 governance HEAD differs from target framework HEAD. A direct HEAD comparison may
@@ -215,6 +249,12 @@ not report only machine-readable fields such as `user_facing_status`,
 `framework_topology`, or `runtime_capable` while omitting the table. If the
 table cannot be produced or relayed, report
 `human_readable_adoption_summary: NOT REPORTED` with the reason.
+Also report `update_report_complete=false` and
+`completion_claim_allowed=false`, and do not claim a complete AI Governance
+update report. This applies to updated, already-current, blocked, and
+fallback/manual terminal outcomes. A blocked update may still have a complete
+report when the real table is relayed; report completeness does not mean the
+update succeeded.
 
 ### Test Quality Expectations
 
@@ -250,8 +290,10 @@ claim boundary: update commit/build evidence only; adoption completeness was not
 F-7 is the AI Governance Full Update workflow. The governed submodule update is
 Stage 1 of F-7, not the whole workflow.
 
-When the user asks to update or adopt the latest AI Governance through F-7, F-7
-must execute the full adoption/update workflow or explicitly report a blocker.
+When the user asks to update or adopt the latest AI Governance, including
+"幫我更新最新版 AI Governance" and equivalent natural-language wording, the
+request routes to F-7 even when the user does not name F-7. F-7 must execute the
+full adoption/update workflow or explicitly report a blocker.
 A submodule pointer update alone is insufficient and must be reported as
 `partially_updated`, not completed.
 

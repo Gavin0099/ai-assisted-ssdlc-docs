@@ -1,0 +1,8 @@
+{
+  "schema": "external-tree-inventory-guard-identities.v1",
+  "repository_identities": [
+    "Gavin0099/ai-assisted-ssdlc-docs",
+    "https://github.com/Gavin0099/ai-assisted-ssdlc-docs.git",
+    "@repository-root"
+  ]
+}
