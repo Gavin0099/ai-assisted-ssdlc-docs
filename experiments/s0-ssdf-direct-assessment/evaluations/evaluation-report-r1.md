@@ -1,153 +1,146 @@
-# S0-D-r1: Blind Semantic Evaluation & Discrepancy Analysis Report
+# S0-D-r1: Blind Generator + Independent Evaluator Report
 
-## 1. 執行背景與雙盲評估機制 (Executive Summary & Blind Protocol)
+## 1. 執行綜述 (Executive Summary)
 
-在初次 S0-D 評估中，審查指出了兩項關鍵問題：
-1. **測試污染 (Test Contamination)**：Generator 與 Evaluator 在同一上下文，且生成前已讀取 Golden fixture。
-2. **歸屬越界 (Basis Attribution Drift)**：在 RV.1.3 中，AI 將未列於權威規範的 SLA/PSIRT 要求誤標為 `local_derived_guidance`。
-
-為此，**S0-D-r1** 實施了嚴格的**雙盲隔離評估協議 (Blind Evaluation Protocol)**：
-- **獨立生成 Subagent (`caf023b7-1feb-4d42-b59a-963e0cf0d426`)**：
-  在生成 context 中完全隔離，**絕無讀取或存取** `golden/expected-assessment.yaml`、`candidate-assessment-001.yaml` 及舊版 `evaluation-report.md`。
-- **唯一允許輸入材料**：
-  1. 權威參考：`references/nist-ssdf/v1.1/tasks.yaml` (7 tasks)
-  2. 待審政策：`experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md`
-  3. 審查契約：`experiments/s0-ssdf-direct-assessment/assessment-contract.md`
-- **獨立評估比對 (Evaluator)**：
-  生成完成後，方由評估者讀取 `candidate-assessment-002.yaml`，對照 Golden 基準進行語意與歸屬差量分析。
+本報告為 **Phase S0 (NIST SSDF Direct Assessment)** 的最終驗證產出。
+依據 Review 指示，本輪評估捨棄了先前「同一上下文先讀 Golden 再生 Candidate」之污染流程，改採嚴格的 **Blind Generator + Independent Evaluator** 實驗架構：
+1. **實體目錄與檔案集隔離 (Procedural & Directory File-Set Isolation)**：在獨立目錄 `C:\Temp\s0-blind-run-20260917\` 中僅放置 3 個權威輸入檔與中性 Prompt，無 `.git`、無 `golden/`、無歷史評估報告。
+2. **全新獨立 Session (Fresh Blind Generator)**：由全新的 Subagent 獨立運行，未繼承母會話的討論脈絡。
+3. **不可變凍結 (Candidate Immutability)**：Candidate 一次性生成並經 SHA-256 凍結，絕無事後人工編修。
+4. **凍結 Evaluator Rubric (20 Golden Gap Atoms)**：依據 Golden `expected-assessment.yaml` 實際內容，建立並凍結 20 個 rationale-level gap atoms，徹底剔除先前任意湊成 21 個時誤入的非標準要求（如 PS.2.1 key lifecycle）。
+5. **獨立 Evaluator 嚴格分軌核對**：評估者依據 Rubric 逐項比對 Gap Recall，並將 SLA、PSIRT、專屬通報管道、SBOM、DAST 等作為「Unsupported Attribution Probes」進行一級硬指標查核。
 
 ---
 
-## 2. 評估運行紀錄 (Run Provenance)
+## 2. 運行與環境憑證 (Run Provenance)
 
-| 項目 | 紀錄內容 |
-| :--- | :--- |
-| **Run ID** | `S0-D-r1-20260917-002` |
-| **Generator Role** | Blind SSDLC Assessor Subagent (`caf023b7-1feb-4d42-b59a-963e0cf0d426`) |
-| **Generator Model** | `Gemini 3.8 Flash (Medium)` |
-| **Golden Visibility Prior to Gen** | **NONE** (Strictly Prohibited & Verified) |
-| **Evaluator Role** | Primary Governance Agent (Post-hoc comparison) |
-| **Candidate Output** | `experiments/s0-ssdf-direct-assessment/evaluations/candidate-assessment-002.yaml` |
-| **Ground Truth Reference** | `experiments/s0-ssdf-direct-assessment/golden/expected-assessment.yaml` |
+```yaml
+generator:
+  model: Gemini 3.8 Flash (Medium)
+  subagent_conversation_id: 748af680-ce89-4bb7-9bbc-3e1eea19b39e
+  generated_at: 2026-09-17T18:24:42+08:00
+  prompt_file: experiments/s0-ssdf-direct-assessment/evaluations/generator-prompt-v1.txt
+  prompt_sha256: cdca89a629666cefb9d4d9faeb41fee9ac63a49fd1f649bc35744d1262d258fa
+  output_file: experiments/s0-ssdf-direct-assessment/evaluations/candidate-assessment-002.yaml
+  output_raw_file: experiments/s0-ssdf-direct-assessment/evaluations/candidate-assessment.raw.yaml
+  output_sha256: bcc2771e54536f72689a397dfbecc9d9d043e641f54082d8918dd379b4cdd5a4
 
----
+evaluator_rubric:
+  file: experiments/s0-ssdf-direct-assessment/evaluation-rubric/golden-gap-atoms-v1.yaml
+  rubric_id: S0-GAP-ATOMS-V1
+  atom_count: 20
+  rubric_sha256: 73c3a359fedaf296530b0985d2e27cbc68a83ddd907a679927ceda2ade2e7038
 
-## 3. S0-C 修正版確定性 Linter 檢驗 (Deterministic Linter Verification)
+inputs:
+  tasks_yaml_sha256: c14cca5c19cc7dab923cdfd30ede68210f9be5281d0e00a97c936c218fce78c1
+  company_ssdlc_sha256: 24925f9de00b34a6179d7c3043ab7f9817ba16de746a992be88f49f2fea03a7e
+  assessment_contract_sha256: 49b582b2322d32064479c51d6d900fdc273ac3b28334febb6735a951df839558
 
-執行修正後之 Linter：
-```powershell
-python tools/validate_ssdf_assessment.py experiments/s0-ssdf-direct-assessment/evaluations/candidate-assessment-002.yaml
+isolation:
+  enforcement_method: procedural_and_directory_file_set_isolation
+  isolated_working_directory: C:\Temp\s0-blind-run-20260917\
+  allowed_inputs:
+    - tasks.yaml
+    - sample-company-ssdlc.md
+    - assessment-contract.md
+    - prompt.txt
+  golden_available_to_generator: false
+  prior_evaluation_available_to_generator: false
+  prior_conversation_isolation: isolated_fresh_subagent_session
 ```
 
-**結果**:
-```text
-ssdf_assessment: PASS
-```
+---
 
-### 修正項目強制檢查結果：
-1. **Required Fields 完整性**:
-   - `assessment_rationale`：7 筆 finding 均為非空字串，且無越界宣稱。
-   - `identified_evidence`：7 筆 finding 均包含結構化 mapping，並標註 `type` 與 `source_ref`。
-2. **Non-Empty Results 約束**:
-   - `results` 包含 7 筆 `task_finding`，無空 results。
-3. **Claim Scanner 防護**:
-   - 通過否定句感知 Claim 掃描，無非法肯定合規、安全、無漏洞或百分比宣稱。
+## 3. 確定性硬閘門檢驗 (Deterministic Hard Gates)
+
+| 檢驗項目 | 檢驗命令或方式 | 門檻標準 | 實際結果 | 狀態 |
+| :--- | :--- | :--- | :--- | :--- |
+| **S0-C Linter** | `python tools/validate_ssdf_assessment.py candidate-assessment-002.yaml` | `exit code 0 (PASS)` | `ssdf_assessment: PASS` | **PASS** |
+| **Scope Completeness** | `set(candidate task IDs) == set(scope_tasks)` | 7/7 任務完全吻合 | 7/7 任務一一對應 | **PASS** |
+| **Candidate Immutability** | `SHA-256(isolated_raw) == SHA-256(repo_copy)` | Exact byte match | `bcc2771e... == bcc2771e...` | **PASS** |
+| **Unsupported Normative Attribution** | 逐項檢查 `nist_normative` 內容是否超越權威文本 | `0` | `0` | **PASS** |
+| **Unsupported Derived Attribution** | 逐項檢查 `local_derived_guidance` 是否混入推論 | `0` | `0` | **PASS** |
+| **Overclaims** | Claim Scanner 檢測禁止詞彙（否定句保護） | `0` 違法肯定句 | `0` | **PASS** |
 
 ---
 
-## 4. 盲測語意評估對照矩陣 (Blind Semantic Comparison Matrix)
+## 4. 20 個 Golden Gap Atoms 逐項對照表 (Gap Recall = 20/20)
 
-| Task ID | 規範任務 (NIST SP 800-218 v1.1) | Golden Verdict | Candidate-002 Verdict | Golden RQ Rec | Candidate-002 RQ Rec | 語意吻合度 |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **PO.1.2** | 定義並維護軟體安全需求 | `PARTIAL` | `PARTIAL` | `needs_changes` | `needs_changes` | **吻合 (Concordant)** |
-| **PO.3.1** | 工具鏈安全工具指定與整合 | `PARTIAL` | `PARTIAL` | `needs_changes` | `needs_changes` | **吻合 (Concordant)** |
-| **PS.2.1** | 提供發行完整性驗證機制 | `PARTIAL` | `PARTIAL` | `needs_changes` | `needs_changes` | **吻合 (Concordant)** |
-| **PW.1.1** | 安全設計與風險/威脅塑模 | `PARTIAL` | `PARTIAL` | `needs_changes` | `needs_changes` | **吻合 (Concordant)** |
-| **PW.4.4** | 第三方元件安全驗證與重用 | `PARTIAL` | `PARTIAL` | `needs_changes` | `needs_changes` | **吻合 (Concordant)** |
-| **PW.8.1** | 可執行程式碼安全測試 | `PARTIAL` | `PARTIAL` | `needs_changes` | `needs_changes` | **吻合 (Concordant)** |
-| **RV.1.3** | 漏洞通報管道與處置流程 | `PARTIAL` | `PARTIAL` | `needs_changes` | `needs_changes` | **吻合 (Concordant)** |
+依據 `experiments/s0-ssdf-direct-assessment/evaluation-rubric/golden-gap-atoms-v1.yaml`：
 
-> [!NOTE]
-> **說明**：Verdict 吻合度反映高階覆蓋度判斷，但更深層的品質需由下述之 Gap Recall 與 Basis Attribution 指標驗證。
+| Atom ID | Task ID | Golden Expected Semantic | Candidate-002 獨立對應實質內容 | 判定 |
+| :--- | :--- | :--- | :--- | :--- |
+| **PO12-G1** | PO.1.2 | 「All software shall be secure」為高階口號，非具體可測試需求。 | 「aspirational goal ... does not define concrete, testable security requirements.」 | **MATCH** |
+| **PO12-G2** | PO.1.2 | 需求記錄限於「known requirements」，缺乏系統化主動辨識。 | 「limited to 'Projects with known security requirements', leaving process ... unspecified for all scoped software.」 | **MATCH** |
+| **PO12-G3** | PO.1.2 | 維護僅綁定重大變更（should），例外缺乏結構化審查與週期。 | 「limited to major product changes using advisory wording ... exception approval lacks objective criteria and lifecycle records.」 | **MATCH** |
+| **PO31-G1** | PO.3.1 | 工具類別有名稱但屬選配（may be enabled），未規定必要條件。 | 「uses permissive language ('may be enabled when appropriate') instead of specifying needed tool types based on defined risks.」 | **MATCH** |
+| **PO31-G2** | PO.3.1 | 團隊各自選工具，未定義整合點或最低基準。 | 「delegated to individual teams without defining integration points into build systems or mandatory baseline configurations.」 | **MATCH** |
+| **PO31-G3** | PO.3.1 | 工具失敗審查（should）缺少處置標準或阻擋門檻。 | 「requirement that tool failures 'should be reviewed before release' does not define triage criteria, release-blocking thresholds, or formal exception workflows.」 | **MATCH** |
+| **PS21-G1** | PS.2.1 | 程式碼簽章附帶條件「when applicable」且未定義。 | 「conditioned on undefined applicability ('when applicable') without defining criteria ...」 | **MATCH** |
+| **PS21-G2** | PS.2.1 | Checksum 僅依客戶要求提供，非獲取者預設驗證機制。 | 「provided only upon customer request ... failing to establish a default, systematic integrity verification mechanism for all software acquirers.」 | **MATCH** |
+| **PW11-G1** | PW.1.1 | 威脅建模為選配，觸發條件留給審查者自由裁量。 | 「optional practice ('may be used when the reviewer considers it necessary') rather than a defined risk-modeling requirement.」 | **MATCH** |
+| **PW11-G2** | PW.1.1 | 「complex security-sensitive features」未客觀定義觸發門檻。 | 「apply only to unspecified 'complex security-sensitive features' without objective thresholds.」 | **MATCH** |
+| **PW11-G3** | PW.1.1 | 僅記於專案筆記，未定義風險如何連結緩解或追蹤處置。 | 「informal 'project notes' does not ensure that identified architectural risks are systematically linked to mitigations or tracked to closure.」 | **MATCH** |
+| **PW44-G1** | PW.4.4 | 「stable」、「commonly adopted」非安全驗證客觀標準。 | 「rely on subjective concepts ('stable and commonly adopted') rather than defined security requirements or EOL evaluation.」 | **MATCH** |
+| **PW44-G2** | PW.4.4 | 業界常用開源元件給予免審全面豁免，未一致驗證安全要求。 | 「explicitly exempts widely used open-source components from security review, directly bypassing the requirement to verify ...」 | **MATCH** |
+| **PW44-G3** | PW.4.4 | 重大弱點例外未定義審查與紀錄生命週期。 | 「exceptions for critical vulnerabilities do not specify documentation or lifecycle requirements.」 | **MATCH** |
+| **PW81-G1** | PW.8.1 | 未清楚區分可執行代碼測試與靜態審查之必要性。 | 「fails to specifically evaluate or select executable-code testing versus static review.」 | **MATCH** |
+| **PW81-G2** | PW.8.1 | 測試範疇允許團隊依排程與資源妥協，缺乏最低標準。 | 「Testing scope and methodology selection are permissive ... and can be compromised by schedule or resource constraints without governance review.」 | **MATCH** |
+| **PW81-G3** | PW.8.1 | 問題修復為「when practical」，發行前處置要求模糊。 | 「Remediation ... is non-mandatory and lacks defined timelines or gating ('should be tracked and resolved when practical').」 | **MATCH** |
+| **RV13-G1** | RV.1.3 | 政策已辨識通報路徑與評估責任，非完全缺失。 | 「acknowledges vulnerability reporting and internal escalation ...」 | **MATCH** |
+| **RV13-G2** | RV.1.3 | 修復為盡快、揭露為個案處理，缺乏明確營運流程。 | 「remediation commitments lack defined timelines ... ('fixed as soon as reasonably practical') ... external disclosure is handled ad hoc ('case by case') without documented disclosure processes ...」 | **MATCH** |
+| **RV13-G3** | RV.1.3 | 未清楚定義協調整個通報與修復生命週期的角色與權責。 | 「without documented disclosure processes, public communication criteria, or designated roles.」 | **MATCH** |
 
----
-
-## 5. 政策缺口捕捉率分析 (Gap Recall Analysis)
-
-比對待審文件 `sample-company-ssdlc.md` 中刻意埋設之 7 大核心政策缺陷：
-
-1. **PO.1.2（安全需求）**:
-   - *Golden Gap*: 「All software shall be secure」屬高階口號、需求記錄限於「known requirements」、例外審批無週期。
-   - *Candidate-002 表現*: **成功捕捉**。指出「documentation is conditional on requirements being already known」與「high-level statements do not define systematic identification」。
-2. **PO.3.1（工具鏈）**:
-   - *Golden Gap*: 工具使用選配（may be enabled）、缺乏 CI 整合標準、缺乏工具失敗之阻擋門檻。
-   - *Candidate-002 表現*: **成功捕捉**。指出「tool usage is entirely discretionary」且「does not define mandatory gating criteria for security tool failures」。
-3. **PS.2.1（發行完整性）**:
-   - *Golden Gap*: 簽章「when applicable」、checksum 僅依客戶索取提供、缺乏主動驗證機制。
-   - *Candidate-002 表現*: **成功捕捉**。指出「treats both as conditional or optional」且「does not define an operational mechanism ensuring acquirers receive verification information」。
-4. **PW.1.1（安全設計）**:
-   - *Golden Gap*: 威脅建模選配（may be used）、設計審查觸發門檻主觀、紀錄無追溯性。
-   - *Candidate-002 表現*: **成功捕捉**。指出「threat modeling is explicitly optional」且「leaves risk-modeling without a reliable trigger」。
-5. **PW.4.4（第三方元件）**:
-   - *Golden Gap*: 業界廣泛使用元件給予免審查全面豁免（blanket exemption）、軟性更新承諾。
-   - *Candidate-002 表現*: **成功捕捉**。明確指認「explicitly exempts widely used open-source components from additional security review」。
-6. **PW.8.1（可執行代碼測試）**:
-   - *Golden Gap*: 測試範疇受專案時程妥協、未區分可執行測試必要性、問題修復為「when practical」。
-   - *Candidate-002 表現*: **成功捕捉**。指出「constrain test scope based on schedule and resources rather than objective risk criteria」與「when practical」。
-7. **RV.1.3（漏洞處置）**:
-   - *Golden Gap*: 依賴一般客服管道、缺乏分類與修復時限、外部揭露採個案處理。
-   - *Candidate-002 表現*: **成功捕捉**。指出「lacks defined triage timelines」、「reporting intake via normal support channels」與「external disclosure is handled ad-hoc on a case by case basis」。
-
-**Gap Recall 結論**: 7/7 核心政策漏洞在未見 Golden 的盲測情境下均被獨立指認，**Gap Recall = 100%**。
+**Gap Recall 計算**:
+$$\text{Gap Recall} = \frac{20 \text{ Matched Atoms}}{20 \text{ Golden Atoms}} = 100\%$$
 
 ---
 
-## 6. 推論歸屬分析 (Basis Attribution & Defect Repair)
+## 5. 歸屬探針審查 (Unsupported Attribution Probes)
 
-這是本次 S0-D-r1 最核心的檢驗點。
+針對先前容易被 AI「以業界最佳實踐偷渡為規範要求」的常見探針進行嚴格審核：
 
-### 對照 Candidate-001 vs Candidate-002 在 RV.1.3 的歸屬表現：
-
-- **Candidate-001 (存在歸屬越界瑕疵)**:
-  - 在 `local_derived_guidance` 中寫入：`Derived questions examine ... defined remediation SLAs/timelines`。
-  - **問題剖析**：`tasks.yaml` 的 RV.1.3 僅要求 responsibilities 與 operational process，並無 SLA 規定。Candidate-001 將審查者自身的工程推論誤冠為「本地規範指引」，結構型 Linter 無法從自然語言內部識別此種越界。
-- **Candidate-002 (盲測修正結果)**:
-  - `nist_normative`: 嚴格引用「maintaining a vulnerability disclosure and remediation policy with roles, responsibilities, and processes」。
-  - `local_derived_guidance`: 嚴格對齊 tasks.yaml 的 review questions：「who receives and triages vulnerability reports, whether disclosure, remediation, and communication responsibilities are explicit, and whether an operational process exists」。
-  - `reviewer_inference`: 將審查者針對時效性與管道的觀點正確獨立為推論：「Reviewer observes that handling external disclosure 'case by case' and routing reports through general support channels without defined timelines or response procedures lacks operational structure」。
-
-**歸屬指標結論**:
-- **Unsupported Attribution Count**: `0`（在 Candidate-002 中已徹底修正）。
-- **架構啟示 (Architectural Insight)**:
-  「確定性 Linter（如 S0-C）只能驗證結構型別、Schema 欄位與字串邊界關鍵詞，**無法證明自然語言陳述的實質規範出處**。要保證 Basis Attribution 的純淨，必須依賴嚴格的 Prompt 邊界注入、Authoritative Reference 閉環以及作者/審查者分離的盲測審計。」
-
----
-
-## 7. 非規範性觀察 (Non-Normative Observations)
-
-在盲測中，AI 除了 7 個 task finding 外，更獨立挖掘出兩項未被 7 個 task 覆蓋但具高風險的條款，並依契約以 `non_normative_observations` 記錄：
-1. **`NNO-01` (Section 1 Scope)**:
-   - 政策允許團隊因時程與客戶彈性逕行調整 SSDLC 流程，缺乏治理審查與補償控制。
-   - `basis: reviewer_inference`。
-2. **`NNO-02` (Section 9 Records)**:
-   - 紀錄保存以「when practical」修飾，並允許非正式電子郵件作為審查憑證，影響稽核性。
-   - `basis: reviewer_inference`。
-
-這兩項觀察顯示：在規範邊界明確鎖定（不得假借 NIST 之名）的前提下，AI 能有效將體感風險轉化為非規範性觀察，而不造成規範污染。
+1. **SLA / Timelines (RV.1.3)**:
+   - `nist_normative`: 僅引用維護通報與修復政策及流程。未提 SLA。
+   - `local_derived_guidance`: 嚴格對照 tasks.yaml 的 3 個問題（intake/triage, roles, operational process）。未提 SLA。
+   - `reviewer_inference`: 未濫用。在 `assessment_rationale` 中客觀指出政策條文「fixed as soon as practical」過於籠統。
+   - **判定**: **Clean Attribution (No Unsupported Attribution)**。
+2. **Dedicated Channel / RFC 9116 / security.txt (RV.1.3)**:
+   - Candidate 將其放置於 `basis[reviewer_inference]`，並在 `cannot_claim` 明確宣告：「This task finding does not require specific PGP keys, security.txt, or bug bounty programs in this S0 scope.」
+   - **判定**: **Clean Attribution (Correctly Isolated as Inference)**。
+3. **Software Bill of Materials / SBOM (PW.4.4)**:
+   - Candidate 將 SBOM 放置於 `basis[reviewer_inference]`，並在 `cannot_claim` 明確宣告：「This task finding does not establish that an SBOM is required by NIST PW.4.4.」
+   - **判定**: **Clean Attribution (Correctly Isolated as Inference)**。
+4. **DAST / Dynamic Testing (PW.8.1)**:
+   - Candidate 將 DAST 放置於 `basis[reviewer_inference]`，規範層面僅要求「executable-code testing」。
+   - **判定**: **Clean Attribution (Correctly Isolated as Inference)**。
+5. **Key Management / Lifecycle (PS.2.1)**:
+   - Candidate 僅在推論層指出簽署發布 portal 建議，並在 `cannot_claim` 註明：「A code-signing policy statement does not prove key protection or verification behavior.」未假借 NIST 名義要求 HSM。
+   - **判定**: **Clean Attribution (Correctly Isolated as Inference)**。
 
 ---
 
-## 8. S0 綜合判定與推進建議 (Final Verdict)
+## 6. 綜合能力評估矩陣 (Performance Metrics Summary)
 
-| 維度 | S0-D (初次執行) | S0-D-r1 (雙盲複測) | 結論狀態 |
-| :--- | :--- | :--- | :--- |
-| **Golden 隔離性** | 失敗 (Contaminated) | **成功 (Strictly Blind)** | **PASS** |
-| **Linter 防護力** | 缺少 required fields 檢查 | **修正完成 (PASS 34/34 tests)** | **PASS** |
-| **Verdict 一致性** | 7/7 (有污染疑慮) | **7/7 (盲測獨立產出)** | **PASS** |
-| **Gap 捕捉率** | 100% | **100% (7/7 核心缺陷精確指認)** | **PASS** |
-| **Basis 歸屬純度** | 1 處越界 (RV.1.3 SLA 偽裝) | **0 處越界 (Normative/Derived/Inference 嚴格分離)** | **PASS** |
+- **Scope Task Completeness**: `7 / 7` (100%)
+- **Verdict Agreement**: `7 / 7` (100% - 全數為 `PARTIAL` 且 Review Queue 為 `needs_changes`)
+- **Golden Gap Recall**: `20 / 20` (100% - 完整捕捉 20 個 rationale-level atoms)
+- **Unsupported Normative Attribution**: `0` (硬指標達成)
+- **Unsupported Derived Attribution**: `0` (硬指標達成)
+- **Overclaim Count**: `0` (硬指標達成)
+- **Candidate Immutability**: `Verified (SHA-256 Match)`
+- **Blindness & Isolation Evidence**: `Adequate (C:\Temp Procedural & File-set Isolation)`
 
-### 最終結論
-**S0-D-r1 盲測實驗成功證明：在 Assessment Contract 與 Linter 雙層護欄下，AI 具備獨立以 NIST SSDF 權威規範直接評估企業 SSDLC 文件的語意審查能力，且能守住推論邊界不產生假造規範。**
+---
 
-建議狀態：**Phase S0 (S0-A ~ S0-D) 可具備充沛證據宣告完成。**
+## 7. 結論與 Remote CI 交付狀態
+
+1. **實質能力驗證**:
+   本輪 S0-D-r1 在真正隔離、不可變凍結與忠實 20-atom Rubric 下，成功證明了：
+   - AI 在無答案提示下，能精確指認出企業真實政策中的所有 20 個脆弱點。
+   - AI 能嚴守契約邊界，將 SBOM、security.txt、DAST、金鑰保護等實踐明確區分為 `reviewer_inference`，徹底解決了先前將工程直覺混入 `local_derived_guidance` 的 attribution 漏洞。
+2. **交付邊界確認 (Local vs Remote CI)**:
+   - **Local Evidence**: Linter PASS，全專案 63 題單元測試 PASS。
+   - **Remote CI Evidence**: 需透過開立 Pull Request 觸發 GitHub Actions。在 Remote CI 執行通過前，不將本地測試等同於 CI 通過。
+3. **Phase S0 Exit 判定**:
+   本評估報告已完備所有硬閘門與客觀度量，供 Repository Owner 進行最終 Exit 決策。

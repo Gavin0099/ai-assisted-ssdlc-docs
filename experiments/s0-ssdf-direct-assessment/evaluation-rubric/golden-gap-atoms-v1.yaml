@@ -1,0 +1,101 @@
+rubric_id: S0-GAP-ATOMS-V1
+source_golden: S0-GOLDEN-001
+atom_count: 20
+description: >-
+  Authoritative evaluator rubric containing 20 frozen Golden Gap Atoms extracted
+  directly from expected-assessment.yaml. Generator models must not have access to this file.
+
+atoms:
+  # PO.1.2
+  - id: PO12-G1
+    task_id: PO.1.2
+    expected_semantic: >-
+      General "software shall be secure" language is not a concrete or testable software security requirement.
+  - id: PO12-G2
+    task_id: PO.1.2
+    expected_semantic: >-
+      Requirement recording is conditioned on projects already having "known security requirements", omitting how requirements are systematically identified for every project.
+  - id: PO12-G3
+    task_id: PO.1.2
+    expected_semantic: >-
+      Requirement review is tied only to major product changes and exception path lacks a structured record or review lifecycle.
+
+  # PO.3.1
+  - id: PO31-G1
+    task_id: PO.3.1
+    expected_semantic: >-
+      Tool categories are named but their use is optional ("may be enabled when appropriate") rather than specifying needed tool types under defined conditions.
+  - id: PO31-G2
+    task_id: PO.3.1
+    expected_semantic: >-
+      Team-level tool selection is allowed without defining required integration points or equivalent minimum outcomes.
+  - id: PO31-G3
+    task_id: PO.3.1
+    expected_semantic: >-
+      Tool failures are to be reviewed before release, but policy does not define required disposition or review evidence.
+
+  # PS.2.1 (Only 2 atoms in Golden)
+  - id: PS21-G1
+    task_id: PS.2.1
+    expected_semantic: >-
+      Document identifies code signing and checksums as integrity mechanisms, but "when applicable" is not defined.
+  - id: PS21-G2
+    task_id: PS.2.1
+    expected_semantic: >-
+      Checksums are only provided when requested, failing to establish a consistent release-integrity verification mechanism for software acquirers.
+
+  # PW.1.1
+  - id: PW11-G1
+    task_id: PW.1.1
+    expected_semantic: >-
+      Threat modeling is explicitly mentioned, but it is optional and its trigger is left to reviewer discretion.
+  - id: PW11-G2
+    task_id: PW.1.1
+    expected_semantic: >-
+      The term "complex security-sensitive features" is not defined, failing to establish repeatable conditions for applying risk modeling.
+  - id: PW11-G3
+    task_id: PW.1.1
+    expected_semantic: >-
+      Requires a recorded result in project notes, but does not define how identified risks are linked to mitigations or follow-up decisions.
+
+  # PW.4.4
+  - id: PW44-G1
+    task_id: PW.4.4
+    expected_semantic: >-
+      "Stable", "commonly adopted", and "widely used" are not defined as security-verification criteria.
+  - id: PW44-G2
+    task_id: PW.4.4
+    expected_semantic: >-
+      Widely used open-source components may bypass additional security review, failing to consistently require verification against applicable security requirements.
+  - id: PW44-G3
+    task_id: PW.4.4
+    expected_semantic: >-
+      Critical-vulnerability exceptions are permitted without a defined review lifecycle in this document.
+
+  # PW.8.1
+  - id: PW81-G1
+    task_id: PW.8.1
+    expected_semantic: >-
+      Defines some triggers and verification methods, but does not clearly distinguish executable-code testing from review and static-analysis activities.
+  - id: PW81-G2
+    task_id: PW.8.1
+    expected_semantic: >-
+      Required scope may be reduced based on schedule and available resources, without a defined minimum or exception path.
+  - id: PW81-G3
+    task_id: PW.8.1
+    expected_semantic: >-
+      Discovered issues should be tracked and resolved "when practical", leaving required disposition before release ambiguous.
+
+  # RV.1.3
+  - id: RV13-G1
+    task_id: RV.1.3
+    expected_semantic: >-
+      Policy identifies an intake path, engineering evaluation, and escalation destination, so task is not missing entirely.
+  - id: RV13-G2
+    task_id: RV.1.3
+    expected_semantic: >-
+      Responsibilities and process expectations remain broad: remediation is "as soon as reasonably practical" and external disclosure is handled "case by case" without a defined operating procedure.
+  - id: RV13-G3
+    task_id: RV.1.3
+    expected_semantic: >-
+      Policy does not clearly define ownership for coordinating the full disclosure/remediation lifecycle.
