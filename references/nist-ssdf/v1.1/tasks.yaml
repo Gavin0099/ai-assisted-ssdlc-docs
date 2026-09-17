@@ -1,0 +1,150 @@
+framework:
+  id: NIST_SP_800_218
+  name: Secure Software Development Framework
+  version: "1.1"
+  status: final
+  publication_date: "2022-02-03"
+  authoritative_page: https://csrc.nist.gov/pubs/sp/800/218/final
+  doi: https://doi.org/10.6028/NIST.SP.800-218
+
+assessment_boundary:
+  purpose: "Representative S0 reference slice for direct company-SSDLC assessment."
+  normative_source: "NIST SP 800-218 v1.1 is authoritative; summaries below are local paraphrases."
+  derived_guidance_is_normative: false
+  compliance_claim_allowed: false
+
+tasks:
+  - task_id: PO.1.2
+    group: PO
+    practice_id: PO.1
+    practice_name: Define Security Requirements for Software Development
+    normative_reference:
+      source_page: 5
+      summary: "Identify, document, and maintain the security requirements that organization-developed software is expected to meet."
+    derived_guidance:
+      review_questions:
+        - "Does the company SSDLC define concrete software security requirements rather than only broad security goals?"
+        - "Are the requirements maintained when risks, incidents, regulations, or product conditions change?"
+        - "Is there a defined exception process for requirements that cannot be met?"
+      expected_evidence_types:
+        - security_requirements_specification
+        - requirement_change_record
+        - approved_exception_record
+    cannot_claim:
+      - "A policy statement alone does not prove the requirement is implemented."
+      - "Document coverage does not establish SSDF conformance."
+
+  - task_id: PO.3.1
+    group: PO
+    practice_id: PO.3
+    practice_name: Implement Supporting Toolchains
+    normative_reference:
+      source_page: 7
+      summary: "Specify the security tools or tool types needed in development toolchains to address identified risks, including how toolchain components should integrate."
+    derived_guidance:
+      review_questions:
+        - "Does the SSDLC identify mandatory or risk-triggered security tool categories?"
+        - "Does it define where those tools run in the development or build workflow?"
+        - "Does it define blocking behavior or follow-up when required checks fail?"
+      expected_evidence_types:
+        - toolchain_policy
+        - ci_pipeline_configuration
+        - security_tool_configuration
+    cannot_claim:
+      - "Mentioning a tool does not prove it is consistently executed or enforced."
+
+  - task_id: PS.2.1
+    group: PS
+    practice_id: PS.2
+    practice_name: Provide a Mechanism for Verifying Software Release Integrity
+    normative_reference:
+      source_page: 10
+      summary: "Provide software acquirers with information they can use to verify release integrity."
+    derived_guidance:
+      review_questions:
+        - "Does the release process define how consumers or downstream teams verify artifact integrity?"
+        - "Are signing, hashes, or equivalent integrity mechanisms governed rather than optional wording such as 'when applicable'?"
+        - "Are key or certificate lifecycle responsibilities defined when signing is used?"
+      expected_evidence_types:
+        - release_signature_record
+        - release_hash_manifest
+        - signing_procedure
+    cannot_claim:
+      - "A release approval does not by itself prove artifact integrity."
+      - "A signing statement does not prove key protection or correct verification behavior."
+
+  - task_id: PW.1.1
+    group: PW
+    practice_id: PW.1
+    practice_name: Design Software to Meet Security Requirements and Mitigate Security Risks
+    normative_reference:
+      source_page: 11
+      summary: "Use risk-modeling techniques, such as threat modeling or attack-surface analysis, to assess software security risk."
+    derived_guidance:
+      review_questions:
+        - "Does the SSDLC define when risk modeling or threat modeling is required?"
+        - "Does the review cover assets, trust boundaries, attack surfaces, or equivalent risk structure?"
+        - "Are identified risks linked to design decisions or mitigations?"
+      expected_evidence_types:
+        - threat_model
+        - architecture_risk_assessment
+        - attack_surface_review
+    cannot_claim:
+      - "A generic secure-design statement does not prove risk modeling occurred."
+
+  - task_id: PW.4.4
+    group: PW
+    practice_id: PW.4
+    practice_name: Reuse Existing Well-Secured Software When Feasible
+    normative_reference:
+      source_page: 13
+      summary: "Verify that acquired commercial, open-source, and other third-party software components satisfy applicable security requirements."
+    derived_guidance:
+      review_questions:
+        - "Does the SSDLC define criteria for approving third-party components?"
+        - "Are vulnerability status, maintenance/EOL status, and security requirements considered?"
+        - "Is there a process for exceptions or replacement when a component no longer meets requirements?"
+      expected_evidence_types:
+        - dependency_inventory
+        - dependency_security_review
+        - component_exception_record
+    cannot_claim:
+      - "Using a current version does not by itself establish that a dependency meets security requirements."
+
+  - task_id: PW.8.1
+    group: PW
+    practice_id: PW.8
+    practice_name: Test Executable Code to Identify Vulnerabilities and Verify Compliance with Security Requirements
+    normative_reference:
+      source_page: 15
+      summary: "Determine whether executable-code testing is needed to find vulnerabilities not found by earlier review or analysis and select appropriate testing types when it is needed."
+    derived_guidance:
+      review_questions:
+        - "Does the SSDLC define criteria for when security testing is required?"
+        - "Does it identify test types based on software risk and lifecycle stage?"
+        - "Are discovered issues recorded and routed into an accountable workflow?"
+      expected_evidence_types:
+        - security_test_plan
+        - test_execution_report
+        - vulnerability_triage_record
+    cannot_claim:
+      - "Saying 'security testing is performed' does not prove sufficient scope, method, or issue handling."
+
+  - task_id: RV.1.3
+    group: RV
+    practice_id: RV.1
+    practice_name: Identify and Confirm Vulnerabilities on an Ongoing Basis
+    normative_reference:
+      source_page: 17
+      summary: "Maintain a vulnerability disclosure and remediation policy with the roles, responsibilities, and processes needed to operate it."
+    derived_guidance:
+      review_questions:
+        - "Does the SSDLC define who receives and triages vulnerability reports?"
+        - "Are disclosure, remediation, escalation, and communication responsibilities explicit?"
+        - "Is there an operational process rather than only a statement that issues will be fixed?"
+      expected_evidence_types:
+        - vulnerability_disclosure_policy
+        - product_security_incident_response_process
+        - vulnerability_case_record
+    cannot_claim:
+      - "A generic commitment to fix vulnerabilities does not establish an operational vulnerability-response process."
