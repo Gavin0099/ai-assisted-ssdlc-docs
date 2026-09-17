@@ -357,6 +357,34 @@ class SSDFAssessmentLinterTests(unittest.TestCase):
             if ref_path.exists():
                 ref_path.unlink()
 
+    # --- Required fields and non-empty results tests ---
+
+    def test_empty_results_fails(self) -> None:
+        res = self._run_with_mutated_golden(lambda d: d.update({"results": []}))
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("assessment 'results' must be a non-empty list of findings", res.stdout)
+
+    def test_missing_assessment_rationale_fails(self) -> None:
+        def mutate(d: dict) -> None:
+            del d["results"][0]["assessment_rationale"]
+        res = self._run_with_mutated_golden(mutate)
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("missing or empty assessment_rationale", res.stdout)
+
+    def test_missing_identified_evidence_fails(self) -> None:
+        def mutate(d: dict) -> None:
+            del d["results"][0]["identified_evidence"]
+        res = self._run_with_mutated_golden(mutate)
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("missing or empty identified_evidence list", res.stdout)
+
+    def test_invalid_identified_evidence_item_fails(self) -> None:
+        def mutate(d: dict) -> None:
+            d["results"][0]["identified_evidence"] = [{"type": ""}]
+        res = self._run_with_mutated_golden(mutate)
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("missing or empty type", res.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

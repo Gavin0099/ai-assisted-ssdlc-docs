@@ -25,7 +25,7 @@
 - [x] S0-A: Assessment Contract definition and source-type bounding.
 - [x] S0-B: Hand-crafted Golden Fixture for 7 NIST SSDF tasks.
 - [x] S0-C: Deterministic assessment YAML linter and CI wiring.
-- [x] S0-D: AI Semantic Evaluation against golden baseline.
+- [x] S0-D: AI Semantic Evaluation against golden baseline (S0-D-r1 blind run verified).
 
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
@@ -56,7 +56,7 @@
 - 2026-07-17: Treat YAML schemas as executable validator inputs and require CLI-level positive and negative fixtures.
 - 2026-07-17: Keep reviewer reports aggregation-only; `source_ref` is opaque metadata and cannot establish queue-to-evidence joins or closure.
 - 2026-07-17: Treat Control Mapping evidence as an opaque reference and reject unsupported claims outside the `Cannot Claim` boundary without inferring evidence joins.
-- 2026-09-17: Phase S0 confirms direct assessment against NIST SSDF is viable without intermediate catalog layers when bounded by assessment contract and deterministic linter.
+- 2026-09-17: Phase S0-D-r1 blind rerun with isolated subagent verified direct assessment capability without golden contamination; attribution defect in RV.1.3 resolved by separating reviewer inference.
 
 ## Known Risks
 

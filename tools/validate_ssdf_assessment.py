@@ -248,10 +248,10 @@ def validate_ssdf_assessment(
             )
 
     # 5. Results (task_finding) validation
-    results = payload.get("results") or []
-    if not isinstance(results, list):
-        errors.append("'results' must be a list of task findings")
-        results = []
+    results = payload.get("results")
+    if not isinstance(results, list) or not results:
+        errors.append("assessment 'results' must be a non-empty list of findings")
+        return errors
 
     for idx, finding in enumerate(results, start=1):
         if not isinstance(finding, dict):
@@ -307,14 +307,37 @@ def validate_ssdf_assessment(
         if not finding.get("company_statement"):
             errors.append(f"{fid}: missing company_statement")
 
-        # Reviewer-authored claim check on assessment_rationale (company_statement is NOT scanned)
+        # Reviewer-authored claim check on assessment_rationale (required field)
         rationale = finding.get("assessment_rationale")
-        if isinstance(rationale, list):
+        if not rationale:
+            errors.append(f"{fid}: missing or empty assessment_rationale")
+        elif isinstance(rationale, list):
+            if any(not isinstance(r_item, str) or not r_item.strip() for r_item in rationale):
+                errors.append(f"{fid}: assessment_rationale items must be non-empty strings")
             for r_idx, r_item in enumerate(rationale, start=1):
                 if isinstance(r_item, str):
                     scan_reviewer_authored(r_item, f"{fid} assessment_rationale[{r_idx}]")
         elif isinstance(rationale, str):
-            scan_reviewer_authored(rationale, f"{fid} assessment_rationale")
+            if not rationale.strip():
+                errors.append(f"{fid}: assessment_rationale cannot be blank")
+            else:
+                scan_reviewer_authored(rationale, f"{fid} assessment_rationale")
+        else:
+            errors.append(f"{fid}: assessment_rationale must be a list of strings or a string")
+
+        # identified_evidence (required field)
+        ev_list = finding.get("identified_evidence")
+        if not isinstance(ev_list, list) or not ev_list:
+            errors.append(f"{fid}: missing or empty identified_evidence list")
+        else:
+            for ev_idx, ev in enumerate(ev_list, start=1):
+                if not isinstance(ev, dict):
+                    errors.append(f"{fid} identified_evidence[{ev_idx}]: must be a mapping")
+                    continue
+                if not ev.get("type") or not isinstance(ev.get("type"), str) or not ev["type"].strip():
+                    errors.append(f"{fid} identified_evidence[{ev_idx}]: missing or empty type")
+                if not ev.get("source_ref") or not isinstance(ev.get("source_ref"), str) or not ev["source_ref"].strip():
+                    errors.append(f"{fid} identified_evidence[{ev_idx}]: missing or empty source_ref")
 
         # Basis checks
         basis_list = finding.get("basis")
