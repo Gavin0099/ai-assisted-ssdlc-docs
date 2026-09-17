@@ -15,7 +15,9 @@ on:
       - "contract.yaml"
       - "docs/**"
       - "examples/**"
+      - "experiments/**"
       - "governance/**"
+      - "references/**"
       - "schemas/**"
       - "templates/**"
       - "tests/**"
@@ -34,7 +36,9 @@ on:
       - "contract.yaml"
       - "docs/**"
       - "examples/**"
+      - "experiments/**"
       - "governance/**"
+      - "references/**"
       - "schemas/**"
       - "templates/**"
       - "tests/**"
@@ -109,3 +113,6 @@ jobs:
 
       - name: Generate aggregation-only reviewer report
         run: python tools/generate_reviewer_report.py examples/feature-file-upload --today 2026-07-17
+
+      - name: Validate S0 SSDF golden assessment
+        run: python tools/validate_ssdf_assessment.py experiments/s0-ssdf-direct-assessment/golden/expected-assessment.yaml
