@@ -2,7 +2,7 @@
 <!-- governance-baseline: overridable -->
 <!-- baseline_version: 1.0.0 -->
 
-> **最後更新**: 2026-07-17
+> **最後更新**: 2026-09-17
 > **Owner**: TODO
 > **Freshness**: Sprint (7d)
 
@@ -51,6 +51,7 @@
 - 2026-07-17: Keep reviewer reports aggregation-only; `source_ref` is opaque metadata and cannot establish queue-to-evidence joins or closure.
 - 2026-07-17: Treat Control Mapping evidence as an opaque reference and reject unsupported claims outside the `Cannot Claim` boundary without inferring evidence joins.
 - 2026-07-17: Require due-review reports to validate every row with the shared canonical date parser before terminal-status filtering and to fail without partial output.
+- 2026-08-03: Reassess external-repo readiness before extending Framework onboarding to the GL SSDLC domain repository.
 
 ## Known Risks
 
