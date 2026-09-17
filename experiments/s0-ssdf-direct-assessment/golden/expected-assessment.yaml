@@ -1,0 +1,344 @@
+assessment:
+  id: S0-GOLDEN-001
+  baseline: NIST_SP_800_218_v1.1
+  target: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md
+  scope_tasks:
+    - PO.1.2
+    - PO.3.1
+    - PS.2.1
+    - PW.1.1
+    - PW.4.4
+    - PW.8.1
+    - RV.1.3
+  claim_boundary:
+    - This golden fixture evaluates document coverage of the selected tasks only.
+    - It does not establish NIST SSDF conformance, implementation effectiveness, or product security.
+    - It does not claim any percentage coverage of the full SSDF or of all possible SSDLC gaps.
+
+results:
+  - finding_id: F-SSDF-PO12-01
+    finding_type: task_finding
+    task_id: PO.1.2
+    company_source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#2-security-requirements
+    company_statement: >-
+      All software shall be secure and protect confidential customer information.
+      Projects with known security requirements shall record them in the project
+      specification. Requirements should be reviewed when major product changes
+      occur. Exceptions may be approved by the engineering manager when
+      implementation is impractical.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PO.1.2
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects software security requirements to be
+          identified, documented, and maintained.
+      - type: local_derived_guidance
+        rationale: >-
+          The S0 review questions check whether requirements are concrete,
+          maintained when conditions change, and subject to a defined exception
+          path.
+    assessment_rationale:
+      - >-
+        The policy states a general security goal, but "all software shall be
+        secure" is not itself a concrete or testable software security
+        requirement.
+      - >-
+        Recording is conditioned on projects already having "known security
+        requirements", so the document does not clearly define how applicable
+        requirements are systematically identified for every project.
+      - >-
+        Requirement review is tied only to major product changes and the
+        exception path does not define a structured record or review lifecycle.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#2-security-requirements
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - The policy statement alone does not prove project security requirements are implemented.
+      - This mapping does not establish NIST SSDF conformance.
+
+  - finding_id: F-SSDF-PO31-01
+    finding_type: task_finding
+    task_id: PO.3.1
+    company_source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#5-development-toolchain
+    company_statement: >-
+      Static analysis, dependency scanning, and other security tools may be
+      enabled when appropriate for the project. Individual teams may select
+      tools that fit their development environment. Security-tool failures
+      should be reviewed before release.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PO.3.1
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects needed security tools or tool types and their
+          toolchain integration to be specified.
+      - type: local_derived_guidance
+        rationale: >-
+          The S0 review questions examine where tools run and what follow-up is
+          expected when required checks fail.
+    assessment_rationale:
+      - >-
+        The document names possible tool categories but makes their use optional
+        through "may be enabled when appropriate" rather than specifying which
+        tool types are needed under defined conditions.
+      - >-
+        Team-level tool selection is allowed without defining required
+        integration points or equivalent minimum outcomes.
+      - >-
+        Tool failures are to be reviewed before release, but the policy does not
+        define the required disposition or evidence of that review.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#5-development-toolchain
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - Mentioning security tools does not prove they are consistently executed or enforced.
+      - This mapping does not establish NIST SSDF conformance.
+
+  - finding_id: F-SSDF-PS21-01
+    finding_type: task_finding
+    task_id: PS.2.1
+    company_source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#6-build-and-release
+    company_statement: >-
+      Production binaries shall be code-signed when applicable. Release packages
+      may include a checksum when requested by the customer. The release owner
+      shall retain the final package and release notes.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PS.2.1
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects acquirers to be given information they can
+          use to verify software release integrity.
+      - type: local_derived_guidance
+        rationale: >-
+          The S0 review questions examine whether integrity mechanisms are
+          governed rather than left to undefined applicability or customer
+          request.
+    assessment_rationale:
+      - >-
+        The document identifies code signing and checksums as integrity-related
+        mechanisms, but "when applicable" is not defined.
+      - >-
+        Checksums are only provided when requested, so the policy does not
+        clearly establish a consistent release-integrity verification mechanism
+        for software acquirers.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#6-build-and-release
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - Release approval or retention of a package does not by itself prove release integrity.
+      - This selected task finding does not establish signing-key protection or lifecycle controls.
+      - This mapping does not establish NIST SSDF conformance.
+
+  - finding_id: F-SSDF-PW11-01
+    finding_type: task_finding
+    task_id: PW.1.1
+    company_source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#3-secure-design
+    company_statement: >-
+      Software with complex security-sensitive features should receive a security
+      design review before implementation. Threat modeling may be used when the
+      reviewer considers it necessary. The design review result should be
+      recorded in the project notes.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PW.1.1
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task calls for risk-modeling techniques such as threat
+          modeling or attack-surface analysis to assess software security risk.
+      - type: local_derived_guidance
+        rationale: >-
+          The S0 review questions examine when risk modeling is triggered and how
+          identified risks connect to design decisions or mitigations.
+    assessment_rationale:
+      - >-
+        Threat modeling is explicitly mentioned, but it is optional and its
+        trigger is left to reviewer discretion.
+      - >-
+        The term "complex security-sensitive features" is not defined, so the
+        policy does not establish a repeatable condition for applying risk
+        modeling.
+      - >-
+        The document requires a recorded result but does not define how identified
+        risks are linked to mitigations or follow-up decisions.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#3-secure-design
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - Mentioning threat modeling does not prove that a structured risk model was performed.
+      - Project notes alone do not prove identified risks were mitigated.
+      - This mapping does not establish NIST SSDF conformance.
+
+  - finding_id: F-SSDF-PW44-01
+    finding_type: task_finding
+    task_id: PW.4.4
+    company_source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#4-third-party-components
+    company_statement: >-
+      Development teams should use stable and commonly adopted third-party
+      libraries and packages. Where possible, dependencies should be updated to
+      a recent stable version before a major release. Known critical
+      vulnerabilities should be fixed before shipment unless the engineering
+      manager approves an exception. Open-source components that are already
+      widely used in the industry may be accepted without additional security
+      review.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PW.4.4
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects acquired commercial, open-source, and other
+          third-party components to be verified against applicable security
+          requirements.
+      - type: local_derived_guidance
+        rationale: >-
+          The S0 review questions examine approval criteria, vulnerability and
+          maintenance status, and exception handling.
+    assessment_rationale:
+      - >-
+        The policy addresses third-party components and known vulnerabilities,
+        but "stable", "commonly adopted", and "widely used" are not defined as
+        security-verification criteria.
+      - >-
+        Widely used open-source components may bypass additional security review,
+        so the policy does not consistently require verification against
+        applicable security requirements.
+      - >-
+        Critical-vulnerability exceptions are permitted without a defined
+        review lifecycle in this document.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#4-third-party-components
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - Industry adoption or use of a recent version does not prove a component satisfies applicable security requirements.
+      - This selected task finding does not establish that an SBOM is required.
+      - This mapping does not establish NIST SSDF conformance.
+
+  - finding_id: F-SSDF-PW81-01
+    finding_type: task_finding
+    task_id: PW.8.1
+    company_source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#7-security-verification
+    company_statement: >-
+      Security verification shall be performed before release for products that
+      handle sensitive information or have externally reachable interfaces.
+      Verification may include code review, static analysis, penetration testing,
+      or other appropriate methods. The project team determines the required
+      scope based on schedule, risk, and available resources. Security issues
+      found before release should be tracked and resolved when practical.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PW.8.1
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects the organization to determine when executable
+          code testing is needed and to select appropriate testing types.
+      - type: local_derived_guidance
+        rationale: >-
+          The S0 review questions examine testing criteria, test types, and
+          accountable handling of discovered issues.
+    assessment_rationale:
+      - >-
+        The policy defines some triggers and possible verification methods, but
+        it does not clearly distinguish executable-code testing from review and
+        static-analysis activities.
+      - >-
+        Required scope may be reduced based on schedule and available resources,
+        without a defined minimum or exception path in this document.
+      - >-
+        Discovered issues should be tracked and resolved "when practical", which
+        leaves their required disposition before release ambiguous.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#7-security-verification
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - The policy does not prove that appropriate executable-code security testing is performed for each applicable release.
+      - The policy does not prove that all discovered vulnerabilities are remediated before release.
+      - This mapping does not establish NIST SSDF conformance.
+
+  - finding_id: F-SSDF-RV13-01
+    finding_type: task_finding
+    task_id: RV.1.3
+    company_source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#8-vulnerability-response
+    company_statement: >-
+      Customers and internal teams may report suspected security issues through
+      normal support channels. Reported vulnerabilities will be evaluated by the
+      responsible engineering team and fixed as soon as reasonably practical.
+      Critical issues should be escalated to engineering management. External
+      disclosure will be handled case by case.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: RV.1.3
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects a vulnerability disclosure and remediation
+          policy with roles, responsibilities, and operating processes.
+      - type: local_derived_guidance
+        rationale: >-
+          The S0 review questions examine intake, triage, remediation, escalation,
+          and communication responsibilities.
+    assessment_rationale:
+      - >-
+        The policy identifies an intake path, engineering evaluation, and an
+        escalation destination, so the task is not missing entirely.
+      - >-
+        Responsibilities and process expectations remain broad: remediation is
+        "as soon as reasonably practical" and external disclosure is handled
+        case by case without a defined operating procedure in the reviewed text.
+      - >-
+        The policy does not clearly define ownership for coordinating the full
+        disclosure/remediation lifecycle.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#8-vulnerability-response
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - Use of a normal support channel does not by itself prove an operational vulnerability disclosure and remediation process.
+      - This selected task does not require a particular email address, PGP mechanism, CVE workflow, or remediation SLA in this S0 assessment.
+      - This mapping does not establish NIST SSDF conformance.
+
+non_normative_observations:
+  - finding_id: O-S0-GOV-01
+    finding_type: non_normative_observation
+    company_source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#1-scope
+    observation: >-
+      The policy allows teams to adapt the process when schedules or customer
+      requirements require flexibility. This may warrant a later governance
+      review, but the selected seven-task S0 slice does not provide enough basis
+      to present that concern as a specific NIST task failure.
+    basis: reviewer_inference
+    review_queue_recommendation: pending
+    cannot_claim:
+      - This observation is not a NIST SSDF task finding in S0.
+
+  - finding_id: O-S0-EVIDENCE-01
+    finding_type: non_normative_observation
+    company_source_ref: experiments/s0-ssdf-direct-assessment/fixtures/sample-company-ssdlc.md#9-records
+    observation: >-
+      The policy permits email confirmations as one possible evidence source.
+      Evidence quality should be evaluated based on traceability, review status,
+      integrity, and relevance rather than rejected solely because the artifact
+      is email.
+    basis: reviewer_inference
+    review_queue_recommendation: pending
+    cannot_claim:
+      - The selected SSDF tasks do not establish that email can never be valid evidence.
