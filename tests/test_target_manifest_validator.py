@@ -8,9 +8,11 @@ from tempfile import TemporaryDirectory
 
 import yaml
 
-# 引入即將實作的驗證器函數與模型
 from tools.validate_target_manifest import (
+    DEFAULT_SCHEMA_PATH,
+    TargetManifest,
     TargetManifestValidationError,
+    parse_target_manifest,
     validate_target_manifest_dict,
     validate_target_manifest_file,
 )
@@ -32,6 +34,18 @@ class TargetManifestValidatorTests(unittest.TestCase):
         file_errors = validate_target_manifest_file(SAMPLE_MANIFEST_PATH)
         self.assertEqual(file_errors, [])
 
+    def test_parse_target_manifest_returns_domain_model(self) -> None:
+        manifest = parse_target_manifest(self.valid_manifest)
+        self.assertIsInstance(manifest, TargetManifest)
+        self.assertEqual(manifest.target.source_type, "local_git")
+        self.assertEqual(manifest.target.repo, "E:/Company/company-software-ssdlc")
+        self.assertEqual(manifest.target.commit, "83da91f456789abcdef0123456789abcdef01234")
+        self.assertEqual(manifest.authority_surface.include, ("policy/**", "process/**", "templates/**"))
+        self.assertEqual(manifest.authority_surface.exclude, ("archive/**", "drafts/**", "examples/**"))
+        self.assertEqual(manifest.baseline.framework, "NIST_SP_800_218")
+        self.assertEqual(manifest.baseline.version, "1.1")
+        self.assertTrue(manifest.mode.read_only)
+
     def test_missing_required_sections(self) -> None:
         for section in ["target", "authority_surface", "baseline", "mode"]:
             with self.subTest(section=section):
@@ -51,7 +65,25 @@ class TargetManifestValidatorTests(unittest.TestCase):
         # empty repo
         data["target"]["repo"] = "   "
         errors = validate_target_manifest_dict(data)
-        self.assertTrue(any("Field 'repo' cannot be empty" in err for err in errors))
+        self.assertTrue(any("cannot be empty" in err for err in errors))
+
+    def test_target_source_type_validation(self) -> None:
+        # missing source_type
+        data = dict(self.valid_manifest)
+        data["target"] = dict(self.valid_manifest["target"])
+        del data["target"]["source_type"]
+        errors = validate_target_manifest_dict(data)
+        self.assertTrue(any("Missing required field 'source_type'" in err for err in errors))
+
+        # unsupported source_type
+        data["target"]["source_type"] = "gitlab_api"
+        errors = validate_target_manifest_dict(data)
+        self.assertTrue(any("is not supported; allowed types" in err for err in errors))
+
+        # valid github source_type
+        data["target"]["source_type"] = "github"
+        errors = validate_target_manifest_dict(data)
+        self.assertEqual(errors, [])
 
     def test_target_invalid_commit_format(self) -> None:
         invalid_commits = [
@@ -88,10 +120,28 @@ class TargetManifestValidatorTests(unittest.TestCase):
         errors = validate_target_manifest_dict(data)
         self.assertTrue(any("Field 'include' must be a non-empty list" in err for err in errors))
 
-        # include contains non-string or blank items
-        data["authority_surface"]["include"] = ["policy/**", "  ", 123]
+    def test_authority_surface_glob_boundaries(self) -> None:
+        # backslash fails
+        data = dict(self.valid_manifest)
+        data["authority_surface"] = dict(self.valid_manifest["authority_surface"])
+        data["authority_surface"]["include"] = ["policy\\**"]
         errors = validate_target_manifest_dict(data)
-        self.assertTrue(any("Item in 'include' must be a non-blank string" in err for err in errors))
+        self.assertTrue(any("contains backslash" in err for err in errors))
+
+        # unix absolute path fails
+        data["authority_surface"]["include"] = ["/etc/policy/**"]
+        errors = validate_target_manifest_dict(data)
+        self.assertTrue(any("absolute paths prohibited" in err for err in errors))
+
+        # windows drive absolute path fails
+        data["authority_surface"]["include"] = ["C:/policy/**"]
+        errors = validate_target_manifest_dict(data)
+        self.assertTrue(any("absolute paths prohibited" in err for err in errors))
+
+        # directory traversal '..' fails
+        data["authority_surface"]["include"] = ["policy/../secret/**"]
+        errors = validate_target_manifest_dict(data)
+        self.assertTrue(any("contains parent traversal" in err for err in errors))
 
     def test_authority_surface_exclude_optional_and_valid(self) -> None:
         # without exclude is valid
@@ -106,24 +156,37 @@ class TargetManifestValidatorTests(unittest.TestCase):
         errors = validate_target_manifest_dict(data)
         self.assertTrue(any("Field 'exclude' must be a list of strings" in err for err in errors))
 
-        # exclude contains non-string or blank
-        data["authority_surface"]["exclude"] = ["archive/**", ""]
+        # exclude with invalid glob fails
+        data["authority_surface"]["exclude"] = ["../outside/**"]
         errors = validate_target_manifest_dict(data)
-        self.assertTrue(any("Item in 'exclude' must be a non-blank string" in err for err in errors))
+        self.assertTrue(any("contains parent traversal" in err for err in errors))
 
-    def test_baseline_validation(self) -> None:
+    def test_baseline_strict_string_type_and_numeric_fails(self) -> None:
+        # YAML float 1.1 fails closed
+        data = dict(self.valid_manifest)
+        data["baseline"] = dict(self.valid_manifest["baseline"])
+        data["baseline"]["version"] = 1.1  # float, not quoted string
+        errors = validate_target_manifest_dict(data)
+        self.assertTrue(any("must be a quoted string (got float" in err for err in errors))
+
+        # YAML int 1 fails closed
+        data["baseline"]["version"] = 1
+        errors = validate_target_manifest_dict(data)
+        self.assertTrue(any("must be a quoted string (got int" in err for err in errors))
+
+    def test_baseline_framework_and_version_support(self) -> None:
         # invalid framework
         data = dict(self.valid_manifest)
         data["baseline"] = dict(self.valid_manifest["baseline"])
         data["baseline"]["framework"] = "ISO_27001"
         errors = validate_target_manifest_dict(data)
-        self.assertTrue(any("allowed frameworks" in err for err in errors))
+        self.assertTrue(any("Framework 'ISO_27001' is not supported" in err for err in errors))
 
-        # invalid version
+        # invalid version string
         data["baseline"]["framework"] = "NIST_SP_800_218"
         data["baseline"]["version"] = "2.0"
         errors = validate_target_manifest_dict(data)
-        self.assertTrue(any("allowed versions" in err for err in errors))
+        self.assertTrue(any("Version '2.0' is not supported" in err for err in errors))
 
     def test_mode_read_only_enforcement(self) -> None:
         # read_only false
@@ -131,12 +194,16 @@ class TargetManifestValidatorTests(unittest.TestCase):
         data["mode"] = dict(self.valid_manifest["mode"])
         data["mode"]["read_only"] = False
         errors = validate_target_manifest_dict(data)
-        self.assertTrue(any("mode.read_only must be true" in err for err in errors))
+        self.assertTrue(any("mode.read_only must be boolean True" in err for err in errors))
 
-        # read_only non-boolean
+        # read_only non-boolean string "true"
         data["mode"]["read_only"] = "true"
         errors = validate_target_manifest_dict(data)
-        self.assertTrue(any("mode.read_only must be true" in err for err in errors))
+        self.assertTrue(any("mode.read_only must be boolean True" in err for err in errors))
+
+    def test_schema_missing_raises_validation_error(self) -> None:
+        with self.assertRaises(TargetManifestValidationError):
+            validate_target_manifest_file(SAMPLE_MANIFEST_PATH, schema_path=Path("nonexistent-schema.yaml"))
 
     def test_cli_invocation_passes(self) -> None:
         res = subprocess.run(

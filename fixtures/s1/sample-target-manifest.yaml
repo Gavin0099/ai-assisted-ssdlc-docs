@@ -1,6 +1,7 @@
 target:
-  repo: company-software-ssdlc
-  commit: 83da91f456789abcdef0123456789abcdef01234
+  source_type: local_git
+  repo: "E:/Company/company-software-ssdlc"
+  commit: "83da91f456789abcdef0123456789abcdef01234"
 
 authority_surface:
   include:

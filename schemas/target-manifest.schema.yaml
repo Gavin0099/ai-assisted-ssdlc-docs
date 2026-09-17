@@ -9,11 +9,12 @@ required_sections:
 
 target:
   required_fields:
+    - source_type
     - repo
     - commit
-  scalar_fields:
-    - repo
-    - commit
+  allowed_source_types:
+    - local_git
+    - github
   commit_format: "^[0-9a-fA-F]{40}$"
 
 authority_surface:
@@ -21,11 +22,9 @@ authority_surface:
     - include
   optional_fields:
     - exclude
-  list_fields:
-    - include
-    - exclude
-  require_non_empty:
-    - include
+  disallow_absolute_paths: true
+  disallow_parent_traversal: true
+  path_separator: "/"
 
 baseline:
   required_fields:
@@ -34,7 +33,8 @@ baseline:
   allowed_frameworks:
     - NIST_SP_800_218
   allowed_versions:
-    - "1.1"
+    NIST_SP_800_218:
+      - "1.1"
 
 mode:
   required_fields:
