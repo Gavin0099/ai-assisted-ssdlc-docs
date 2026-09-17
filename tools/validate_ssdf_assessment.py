@@ -307,23 +307,16 @@ def validate_ssdf_assessment(
         if not finding.get("company_statement"):
             errors.append(f"{fid}: missing company_statement")
 
-        # Reviewer-authored claim check on assessment_rationale (required field)
+        # Reviewer-authored claim check on assessment_rationale (required field: non-empty list of strings)
         rationale = finding.get("assessment_rationale")
-        if not rationale:
-            errors.append(f"{fid}: missing or empty assessment_rationale")
-        elif isinstance(rationale, list):
+        if not rationale or not isinstance(rationale, list):
+            errors.append(f"{fid}: assessment_rationale must be a non-empty list of non-empty strings")
+        else:
             if any(not isinstance(r_item, str) or not r_item.strip() for r_item in rationale):
                 errors.append(f"{fid}: assessment_rationale items must be non-empty strings")
             for r_idx, r_item in enumerate(rationale, start=1):
                 if isinstance(r_item, str):
                     scan_reviewer_authored(r_item, f"{fid} assessment_rationale[{r_idx}]")
-        elif isinstance(rationale, str):
-            if not rationale.strip():
-                errors.append(f"{fid}: assessment_rationale cannot be blank")
-            else:
-                scan_reviewer_authored(rationale, f"{fid} assessment_rationale")
-        else:
-            errors.append(f"{fid}: assessment_rationale must be a list of strings or a string")
 
         # identified_evidence (required field)
         ev_list = finding.get("identified_evidence")

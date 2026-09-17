@@ -2,8 +2,9 @@ rubric_id: S0-GAP-ATOMS-V1
 source_golden: S0-GOLDEN-001
 atom_count: 20
 description: >-
-  Authoritative evaluator rubric containing 20 frozen Golden Gap Atoms extracted
-  directly from expected-assessment.yaml. Generator models must not have access to this file.
+  Frozen local evaluator rubric containing 20 Golden Gap Atoms extracted directly
+  from expected-assessment.yaml. NIST SP 800-218 v1.1 remains the sole authoritative baseline.
+  Generator models must not have access to this file.
 
 atoms:
   # PO.1.2

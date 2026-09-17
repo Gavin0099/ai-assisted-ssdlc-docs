@@ -369,7 +369,14 @@ class SSDFAssessmentLinterTests(unittest.TestCase):
             del d["results"][0]["assessment_rationale"]
         res = self._run_with_mutated_golden(mutate)
         self.assertEqual(res.returncode, 1)
-        self.assertIn("missing or empty assessment_rationale", res.stdout)
+        self.assertIn("assessment_rationale must be a non-empty list of non-empty strings", res.stdout)
+
+    def test_scalar_string_assessment_rationale_fails(self) -> None:
+        def mutate(d: dict) -> None:
+            d["results"][0]["assessment_rationale"] = "scalar string is not allowed"
+        res = self._run_with_mutated_golden(mutate)
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("assessment_rationale must be a non-empty list of non-empty strings", res.stdout)
 
     def test_missing_identified_evidence_fails(self) -> None:
         def mutate(d: dict) -> None:
