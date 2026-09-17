@@ -1,0 +1,20 @@
+target:
+  repo: company-software-ssdlc
+  commit: 83da91f456789abcdef0123456789abcdef01234
+
+authority_surface:
+  include:
+    - "policy/**"
+    - "process/**"
+    - "templates/**"
+  exclude:
+    - "archive/**"
+    - "drafts/**"
+    - "examples/**"
+
+baseline:
+  framework: NIST_SP_800_218
+  version: "1.1"
+
+mode:
+  read_only: true

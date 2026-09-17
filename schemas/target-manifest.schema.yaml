@@ -1,0 +1,43 @@
+schema_name: target-manifest
+schema_version: "1.0.0"
+
+required_sections:
+  - target
+  - authority_surface
+  - baseline
+  - mode
+
+target:
+  required_fields:
+    - repo
+    - commit
+  scalar_fields:
+    - repo
+    - commit
+  commit_format: "^[0-9a-fA-F]{40}$"
+
+authority_surface:
+  required_fields:
+    - include
+  optional_fields:
+    - exclude
+  list_fields:
+    - include
+    - exclude
+  require_non_empty:
+    - include
+
+baseline:
+  required_fields:
+    - framework
+    - version
+  allowed_frameworks:
+    - NIST_SP_800_218
+  allowed_versions:
+    - "1.1"
+
+mode:
+  required_fields:
+    - read_only
+  required_values:
+    read_only: true

@@ -27,7 +27,8 @@
 - [x] S0-B: Hand-crafted Golden Fixture for 7 NIST SSDF tasks.
 - [x] S0-C: Deterministic assessment YAML linter and CI wiring.
 - [x] S0-D: AI Semantic Evaluation (S0-D-r1 blind run verified with 20 atoms, provenance frozen, and Remote CI PASS on PR #10).
-- [ ] S1-A: Target Manifest Specification (Define authoritative repository target, commit freeze, authority surface include/exclude, and schema validation).
+- [x] S1-A: Target Manifest Specification (Defined schema, BDD scenarios, validator, and 40-char commit SHA freeze).
+- [ ] S1-B: Repo Corpus Resolver (Materialize authoritative repository files into an immutable corpus based on Target Manifest include/exclude surface).
 
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
@@ -62,6 +63,7 @@
 - 2026-07-17: Treat Control Mapping evidence as an opaque reference and reject unsupported claims outside the `Cannot Claim` boundary without inferring evidence joins.
 - 2026-09-17: Phase S0-D-r1 blind rerun with isolated subagent verified direct assessment capability without golden contamination using 20 Golden Gap Atoms; attribution defect in RV.1.3 resolved by separating reviewer inference; pending PR remote CI.
 - 2026-09-17: Phase S0 Exit Gate passed; Remote CI (PR #10, Run 35212219587) verified ssdlc-validators and governance-drift green; owner exit decision approved and Phase S0 officially closed.
+- 2026-09-17: Phase S1-A Target Manifest Specification completed: enforced 40-character commit SHA freeze to prevent branch-drift, non-empty authority_surface.include, fixed baseline NIST_SP_800_218 v1.1, and read_only mode.
 - 2026-09-17: Phase S1 Architecture Decision: Treat target SSDLC documentation as a Git repository corpus pinned to a fixed commit SHA with explicit Target Manifest (include/exclude authority surface). Decouple Layer 1 (Document Coverage Assessment on policy repo) from Layer 2 (Implementation Evidence Assessment on product repos).
 
 ## Known Risks
