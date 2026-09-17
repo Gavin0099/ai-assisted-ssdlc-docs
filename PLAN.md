@@ -16,7 +16,8 @@
 - [x] Phase B: Add example packs for file upload, dependency upgrade, and incident follow-up
 - [x] Phase C: Expand schema-aware validation and reviewer-ready reporting
 - [x] Phase D: Harden Security Decision claim-boundary and control-mapping validation
-- [ ] Phase S0: NIST SSDF Direct Assessment (S0-A Contract, S0-B Golden, S0-C Linter, S0-D Semantic Eval - local verified, pending PR remote CI)
+- [x] Phase S0: NIST SSDF Direct Assessment (S0-A Contract, S0-B Golden, S0-C Linter, S0-D Blind Eval - Remote CI verified on PR #10)
+- [ ] Phase S1: Real Repo Document Coverage Assessment Pilot (Target Manifest, Corpus Resolver, Multi-file SSDF Assessment, Read-Only Review Engine)
 
 ## Active Sprint
 
@@ -25,7 +26,8 @@
 - [x] S0-A: Assessment Contract definition and source-type bounding.
 - [x] S0-B: Hand-crafted Golden Fixture for 7 NIST SSDF tasks.
 - [x] S0-C: Deterministic assessment YAML linter and CI wiring.
-- [ ] S0-D: AI Semantic Evaluation (S0-D-r1 blind run verified locally with 20 atoms; pending PR remote CI).
+- [x] S0-D: AI Semantic Evaluation (S0-D-r1 blind run verified with 20 atoms, provenance frozen, and Remote CI PASS on PR #10).
+- [ ] S1-A: Target Manifest Specification (Define authoritative repository target, commit freeze, authority surface include/exclude, and schema validation).
 
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
@@ -59,6 +61,7 @@
 - 2026-07-17: Keep reviewer reports aggregation-only; `source_ref` is opaque metadata and cannot establish queue-to-evidence joins or closure.
 - 2026-07-17: Treat Control Mapping evidence as an opaque reference and reject unsupported claims outside the `Cannot Claim` boundary without inferring evidence joins.
 - 2026-09-17: Phase S0-D-r1 blind rerun with isolated subagent verified direct assessment capability without golden contamination using 20 Golden Gap Atoms; attribution defect in RV.1.3 resolved by separating reviewer inference; pending PR remote CI.
+- 2026-09-17: Phase S0 Exit Gate passed; Remote CI (PR #10, Run 35212219587) verified ssdlc-validators and governance-drift green; owner exit decision approved and Phase S0 officially closed.
 - 2026-09-17: Phase S1 Architecture Decision: Treat target SSDLC documentation as a Git repository corpus pinned to a fixed commit SHA with explicit Target Manifest (include/exclude authority surface). Decouple Layer 1 (Document Coverage Assessment on policy repo) from Layer 2 (Implementation Evidence Assessment on product repos).
 
 ## Known Risks
