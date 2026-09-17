@@ -16,7 +16,7 @@
 - [x] Phase B: Add example packs for file upload, dependency upgrade, and incident follow-up
 - [x] Phase C: Expand schema-aware validation and reviewer-ready reporting
 - [x] Phase D: Harden Security Decision claim-boundary and control-mapping validation
-- [ ] Phase S0: NIST SSDF Direct Assessment (S0-A Contract, S0-B Golden, S0-C Linter, S0-D Semantic Eval)
+- [x] Phase S0: NIST SSDF Direct Assessment (S0-A Contract, S0-B Golden, S0-C Linter, S0-D Semantic Eval)
 
 ## Active Sprint
 
@@ -25,7 +25,7 @@
 - [x] S0-A: Assessment Contract definition and source-type bounding.
 - [x] S0-B: Hand-crafted Golden Fixture for 7 NIST SSDF tasks.
 - [x] S0-C: Deterministic assessment YAML linter and CI wiring.
-- [ ] S0-D: AI Semantic Evaluation against golden baseline.
+- [x] S0-D: AI Semantic Evaluation against golden baseline.
 
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
@@ -56,6 +56,7 @@
 - 2026-07-17: Treat YAML schemas as executable validator inputs and require CLI-level positive and negative fixtures.
 - 2026-07-17: Keep reviewer reports aggregation-only; `source_ref` is opaque metadata and cannot establish queue-to-evidence joins or closure.
 - 2026-07-17: Treat Control Mapping evidence as an opaque reference and reject unsupported claims outside the `Cannot Claim` boundary without inferring evidence joins.
+- 2026-09-17: Phase S0 confirms direct assessment against NIST SSDF is viable without intermediate catalog layers when bounded by assessment contract and deterministic linter.
 
 ## Known Risks
 
