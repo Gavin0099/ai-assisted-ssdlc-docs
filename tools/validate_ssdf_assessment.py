@@ -154,9 +154,15 @@ def load_and_validate_reference(ref_path: Path) -> tuple[set[str], str | None, l
     return task_ids, expected_baseline, errors
 
 
+CLAUSE_BOUNDARY_REGEX = re.compile(r"[.;!?\n]|--")
+
+
 def _is_negated(text: str, match_start: int) -> bool:
-    prefix = text[max(0, match_start - 35) : match_start].lower()
-    return any(neg in prefix for neg in NEGATION_CONTEXT_PREFIXES)
+    text_before = text[:match_start]
+    boundary_matches = list(CLAUSE_BOUNDARY_REGEX.finditer(text_before))
+    start_pos = boundary_matches[-1].end() if boundary_matches else 0
+    clause_prefix = text_before[max(start_pos, match_start - 50) : match_start].lower()
+    return any(neg in clause_prefix for neg in NEGATION_CONTEXT_PREFIXES)
 
 
 def validate_ssdf_assessment(
@@ -198,6 +204,7 @@ def validate_ssdf_assessment(
     # 3. Assessment Header Envelope validation
     assessment_hdr = payload.get("assessment")
     scope_tasks_set: set[str] = set()
+    assessment_baseline: str | None = None
     if not isinstance(assessment_hdr, dict):
         errors.append("missing or invalid 'assessment' header mapping")
     else:
@@ -230,8 +237,9 @@ def validate_ssdf_assessment(
         if not isinstance(claim_boundary, list) or not claim_boundary:
             errors.append("assessment claim_boundary must be a non-empty list")
 
-    # 4. Finding ID tracking for uniqueness
+    # 4. Finding ID and Task ID tracking for uniqueness
     seen_finding_ids: set[str] = set()
+    seen_task_ids: set[str] = set()
 
     # Helper for claim scanning on reviewer-authored strings only
     def scan_reviewer_authored(text: str, context_label: str) -> None:
@@ -280,6 +288,12 @@ def validate_ssdf_assessment(
                 errors.append(f"{fid}: unknown task_id: {task_id!r}")
             elif scope_tasks_set and task_id not in scope_tasks_set:
                 errors.append(f"{fid}: task_id {task_id!r} is not in assessment.scope_tasks")
+            elif task_id in seen_task_ids:
+                errors.append(
+                    f"{fid}: duplicate finding for task_id {task_id!r}; each scoped task must have exactly one finding"
+                )
+            else:
+                seen_task_ids.add(task_id)
 
         # Verdict
         verdict = finding.get("coverage_verdict")
@@ -363,11 +377,28 @@ def validate_ssdf_assessment(
                         )
                     elif b_task not in allowed_tasks:
                         errors.append(f"{fid} basis[{b_idx}]: nist_normative task_id {b_task!r} not in reference")
-                    if not b.get("source"):
-                        errors.append(f"{fid} basis[{b_idx}]: nist_normative basis must specify source")
+
+                    b_source = b.get("source")
+                    if not b_source or not isinstance(b_source, str) or not b_source.strip():
+                        errors.append(f"{fid} basis[{b_idx}]: nist_normative basis source must be a non-empty string")
+                    elif assessment_baseline and b_source != assessment_baseline:
+                        errors.append(
+                            f"{fid} basis[{b_idx}]: nist_normative basis source {b_source!r} does not match assessment baseline {assessment_baseline!r}"
+                        )
+                    elif expected_baseline and b_source != expected_baseline:
+                        errors.append(
+                            f"{fid} basis[{b_idx}]: nist_normative basis source {b_source!r} does not match reference baseline {expected_baseline!r}"
+                        )
 
             if not has_nist_normative:
                 errors.append(f"{fid}: task_finding must include at least one 'nist_normative' basis")
+
+    if scope_tasks_set:
+        missing_tasks = scope_tasks_set - seen_task_ids
+        if missing_tasks:
+            errors.append(
+                f"assessment results missing coverage for scoped tasks: {sorted(missing_tasks)}"
+            )
 
     # 6. Non-normative observations validation
     observations = payload.get("non_normative_observations") or []

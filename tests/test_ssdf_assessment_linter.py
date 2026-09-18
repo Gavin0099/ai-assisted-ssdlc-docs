@@ -392,6 +392,62 @@ class SSDFAssessmentLinterTests(unittest.TestCase):
         self.assertEqual(res.returncode, 1)
         self.assertIn("missing or empty type", res.stdout)
 
+    def test_missing_scoped_task_coverage_fails(self) -> None:
+        def mutate(data: dict) -> None:
+            # Remove findings for PO.1.2 so results only cover 6 of 7 scoped tasks
+            data["results"] = [f for f in data["results"] if f.get("task_id") != "PO.1.2"]
+
+        result = self._run_with_mutated_golden(mutate)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("missing coverage for scoped tasks", result.stdout)
+
+    def test_duplicate_task_id_in_results_fails(self) -> None:
+        def mutate(data: dict) -> None:
+            # Duplicate the first finding and assign a new finding_id but same task_id
+            dup = copy.deepcopy(data["results"][0])
+            dup["finding_id"] = "F-DUP-01"
+            data["results"].append(dup)
+
+        result = self._run_with_mutated_golden(mutate)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("duplicate finding for task_id", result.stdout)
+
+    def test_nist_normative_source_mismatch_fails(self) -> None:
+        def mutate(data: dict) -> None:
+            data["results"][0]["basis"][0]["source"] = "OWASP_SAMM"
+
+        result = self._run_with_mutated_golden(mutate)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("does not match assessment baseline", result.stdout)
+
+    def test_nist_normative_source_non_string_fails(self) -> None:
+        def mutate(data: dict) -> None:
+            data["results"][0]["basis"][0]["source"] = {"name": "NIST_SP_800_218_v1.1"}
+
+        result = self._run_with_mutated_golden(mutate)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("nist_normative basis source must be a non-empty string", result.stdout)
+
+    def test_cross_clause_negation_escape_fails(self) -> None:
+        def mutate(data: dict) -> None:
+            data["results"][0]["assessment_rationale"].append(
+                "This is not optional; product is production safe."
+            )
+
+        result = self._run_with_mutated_golden(mutate)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("prohibited claim found outside cannot_claim", result.stdout)
+
+    def test_clause_boundary_period_negation_escape_fails(self) -> None:
+        def mutate(data: dict) -> None:
+            data["results"][0]["assessment_rationale"].append(
+                "Evidence was not verified. Product is production safe."
+            )
+
+        result = self._run_with_mutated_golden(mutate)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("prohibited claim found outside cannot_claim", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

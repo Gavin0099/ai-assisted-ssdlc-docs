@@ -101,6 +101,18 @@ def load_manifest_schema(schema_path: Path = DEFAULT_SCHEMA_PATH) -> dict[str, A
             raise TargetManifestValidationError(
                 f"Schema {schema_path} 'target' rule missing required definition: '{req_key}'."
             )
+    commit_format = target_rule.get("commit_format")
+    if not isinstance(commit_format, str):
+        raise TargetManifestValidationError(
+            f"Schema {schema_path} 'target.commit_format' must be a regular expression string."
+        )
+    try:
+        re.compile(commit_format)
+    except re.error as exc:
+        raise TargetManifestValidationError(
+            f"Schema {schema_path} 'target.commit_format' contains invalid regular expression: {exc}."
+        ) from exc
+
     if not isinstance(target_rule["repo_formats"], dict):
         raise TargetManifestValidationError(
             f"Schema {schema_path} 'target.repo_formats' must be a mapping of regexes."
@@ -110,6 +122,17 @@ def load_manifest_schema(schema_path: Path = DEFAULT_SCHEMA_PATH) -> dict[str, A
             raise TargetManifestValidationError(
                 f"Schema {schema_path} 'target.repo_formats' missing format regex for allowed source_type: '{st}'."
             )
+        rf_pat = target_rule["repo_formats"][st]
+        if not isinstance(rf_pat, str):
+            raise TargetManifestValidationError(
+                f"Schema {schema_path} 'target.repo_formats.{st}' must be a regular expression string."
+            )
+        try:
+            re.compile(rf_pat)
+        except re.error as exc:
+            raise TargetManifestValidationError(
+                f"Schema {schema_path} 'target.repo_formats.{st}' contains invalid regular expression: {exc}."
+            ) from exc
 
     # 3. Verify authority_surface section definition
     auth_rule = data.get("authority_surface")
@@ -120,6 +143,17 @@ def load_manifest_schema(schema_path: Path = DEFAULT_SCHEMA_PATH) -> dict[str, A
             raise TargetManifestValidationError(
                 f"Schema {schema_path} 'authority_surface' rule missing required definition: '{req_key}'."
             )
+    for bool_flag in ["disallow_absolute_paths", "disallow_parent_traversal"]:
+        val = auth_rule.get(bool_flag)
+        if not isinstance(val, bool):
+            raise TargetManifestValidationError(
+                f"Schema {schema_path} 'authority_surface.{bool_flag}' must be boolean (got {type(val).__name__})."
+            )
+    path_sep = auth_rule.get("path_separator")
+    if not isinstance(path_sep, str) or not path_sep:
+        raise TargetManifestValidationError(
+            f"Schema {schema_path} 'authority_surface.path_separator' must be a non-empty string."
+        )
 
     # 4. Verify baseline section definition
     baseline_rule = data.get("baseline")
@@ -130,10 +164,20 @@ def load_manifest_schema(schema_path: Path = DEFAULT_SCHEMA_PATH) -> dict[str, A
             raise TargetManifestValidationError(
                 f"Schema {schema_path} 'baseline' rule missing required definition: '{req_key}'."
             )
+    allowed_frameworks = baseline_rule.get("allowed_frameworks")
+    if not isinstance(allowed_frameworks, list) or not all(isinstance(f, str) and f.strip() for f in allowed_frameworks):
+        raise TargetManifestValidationError(
+            f"Schema {schema_path} 'baseline.allowed_frameworks' must be a list of non-empty strings."
+        )
     if not isinstance(baseline_rule["allowed_versions"], dict):
         raise TargetManifestValidationError(
             f"Schema {schema_path} 'baseline.allowed_versions' must be a mapping of framework to version list."
         )
+    for fw, vers in baseline_rule["allowed_versions"].items():
+        if not isinstance(vers, list) or not all(isinstance(v, str) and v.strip() for v in vers):
+            raise TargetManifestValidationError(
+                f"Schema {schema_path} 'baseline.allowed_versions[{fw}]' must be a list of non-empty strings."
+            )
 
     # 5. Verify mode section definition
     mode_rule = data.get("mode")
@@ -144,6 +188,15 @@ def load_manifest_schema(schema_path: Path = DEFAULT_SCHEMA_PATH) -> dict[str, A
             raise TargetManifestValidationError(
                 f"Schema {schema_path} 'mode' rule missing required definition: '{req_key}'."
             )
+    req_vals = mode_rule.get("required_values")
+    if not isinstance(req_vals, dict):
+        raise TargetManifestValidationError(
+            f"Schema {schema_path} 'mode.required_values' must be a mapping."
+        )
+    if not isinstance(req_vals.get("read_only"), bool):
+        raise TargetManifestValidationError(
+            f"Schema {schema_path} 'mode.required_values.read_only' must be boolean."
+        )
 
     return data
 
@@ -239,6 +292,10 @@ def validate_target_manifest_dict(
                     if source_type == "github":
                         errors.append(
                             f"target.repo '{repo}' is invalid for source_type 'github'; must match 'owner/repo' format."
+                        )
+                    elif source_type == "local_git":
+                        errors.append(
+                            f"target.repo '{repo}' is invalid for source_type 'local_git'; URL schemes and bare 'owner/repo' format are prohibited."
                         )
                     else:
                         errors.append(

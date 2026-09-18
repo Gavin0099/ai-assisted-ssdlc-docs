@@ -286,6 +286,50 @@ class TargetManifestValidatorTests(unittest.TestCase):
             self.assertEqual(res.returncode, 1)
             self.assertIn("[FAIL] Target manifest schema error", res.stderr)
 
+    def test_local_git_repo_url_schemes_prohibited(self) -> None:
+        url_schemes = [
+            "https://github.com/Gavin0099/company-software-ssdlc.git",
+            "http://gitlab.internal/group/repo",
+            "git@github.com:Gavin0099/company-software-ssdlc.git",
+            "ssh://git@host.com/project/repo.git",
+            "git://github.com/project/repo.git",
+        ]
+        for url in url_schemes:
+            with self.subTest(url=url):
+                data = dict(self.valid_manifest)
+                data["target"] = dict(self.valid_manifest["target"])
+                data["target"]["source_type"] = "local_git"
+                data["target"]["repo"] = url
+                errors = validate_target_manifest_dict(data)
+                self.assertTrue(
+                    any("is invalid for source_type 'local_git'" in err for err in errors),
+                    f"Expected rejection for URL scheme repo {url!r}, got: {errors}",
+                )
+
+    def test_schema_malformed_regex_fails_closed(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            bad_schema = dict(self.valid_schema)
+            bad_schema["target"] = dict(self.valid_schema["target"])
+            bad_schema["target"]["commit_format"] = "[0-9"  # invalid regex
+            bad_schema_path = Path(tmpdir) / "broken-regex-schema.yaml"
+            bad_schema_path.write_text(yaml.safe_dump(bad_schema), encoding="utf-8")
+
+            with self.assertRaises(TargetManifestValidationError) as ctx:
+                load_manifest_schema(bad_schema_path)
+            self.assertIn("invalid regular expression", str(ctx.exception).lower())
+
+    def test_schema_malformed_boolean_flag_fails_closed(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            bad_schema = dict(self.valid_schema)
+            bad_schema["authority_surface"] = dict(self.valid_schema["authority_surface"])
+            bad_schema["authority_surface"]["disallow_absolute_paths"] = "true"  # string, not bool
+            bad_schema_path = Path(tmpdir) / "broken-bool-schema.yaml"
+            bad_schema_path.write_text(yaml.safe_dump(bad_schema), encoding="utf-8")
+
+            with self.assertRaises(TargetManifestValidationError) as ctx:
+                load_manifest_schema(bad_schema_path)
+            self.assertIn("must be boolean", str(ctx.exception).lower())
+
 
 if __name__ == "__main__":
     unittest.main()
