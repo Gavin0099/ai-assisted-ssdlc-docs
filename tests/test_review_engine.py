@@ -356,6 +356,51 @@ class TestReviewEngine(unittest.TestCase):
         self.assertEqual(sources2, ["source_alpha", "source_beta"])
         self.assertEqual(rec1.to_dict(), rec2.to_dict())
 
+    def test_markdown_table_cell_escaping(self) -> None:
+        finding_with_pipe = CorpusTaskFinding(
+            finding_id="F-PIPE-01",
+            task_id="PO.1.2",
+            company_source_ref="policy.md#phase|review",
+            company_statement="Statement with pipe.",
+            coverage_verdict="COVERED",
+            basis=[
+                CorpusAssessmentBasis(
+                    type="nist_normative",
+                    task_id="PO.1.2",
+                    source="NIST_SP_800_218_v1.1",
+                    rationale="Normative requirement.",
+                )
+            ],
+            assessment_rationale=["Rationale."],
+            identified_evidence=[],
+            evidence_strength="strong",
+            review_queue_recommendation="accepted",
+            cannot_claim=["No compliance."],
+        )
+        report = CorpusAssessmentReport(
+            id="PIPE-TEST",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.target,
+            scope_tasks=["PO.1.2"],
+            claim_boundary=["Claim boundary."],
+            findings=[finding_with_pipe],
+        )
+        record = self.projector.project(report)
+        md = self.renderer.render_markdown(record)
+
+        # Pipe delimiter in company_source_ref must be escaped as \|
+        self.assertIn("policy.md#phase\\|review", md)
+
+        # Find the summary table row for F-PIPE-01
+        table_rows = [line for line in md.splitlines() if line.startswith("| `PO.1.2`")]
+        self.assertEqual(len(table_rows), 1)
+        # Check that splitting by unescaped pipes preserves exactly 6 data cells
+        # (re.split by (?<!\\)\| yields 8 parts: leading empty, 6 cells, trailing empty)
+        import re
+        cells = [c.strip() for c in re.split(r"(?<!\\)\|", table_rows[0]) if c.strip()]
+        self.assertEqual(len(cells), 6)
+        self.assertEqual(cells[-1], "`policy.md#phase\\|review`")
+
 
 if __name__ == "__main__":
     unittest.main()

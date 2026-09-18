@@ -250,6 +250,11 @@ class ReadOnlyReviewProjector:
         )
 
 
+def _escape_markdown_table_cell(val: str) -> str:
+    """Escapes pipe delimiters and collapses newlines for Markdown table cells."""
+    return val.replace("\\", "\\\\").replace("|", "\\|").replace("\n", " ").replace("\r", "").strip()
+
+
 class DeterministicReviewReportRenderer:
     """Renders ReadOnlyReviewRecord into deterministic Markdown and JSON formats."""
 
@@ -291,8 +296,14 @@ class DeterministicReviewReportRenderer:
         ])
 
         for f in record.findings:
+            esc_task = _escape_markdown_table_cell(f.task_id)
+            esc_fid = _escape_markdown_table_cell(f.finding_id)
+            esc_verdict = _escape_markdown_table_cell(f.coverage_verdict)
+            esc_strength = _escape_markdown_table_cell(f.evidence_strength)
+            esc_rq = _escape_markdown_table_cell(f.review_queue_recommendation)
+            esc_ref = _escape_markdown_table_cell(f.company_source_ref)
             lines.append(
-                f"| `{f.task_id}` | `{f.finding_id}` | `{f.coverage_verdict}` | `{f.evidence_strength}` | `{f.review_queue_recommendation}` | `{f.company_source_ref}` |"
+                f"| `{esc_task}` | `{esc_fid}` | `{esc_verdict}` | `{esc_strength}` | `{esc_rq}` | `{esc_ref}` |"
             )
 
         lines.extend(["", "## Detailed Task Findings", ""])
