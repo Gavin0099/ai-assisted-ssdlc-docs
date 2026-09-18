@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Review Queue Action Projection Layer (Phase S1-D4).
 
-Projects assessment findings deterministically into reviewer action views and queue action candidates.
+Projects assessment findings and non-normative observations deterministically into
+reviewer action views and queue action candidates.
 Strictly read-only; never mutates or overwrites human-maintained review queue files.
 """
 
@@ -14,8 +15,15 @@ from typing import Any, Protocol
 
 from tools.corpus_assessment_engine import (
     CorpusAssessmentReport,
+    CorpusObservation,
     CorpusTaskFinding,
 )
+
+
+class ReviewQueueProjectionError(ValueError):
+    """Raised when queue projection encounters unsupported recommendations or invalid data."""
+
+    pass
 
 
 class ActionPriority(str, Enum):
@@ -32,7 +40,7 @@ PRIORITY_WEIGHT: dict[ActionPriority, int] = {
     ActionPriority.LOW: 3,
 }
 
-RECOMMENDATION_MAPPING: dict[str, tuple[ActionPriority, str]] = {
+TASK_RECOMMENDATION_MAPPING: dict[str, tuple[ActionPriority, str]] = {
     "needs_changes": (
         ActionPriority.HIGH,
         "Open review queue item: policy or evidence revision required for {task_id}.",
@@ -59,35 +67,74 @@ RECOMMENDATION_MAPPING: dict[str, tuple[ActionPriority, str]] = {
     ),
 }
 
+# Retain RECOMMENDATION_MAPPING for backwards compatibility
+RECOMMENDATION_MAPPING = TASK_RECOMMENDATION_MAPPING
+
+OBSERVATION_RECOMMENDATION_MAPPING: dict[str, tuple[ActionPriority, str]] = {
+    "needs_changes": (
+        ActionPriority.HIGH,
+        "Open review queue item: review observation finding {finding_id} for necessary adjustments.",
+    ),
+    "rejected": (
+        ActionPriority.HIGH,
+        "Open review queue item: rejected observation statement requires replacement for {finding_id}.",
+    ),
+    "accepted_with_review_due": (
+        ActionPriority.MEDIUM,
+        "Schedule due review: observation accepted with periodic review obligation for {finding_id}.",
+    ),
+    "pending": (
+        ActionPriority.MEDIUM,
+        "Track pending review: awaiting human reviewer assessment for observation {finding_id}.",
+    ),
+    "deferred": (
+        ActionPriority.LOW,
+        "Log deferred item: observation review postponed for {finding_id}.",
+    ),
+    "accepted": (
+        ActionPriority.LOW,
+        "Retain record: observation accepted without immediate queue action for {finding_id}.",
+    ),
+}
+
 
 @dataclass(frozen=True)
 class ReviewQueueActionItem:
-    """Represents a deterministic action candidate projected from a task finding."""
+    """Represents a deterministic action candidate projected from a task finding or observation."""
 
-    task_id: str
+    source_kind: str  # "task_finding" | "non_normative_observation"
     finding_id: str
-    coverage_verdict: str
     review_queue_recommendation: str
     action_priority: ActionPriority
     suggested_action: str
     company_source_ref: str
-    evidence_strength: str
     basis_summary: str
     cannot_claim: tuple[str, ...]
+    task_id: str | None = None
+    coverage_verdict: str | None = None
+    evidence_strength: str | None = None
+    observation_text: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "task_id": self.task_id,
+        d: dict[str, Any] = {
+            "source_kind": self.source_kind,
             "finding_id": self.finding_id,
-            "coverage_verdict": self.coverage_verdict,
             "review_queue_recommendation": self.review_queue_recommendation,
             "action_priority": self.action_priority.value,
             "suggested_action": self.suggested_action,
             "company_source_ref": self.company_source_ref,
-            "evidence_strength": self.evidence_strength,
             "basis_summary": self.basis_summary,
             "cannot_claim": list(self.cannot_claim),
         }
+        if self.task_id is not None:
+            d["task_id"] = self.task_id
+        if self.coverage_verdict is not None:
+            d["coverage_verdict"] = self.coverage_verdict
+        if self.evidence_strength is not None:
+            d["evidence_strength"] = self.evidence_strength
+        if self.observation_text is not None:
+            d["observation_text"] = self.observation_text
+        return d
 
 
 @dataclass(frozen=True)
@@ -143,17 +190,17 @@ class ReviewQueueProjector:
         needs_action_count = 0
         informational_count = 0
 
+        # Project task findings
         for finding in report.findings:
             rec = finding.review_queue_recommendation
-            priority, action_template = RECOMMENDATION_MAPPING.get(
-                rec,
-                (
-                    ActionPriority.MEDIUM,
-                    "Review queue action for {task_id} with recommendation: " + rec,
-                ),
-            )
+            if rec not in TASK_RECOMMENDATION_MAPPING:
+                raise ReviewQueueProjectionError(
+                    f"Unsupported review queue recommendation '{rec}' for task finding '{finding.finding_id}'. "
+                    f"Cannot infer queue action priority."
+                )
 
-            suggested_action = action_template.format(task_id=finding.task_id)
+            priority, action_template = TASK_RECOMMENDATION_MAPPING[rec]
+            suggested_action = action_template.format(task_id=finding.task_id, finding_id=finding.finding_id)
 
             if priority in (ActionPriority.HIGH, ActionPriority.MEDIUM):
                 needs_action_count += 1
@@ -164,6 +211,7 @@ class ReviewQueueProjector:
 
             items.append(
                 ReviewQueueActionItem(
+                    source_kind="task_finding",
                     task_id=finding.task_id,
                     finding_id=finding.finding_id,
                     coverage_verdict=finding.coverage_verdict,
@@ -177,11 +225,46 @@ class ReviewQueueProjector:
                 )
             )
 
-        # Deterministic sorting: priority weight -> task_id -> finding_id
+        # Project non-normative observations
+        for obs in report.observations:
+            rec = obs.review_queue_recommendation
+            if rec not in OBSERVATION_RECOMMENDATION_MAPPING:
+                raise ReviewQueueProjectionError(
+                    f"Unsupported review queue recommendation '{rec}' for observation '{obs.finding_id}'. "
+                    f"Cannot infer queue action priority."
+                )
+
+            priority, action_template = OBSERVATION_RECOMMENDATION_MAPPING[rec]
+            suggested_action = action_template.format(finding_id=obs.finding_id)
+
+            if priority in (ActionPriority.HIGH, ActionPriority.MEDIUM):
+                needs_action_count += 1
+            else:
+                informational_count += 1
+
+            items.append(
+                ReviewQueueActionItem(
+                    source_kind="non_normative_observation",
+                    task_id=None,
+                    finding_id=obs.finding_id,
+                    coverage_verdict=None,
+                    review_queue_recommendation=rec,
+                    action_priority=priority,
+                    suggested_action=suggested_action,
+                    company_source_ref=obs.company_source_ref,
+                    evidence_strength=None,
+                    basis_summary=obs.basis,
+                    cannot_claim=tuple(obs.cannot_claim),
+                    observation_text=obs.observation,
+                )
+            )
+
+        # Deterministic sorting: priority weight -> source_kind rank -> sort_key -> finding_id
         items.sort(
             key=lambda x: (
                 PRIORITY_WEIGHT.get(x.action_priority, 99),
-                x.task_id,
+                0 if x.source_kind == "task_finding" else 1,
+                x.task_id or x.finding_id,
                 x.finding_id,
             )
         )
@@ -223,7 +306,7 @@ class DeterministicQueueActionRenderer:
             )
             lines.append("")
 
-        # Claim boundary notice
+        # Claim boundary notice - multiline preservation pattern
         lines.append("> [!IMPORTANT]")
         lines.append("> **Claim Boundary Notice**:")
         lines.append(
@@ -233,7 +316,14 @@ class DeterministicQueueActionRenderer:
             "> Read-only view; does not modify review queue, resolve items, or certify compliance."
         )
         for cb in record.claim_boundary:
-            lines.append(f"> - {cb}")
+            cb_clean = cb.strip()
+            if not cb_clean:
+                continue
+            for idx, line in enumerate(cb_clean.splitlines()):
+                if idx == 0:
+                    lines.append(f"> - {line}" if line else "> -")
+                else:
+                    lines.append(f">   {line}" if line else ">")
         lines.append("")
 
         # Summary Section
@@ -250,17 +340,24 @@ class DeterministicQueueActionRenderer:
         lines.append("## Projected Action Items")
         lines.append("")
         lines.append(
-            "| Task ID | Priority | Recommendation | Coverage | Suggested Action | Source Ref |"
+            "| Kind | Target / ID | Priority | Recommendation | Coverage | Suggested Action | Source Ref |"
         )
         lines.append(
-            "| :--- | :--- | :--- | :--- | :--- | :--- |"
+            "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |"
         )
         for item in record.action_items:
             escaped_action = item.suggested_action.replace("|", "\\|")
             escaped_ref = item.company_source_ref.replace("|", "\\|")
+            if item.source_kind == "task_finding":
+                target_str = f"`{item.task_id}` ({item.finding_id})"
+                coverage_str = f"`{item.coverage_verdict}`"
+            else:
+                target_str = f"`{item.finding_id}`"
+                coverage_str = "—"
+
             lines.append(
-                f"| `{item.task_id}` | **{item.action_priority.value}** | `{item.review_queue_recommendation}` | "
-                f"`{item.coverage_verdict}` | {escaped_action} | `{escaped_ref}` |"
+                f"| `{item.source_kind}` | {target_str} | **{item.action_priority.value}** | "
+                f"`{item.review_queue_recommendation}` | {coverage_str} | {escaped_action} | `{escaped_ref}` |"
             )
         lines.append("")
 
@@ -268,15 +365,29 @@ class DeterministicQueueActionRenderer:
         lines.append("## Action Item Details")
         lines.append("")
         for item in record.action_items:
-            lines.append(f"### `{item.task_id}` — {item.finding_id} ({item.action_priority.value})")
-            lines.append("")
-            lines.append(f"- **Suggested Action**: {item.suggested_action}")
-            lines.append(f"- **Recommendation**: `{item.review_queue_recommendation}`")
-            lines.append(f"- **Coverage Verdict**: `{item.coverage_verdict}`")
-            lines.append(f"- **Evidence Strength**: `{item.evidence_strength}`")
-            lines.append(f"- **Company Source Ref**: `{item.company_source_ref}`")
-            if item.basis_summary:
-                lines.append(f"- **Basis Rationale**: {item.basis_summary}")
+            if item.source_kind == "task_finding":
+                lines.append(f"### [Task] `{item.task_id}` — {item.finding_id} ({item.action_priority.value})")
+                lines.append("")
+                lines.append(f"- **Source Kind**: `{item.source_kind}`")
+                lines.append(f"- **Suggested Action**: {item.suggested_action}")
+                lines.append(f"- **Recommendation**: `{item.review_queue_recommendation}`")
+                lines.append(f"- **Coverage Verdict**: `{item.coverage_verdict}`")
+                lines.append(f"- **Evidence Strength**: `{item.evidence_strength}`")
+                lines.append(f"- **Company Source Ref**: `{item.company_source_ref}`")
+                if item.basis_summary:
+                    lines.append(f"- **Basis Rationale**: {item.basis_summary}")
+            else:
+                lines.append(f"### [Observation] {item.finding_id} ({item.action_priority.value})")
+                lines.append("")
+                lines.append(f"- **Source Kind**: `{item.source_kind}`")
+                lines.append(f"- **Suggested Action**: {item.suggested_action}")
+                lines.append(f"- **Recommendation**: `{item.review_queue_recommendation}`")
+                if item.observation_text:
+                    lines.append(f"- **Observation**: {item.observation_text}")
+                lines.append(f"- **Company Source Ref**: `{item.company_source_ref}`")
+                if item.basis_summary:
+                    lines.append(f"- **Basis**: `{item.basis_summary}`")
+
             if item.cannot_claim:
                 lines.append("- **Cannot Claim Boundary**:")
                 for cc in item.cannot_claim:

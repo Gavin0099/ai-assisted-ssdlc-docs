@@ -38,6 +38,7 @@ from tools.assessment_diff import (
 from tools.review_queue_projection import (
     DeterministicQueueActionRenderer as QueueActionRenderer,
     ReviewQueueProjector,
+    ReviewQueueProjectionError,
 )
 from tools.validate_target_manifest import parse_target_manifest, validate_target_manifest_file
 
@@ -810,10 +811,14 @@ def main(argv: list[str] | None = None) -> int:
 
         queue_projector = ReviewQueueProjector()
         queue_renderer = QueueActionRenderer()
-        queue_record = queue_projector.project_queue(
-            report=report,
-            provenance_verified=provenance_verified,
-        )
+        try:
+            queue_record = queue_projector.project_queue(
+                report=report,
+                provenance_verified=provenance_verified,
+            )
+        except ReviewQueueProjectionError as exc:
+            sys.stderr.write(f"Review Queue Projection Failed: {exc}\n")
+            return 1
 
         if args.stdout:
             if selected_format == "json":

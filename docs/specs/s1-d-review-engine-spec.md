@@ -339,19 +339,25 @@ class ActionPriority(str, Enum):
     MEDIUM = "MEDIUM"   # accepted_with_review_due, pending
     LOW = "LOW"         # deferred, accepted
 
+class ReviewQueueProjectionError(ValueError):
+    """Raised when queue projection encounters unsupported recommendations or invalid data."""
+    pass
+
 @dataclass(frozen=True)
 class ReviewQueueActionItem:
-    """Represents a deterministic action candidate projected from a task finding."""
-    task_id: str
+    """Represents a deterministic action candidate projected from a task finding or observation."""
+    source_kind: str  # "task_finding" | "non_normative_observation"
     finding_id: str
-    coverage_verdict: str
     review_queue_recommendation: str
     action_priority: ActionPriority
     suggested_action: str
     company_source_ref: str
-    evidence_strength: str
     basis_summary: str
     cannot_claim: tuple[str, ...]
+    task_id: str | None = None
+    coverage_verdict: str | None = None
+    evidence_strength: str | None = None
+    observation_text: str | None = None
 
     def to_dict(self) -> dict[str, Any]: ...
 
@@ -371,8 +377,11 @@ class ReviewQueueProjectionRecord:
 ```
 
 ### 8.3 確定性映射矩陣與排序合約 (Action Mapping & Ordering Contract)
-`review_queue_recommendation` 與 `ActionPriority` 嚴格依以下靜態矩陣映射：
 
+**優先級正交性 (Priority Orthogonality)**:
+`ActionPriority` **僅由 `review_queue_recommendation` 決定**，`coverage_verdict` 絕不參與優先級計算（維持維度正交獨立，例如 `coverage_verdict == "MISSING"` 搭配 `review_queue_recommendation == "accepted"` 時，優先級依然為 `LOW`）。
+
+**Task Finding 映射矩陣 (`TASK_RECOMMENDATION_MAPPING`)**:
 | Recommendation | ActionPriority | Suggested Action Text Template |
 | :--- | :--- | :--- |
 | `needs_changes` | `HIGH` | Open review queue item: policy or evidence revision required for {task_id}. |
@@ -382,10 +391,27 @@ class ReviewQueueProjectionRecord:
 | `deferred` | `LOW` | Log deferred item: review postponed for {task_id}. |
 | `accepted` | `LOW` | Retain record: findings accepted without immediate queue action for {task_id}. |
 
+**Observation 映射矩陣 (`OBSERVATION_RECOMMENDATION_MAPPING`)**:
+| Recommendation | ActionPriority | Suggested Action Text Template |
+| :--- | :--- | :--- |
+| `needs_changes` | `HIGH` | Open review queue item: review observation finding {finding_id} for necessary adjustments. |
+| `rejected` | `HIGH` | Open review queue item: rejected observation statement requires replacement for {finding_id}. |
+| `accepted_with_review_due` | `MEDIUM` | Schedule due review: observation accepted with periodic review obligation for {finding_id}. |
+| `pending` | `MEDIUM` | Track pending review: awaiting human reviewer assessment for observation {finding_id}. |
+| `deferred` | `LOW` | Log deferred item: observation review postponed for {finding_id}. |
+| `accepted` | `LOW` | Retain record: observation accepted without immediate queue action for {finding_id}. |
+
+**未知 Recommendation Fail-Closed 合約**:
+若 `review_queue_recommendation` 不在對應映射表中（例如使用者自訂 schema 定義之 `waived` 或 `blocked`），禁止猜測優先級（如預設 `MEDIUM`），必須直接拋出 `ReviewQueueProjectionError`，CLI 終止並 Exit Code 1。
+
 **排序合約**:
 - 第一排序鍵：優先級權重（`HIGH` = 1, `MEDIUM` = 2, `LOW` = 3）。
-- 第二排序鍵：`task_id`（字典序升冪）。
-- 第三排序鍵：`finding_id`（字典序升冪）。
+- 第二排序鍵：`source_kind` 權重（`task_finding` = 0, `non_normative_observation` = 1）。
+- 第三排序鍵：`task_id` 或 `finding_id`（字典序升冪）。
+- 第四排序鍵：`finding_id`（字典序升冪）。
+
+**Multiline Claim Boundary 渲染合約**:
+每一行（包含空行與段落接續行）皆必須以 `>` 前綴包裹於 `[!IMPORTANT]` admonition 內，嚴禁任何文字行溢出區塊。
 
 ### 8.4 服務介面與 CLI 選項 (Service Interface & CLI Options)
 ```python
@@ -436,5 +462,25 @@ python tools/review_engine.py <target_assessment.yaml> \
 **When** 產出 `ReviewQueueProjectionRecord` 時  
 **Then** `record.provenance_verified` 為 `False`  
 **And** 渲染之 Markdown 報表強制呈現 `> [!WARNING] Provenance Verification: UNVERIFIED` 橫幅。
+
+### Scenario 18: Observation Action Projection & Separation
+**Given** 一份包含 `non_normative_observations` 之評估報告  
+**When** 執行 `projector.project_queue(report)` 時  
+**Then** 觀察條目被投影為 `source_kind: "non_normative_observation"` 之行動條目  
+**And** 不偽造 `task_id`、`coverage_verdict` 或 `evidence_strength`（欄位為 `None`）  
+**And** 依 `review_queue_recommendation` 確定性計算優先級並排序。
+
+### Scenario 19: Unknown Recommendation Fail-Closed Enforcement
+**Given** 一份包含未映射之自訂建議（如 `waived`）之評估報告  
+**When** 執行 `project_queue(report)` 或 CLI `--project-queue` 時  
+**Then** 拋出 `ReviewQueueProjectionError` / CLI Exit Code 1  
+**And** 絕不猜測或預設指派 `MEDIUM` 優先級。
+
+### Scenario 20: Coverage Verdict Orthogonality
+**Given** 一個 `coverage_verdict` 為 `MISSING` 但 `review_queue_recommendation` 為 `accepted` 之任務發現  
+**When** 執行 `project_queue(report)` 時  
+**Then** 投影之行動條目優先級嚴格為 `LOW`  
+**And** 證明 `coverage_verdict` 不影響行動優先級。
+
 
 

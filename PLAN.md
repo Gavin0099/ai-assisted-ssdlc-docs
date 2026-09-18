@@ -33,7 +33,8 @@
 - [x] S1-D1: Review Contract & Deterministic Projection Layer (Defined non-collapsible 6 dimensions, deterministic ordering with full tie-breakers, fixed output shape, ReadOnlyReviewRecord domain models, and pure renderer library; 145/145 tests pass).
 - [x] S1-D2: CLI Wiring & Reporting Orchestration (Implemented ReviewReportOrchestrator, fail-closed validation orchestration, CLI options with stdout/file artifact outputs; 158/158 tests pass).
 - [x] S1-D3: Assessment Comparison & Diffing Engine (Deterministic, evaluative-free comparison between assessment versions; added tools/assessment_diff.py, CLI --diff-baseline flag, 183/183 tests pass).
-- [x] S1-D4: Review Queue Action Projection (Project assessment recommendations into deterministic read-only reviewer action view; added tools/review_queue_projection.py, CLI --project-queue flag, 192/192 tests pass).
+- [x] S1-D4: Review Queue Action Projection (Project assessment recommendations into deterministic read-only reviewer action view; added tools/review_queue_projection.py, CLI --project-queue flag, 197/197 tests pass).
+- [x] S1-D4 Review Closure: Projected non-normative observations as distinct action items without forging task fields, enforced fail-closed on unmapped recommendation statuses, preserved multiline claim boundaries within IMPORTANT blocks, and maintained priority orthogonality strictly derived from review_queue_recommendation independent of coverage_verdict.
 
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
@@ -76,6 +77,7 @@
 - [x] S1-B Review Closure: Resolved NUL-delimited git ls-tree parsing (supporting non-ASCII/spaces), enforced github remote origin verification, fail-closed on empty corpus, and rejected binary/NUL/C0 control characters.
 - 2026-09-18: Phase S1-C Multi-File Corpus SSDF Assessment Engine & Contract: Extended SSDF assessment to multi-file repository corpora pinned by Target Manifest and Corpus Snapshot (`corpus_digest`). Enforced exact source file tracking requiring `company_source_ref` paths to strictly exist within the materialized corpus snapshot, and expanded SSDF linter to validate `repository_corpus` provenance envelope while preserving all claim ceiling boundaries.
 - 2026-09-18: Phase S1-D Review Engine & Projection Complete: Delivered S1-D1 (Deterministic Read-Only Projection & Domain Contract), S1-D2 (Safe Orchestration CLI with format/output controls), S1-D3 (Objective Sentiment-Free Diffing with Cross-Commit Provenance Verification), and S1-D4 (Read-Only Review Queue Action Projection preserving human-authority boundaries).
+- 2026-09-18: Phase S1-D4 Review Closure: Projected non-normative observations as distinct action items (source_kind="non_normative_observation") without forging task fields, enforced fail-closed on unmapped recommendation statuses (raising ReviewQueueProjectionError / CLI Exit 1), preserved multiline claim boundary lines within IMPORTANT admonition blocks, and reinforced priority orthogonality strictly mapped from review_queue_recommendation independent of coverage_verdict.
 
 ## Known Risks
 

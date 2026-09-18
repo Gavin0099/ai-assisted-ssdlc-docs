@@ -11,6 +11,7 @@ from tools.corpus_assessment_engine import (
     CorpusAssessmentBasis,
     CorpusAssessmentReport,
     CorpusAssessmentTarget,
+    CorpusObservation,
     CorpusTaskFinding,
     IdentifiedEvidence,
 )
@@ -19,6 +20,7 @@ from tools.review_queue_projection import (
     DeterministicQueueActionRenderer,
     ReviewQueueActionItem,
     ReviewQueueProjector,
+    ReviewQueueProjectionError,
 )
 
 
@@ -46,6 +48,8 @@ class TestReviewQueueProjection(unittest.TestCase):
         self,
         report_id: str,
         findings: list[CorpusTaskFinding] | None = None,
+        observations: list[CorpusObservation] | None = None,
+        claim_boundary: list[str] | None = None,
     ) -> CorpusAssessmentReport:
         if findings is None:
             recs = [
@@ -92,8 +96,9 @@ class TestReviewQueueProjection(unittest.TestCase):
             baseline="NIST_SP_800_218_v1.1",
             target=self.target_base,
             scope_tasks=list(self.scope_tasks),
-            claim_boundary=list(self.claim_boundary_base),
+            claim_boundary=list(claim_boundary if claim_boundary is not None else self.claim_boundary_base),
             findings=findings,
+            observations=observations or [],
         )
 
     def test_priority_and_recommendation_mapping(self) -> None:
@@ -131,6 +136,153 @@ class TestReviewQueueProjection(unittest.TestCase):
                 self.assertFalse(seen_low, "MEDIUM appeared after LOW")
             elif p == ActionPriority.LOW:
                 seen_low = True
+
+    def test_observation_action_projection(self) -> None:
+        """P1: non_normative_observations are projected as distinct action items without forged task fields."""
+        obs1 = CorpusObservation(
+            finding_id="OBS-01",
+            company_source_ref="policy/architecture.md#sec-3",
+            observation="Architecture lacks boundary definition.",
+            basis="reviewer_inference",
+            review_queue_recommendation="needs_changes",
+            cannot_claim=["No architectural compliance"],
+        )
+        obs2 = CorpusObservation(
+            finding_id="OBS-02",
+            company_source_ref="policy/deployment.md#sec-1",
+            observation="Pending review of deployment logs.",
+            basis="reviewer_inference",
+            review_queue_recommendation="pending",
+            cannot_claim=["No deployment compliance"],
+        )
+
+        report = self._create_report("PROJ-OBS-001", findings=[], observations=[obs1, obs2])
+        record = self.projector.project_queue(report)
+
+        self.assertEqual(len(record.action_items), 2)
+
+        # High priority observation (needs_changes)
+        item_high = next(item for item in record.action_items if item.finding_id == "OBS-01")
+        self.assertEqual(item_high.source_kind, "non_normative_observation")
+        self.assertEqual(item_high.action_priority, ActionPriority.HIGH)
+        self.assertIsNone(item_high.task_id)
+        self.assertIsNone(item_high.coverage_verdict)
+        self.assertIsNone(item_high.evidence_strength)
+        self.assertEqual(item_high.observation_text, "Architecture lacks boundary definition.")
+        self.assertIn("OBS-01", item_high.suggested_action)
+
+        # Medium priority observation (pending)
+        item_med = next(item for item in record.action_items if item.finding_id == "OBS-02")
+        self.assertEqual(item_med.source_kind, "non_normative_observation")
+        self.assertEqual(item_med.action_priority, ActionPriority.MEDIUM)
+        self.assertIsNone(item_med.task_id)
+
+        # Test Markdown rendering surfaces observation cleanly
+        md = self.renderer.render_markdown(record)
+        self.assertIn("non_normative_observation", md)
+        self.assertIn("OBS-01", md)
+        self.assertIn("OBS-02", md)
+        self.assertIn("### [Observation] OBS-01 (HIGH)", md)
+        self.assertIn("- **Observation**: Architecture lacks boundary definition.", md)
+
+        # Test JSON rendering preserves fields
+        json_data = json.loads(self.renderer.render_json(record))
+        actions = json_data["action_items"]
+        self.assertEqual(len(actions), 2)
+        self.assertEqual(actions[0]["source_kind"], "non_normative_observation")
+        self.assertNotIn("task_id", actions[0])
+        self.assertNotIn("coverage_verdict", actions[0])
+
+    def test_custom_unknown_recommendation_fails_closed(self) -> None:
+        """P2: Unmapped/custom recommendations fail closed without guessing MEDIUM priority."""
+        # Finding with unknown recommendation
+        bad_finding = CorpusTaskFinding(
+            finding_id="F-BAD-01",
+            task_id="PO.1.2",
+            company_source_ref="policy/bad.md",
+            company_statement="Statement",
+            coverage_verdict="PARTIAL",
+            basis=[],
+            assessment_rationale=["Rationale"],
+            identified_evidence=[],
+            evidence_strength="medium",
+            review_queue_recommendation="waived",  # Unknown custom recommendation
+            cannot_claim=[],
+        )
+        report = self._create_report("PROJ-BAD-001", findings=[bad_finding])
+
+        with self.assertRaises(ReviewQueueProjectionError) as cm:
+            self.projector.project_queue(report)
+        self.assertIn("waived", str(cm.exception))
+        self.assertIn("Cannot infer queue action priority", str(cm.exception))
+
+        # Observation with unknown recommendation
+        bad_obs = CorpusObservation(
+            finding_id="OBS-BAD-01",
+            company_source_ref="policy/bad.md",
+            observation="Obs text",
+            review_queue_recommendation="blocked",  # Unknown custom recommendation
+        )
+        report_obs = self._create_report("PROJ-BAD-002", findings=[], observations=[bad_obs])
+        with self.assertRaises(ReviewQueueProjectionError) as cm_obs:
+            self.projector.project_queue(report_obs)
+        self.assertIn("blocked", str(cm_obs.exception))
+
+    def test_multiline_claim_boundary_rendered_inside_important_block(self) -> None:
+        """P2: Multiline claim boundary entries must prefix every line with > to stay in admonition."""
+        multiline_cb = [
+            "This does not prove compliance.\n\nThis also does not prove implementation.\nEven a third line.",
+            "Single line boundary.",
+        ]
+        report = self._create_report("PROJ-CB-001", claim_boundary=multiline_cb)
+        record = self.projector.project_queue(report)
+        md = self.renderer.render_markdown(record)
+
+        # Inspect the IMPORTANT block
+        lines = md.splitlines()
+        in_important = False
+        for line in lines:
+            if line.startswith("> [!IMPORTANT]"):
+                in_important = True
+                continue
+            if in_important:
+                if line == "":
+                    # Empty line closes the blockquote
+                    in_important = False
+                    continue
+                # Every line inside the blockquote MUST start with '>'
+                self.assertTrue(
+                    line.startswith(">"),
+                    f"Line escaped IMPORTANT block: {line!r}",
+                )
+
+        self.assertIn("This does not prove compliance.", md)
+        self.assertIn("This also does not prove implementation.", md)
+        self.assertIn("Even a third line.", md)
+
+    def test_coverage_verdict_does_not_affect_queue_priority(self) -> None:
+        """Verify that priority is solely determined by review_queue_recommendation, not coverage_verdict."""
+        # coverage=MISSING with recommendation=accepted -> priority MUST be LOW, not HIGH
+        finding = CorpusTaskFinding(
+            finding_id="F-ORTHO-01",
+            task_id="PO.1.2",
+            company_source_ref="policy/test.md",
+            company_statement="Statement",
+            coverage_verdict="MISSING",
+            basis=[],
+            assessment_rationale=["Rationale"],
+            identified_evidence=[],
+            evidence_strength="weak",
+            review_queue_recommendation="accepted",
+            cannot_claim=[],
+        )
+        report = self._create_report("PROJ-ORTHO-001", findings=[finding])
+        record = self.projector.project_queue(report)
+
+        self.assertEqual(len(record.action_items), 1)
+        self.assertEqual(record.action_items[0].action_priority, ActionPriority.LOW)
+        self.assertEqual(record.informational_count, 1)
+        self.assertEqual(record.needs_action_count, 0)
 
     def test_direct_library_default_fail_closed(self) -> None:
         """Scenario 17: Calling project_queue without provenance_verified defaults to False with warning."""
@@ -242,6 +394,70 @@ class TestReviewQueueProjection(unittest.TestCase):
             self.assertEqual(exit_code, 1)
             self.assertIn("Review Provenance Validation Failed", stderr_buf.getvalue())
             self.assertIn("--allow-unverified-provenance", stderr_buf.getvalue())
+
+    def test_cli_queue_projection_fail_closed_on_unsupported_recommendation(self) -> None:
+        """CLI --project-queue fails closed when encountering unsupported recommendation in assessment."""
+        from tools.review_engine import main
+        import yaml
+
+        # Custom schema allowing 'waived'
+        custom_schema = {
+            "schema_name": "review-queue",
+            "required_fields": ["review_id", "source_ref", "risk_category", "reason", "priority", "status", "owner", "review_due"],
+            "allowed_priority": ["P0", "P1", "P2", "P3"],
+            "allowed_status": [
+                "pending", "needs_changes", "accepted", "accepted_with_review_due", "deferred", "rejected", "waived"
+            ],
+        }
+
+        report = self._create_report("PROJ-CLI-BAD")
+        # Replace first finding's recommendation with 'waived'
+        bad_findings = list(report.findings)
+        first = bad_findings[0]
+        bad_findings[0] = CorpusTaskFinding(
+            finding_id=first.finding_id,
+            task_id=first.task_id,
+            company_source_ref=first.company_source_ref,
+            company_statement=first.company_statement,
+            coverage_verdict=first.coverage_verdict,
+            basis=first.basis,
+            assessment_rationale=first.assessment_rationale,
+            identified_evidence=first.identified_evidence,
+            evidence_strength=first.evidence_strength,
+            review_queue_recommendation="waived",
+            cannot_claim=first.cannot_claim,
+        )
+        report = CorpusAssessmentReport(
+            id=report.id,
+            baseline=report.baseline,
+            target=report.target,
+            scope_tasks=report.scope_tasks,
+            claim_boundary=report.claim_boundary,
+            findings=bad_findings,
+            observations=report.observations,
+        )
+
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            schema_file = tmp_path / "custom-schema.yaml"
+            schema_file.write_text(yaml.dump(custom_schema), encoding="utf-8")
+
+            assessment_file = tmp_path / "assessment.yaml"
+            assessment_file.write_text(report.to_yaml(), encoding="utf-8")
+
+            stderr_buf = io.StringIO()
+            with redirect_stderr(stderr_buf):
+                exit_code = main([
+                    str(assessment_file),
+                    "--project-queue",
+                    "--stdout",
+                    "--allow-unverified-provenance",
+                    "--review-queue-schema", str(schema_file),
+                ])
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("Review Queue Projection Failed", stderr_buf.getvalue())
+            self.assertIn("waived", stderr_buf.getvalue())
 
     def test_cli_queue_projection_stdout_markdown(self) -> None:
         """CLI --project-queue prints action projection to stdout."""
