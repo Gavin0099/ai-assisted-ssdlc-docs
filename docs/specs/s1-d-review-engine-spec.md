@@ -194,13 +194,30 @@ S1-D3 負責在兩份合法的 SSDF 評估報告（Baseline vs Target，例如�
 2. **不可宣稱邊界合併 (Claim Boundary Preservation & Merging)**:
    - 差異結果必須顯要包含所有不可宣稱項目，合併 Baseline 與 Target 兩份報告中的 `claim_boundary`，去重並依字母順序排列，置頂呈現。
 3. **比較維度 (Comparison Dimensions)**:
-   - **Target Metadata Diff**: 比對 `repo`、`commit`、`manifest_digest`、`corpus_digest` 等出處元數據。
-   - **Task Status Diff**: 依據 NIST SSDF 任務定義與兩邊 findings，客觀標示各任務的狀態為：
+   - **Target Metadata Diff**: 比對 `repo`、`commit`、`manifest_path`、`manifest_digest`、`corpus_digest`、`target_type` 等出處元數據。
+   - **Task Status Diff**: 依據 NIST SSDF 任務定義與兩邊 findings，客觀標示各任務狀態為：
      - `ADDED`: 僅存在於 Target。
      - `REMOVED`: 僅存在於 Baseline。
-     - `MODIFIED`: 兩邊皆存在，但其 `coverage_verdict`、`company_source_ref`、`company_statement`、`basis` 或 `cannot_claim` 有所異動。
-     - `UNCHANGED`: 兩邊皆存在且內容完全一致。
-   - **Task Ordering**: 輸出結果一律先依 NIST SSDF 任務 ID 字典序排序。
+     - `MODIFIED`: 兩邊皆存在，但其以下任何一個欄位有所異動：
+       * `coverage_verdict` (COVERED, PARTIAL, MISSING, NOT_APPLICABLE, UNRESOLVED)
+       * `company_source_ref`
+       * `company_statement`
+       * `review_queue_recommendation`
+       * `evidence_strength`
+       * `assessment_rationale` (嚴格保留作者文字順序比對)
+       * `identified_evidence` (使用 `(type, source_ref)` 規範化排序比對)
+       * `basis` (使用 `(priority, rationale, task_id, source)` 規範化排序比對)
+       * `cannot_claim` (嚴格保留作者文字順序比對)
+     - `UNCHANGED`: 兩邊皆存在且上述所有欄位內容完全一致。
+   - **集合規範化 vs 作者文字順序 (Canonical Collections vs Author Order)**:
+     - `basis` 與 `identified_evidence` 屬於無序集合語意，比對前必須以確定性規則排序規範化，避免序列化順序差異引發偽陽性 `MODIFIED`。
+     - `assessment_rationale` 與 `cannot_claim` 屬於作者表達分析與邊界之有序文字段落，保留作者順序進行比對（順序調換即視為作者修改，標記 `MODIFIED`）。
+   - **觀察項目邊界宣告 (Non-Normative Observation Scope Boundary)**:
+     - 於 S1-D3 階段，差異比對聚焦於規範性任務（Normative Tasks）與出處元數據。
+     - `non_normative_observations` 明確宣告不納入比對範圍（`observations_compared: false`）。Diff 報告中需顯式提示 reviewer 觀察項目未納入比較，避免將任務未變更誤讀為整體評估完全相同。
+   - **獨立出處驗證 (Independent Provenance Verification)**:
+     - CLI 提供 `--baseline-manifest` 與 `--baseline-repo-path`（若未指定則繼承 `--repo-path`），使跨 commit 或跨 snapshot 評估比較時，兩端皆可進行獨立的信任邊界校驗。
+     - 僅在 Baseline 與 Target 兩端皆驗證成功時，`provenance_verified` 為 `true`；若任一端未通過且未顯式指定 `--allow-unverified-provenance`，則拒絕產出並 Fail-Closed。
 
 ### 7.2 領域模型與資料結構 (Domain Models & DTOs)
 ```python
@@ -236,18 +253,33 @@ class AssessmentDiffRecord:
     modified_count: int
     unchanged_count: int
     claim_boundary: tuple[str, ...]
+    provenance_verified: bool = False
+    observations_compared: bool = False
 ```
 
-### 7.3 服務介面 (Service Interface)
+### 7.3 服務介面與 CLI 選項 (Service Interface & CLI Options)
 ```python
 class IAssessmentDiffEngine(Protocol):
     def compare(
         self,
         baseline: CorpusAssessmentReport,
         target: CorpusAssessmentReport,
+        provenance_verified: bool = False,
     ) -> AssessmentDiffRecord:
         """Determines differences between two assessment reports without evaluative sentiment."""
         ...
+```
+
+CLI 參數規格：
+```text
+python tools/review_engine.py <target_assessment.yaml> \
+  --diff-baseline <baseline_assessment.yaml> \
+  --manifest <target-manifest.yaml> \
+  --repo-path <target_repo_dir> \
+  --baseline-manifest <baseline-manifest.yaml> \
+  [--baseline-repo-path <baseline_repo_dir>] \
+  [--allow-unverified-provenance] \
+  [--stdout] [--out-dir <out_dir>] [--format {markdown,json,both}]
 ```
 
 ### 7.4 S1-D3 行為驅動開發場景 (BDD Scenarios)
@@ -272,5 +304,17 @@ class IAssessmentDiffEngine(Protocol):
 **When** 執行比對時  
 **Then** 新任務標記為 `ADDED`，移除之任務標記為 `REMOVED`  
 **And** 統計數據中對應計數正確更新。
+
+### Scenario 12: Verified Cross-Commit Diffing (Independent Provenance Verification)
+**Given** Commit A 評估報告與其對應之 `baseline-manifest`，以及 Commit B 評估報告與其對應之 `manifest`  
+**When** 執行帶有 `--diff-baseline`、`--baseline-manifest`、`--manifest` 與 `--repo-path` 之 CLI 時  
+**Then** 兩份報告分別完成出處與快照校驗，比對產出之 `provenance_verified` 為 `true`  
+**And** `target_metadata_diff` 記錄 `commit` 從 Commit A 變更為 Commit B 之客觀事實  
+**And** 比對報表不呈現 `UNVERIFIED` 警告橫幅。
+
+### Scenario 13: Author Order Sensitivity for Cannot Claim & Rationale
+**Given** 兩份評估報告僅在 `cannot_claim` 或 `assessment_rationale` 的條目順序上不同  
+**When** 執行比對時  
+**Then** 該任務標記為 `MODIFIED`，其 `changed_fields` 列出順序轉變，尊重作者排序語意。
 
 

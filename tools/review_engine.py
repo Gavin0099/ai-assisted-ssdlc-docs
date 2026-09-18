@@ -641,6 +641,18 @@ def main(argv: list[str] | None = None) -> int:
         help="Path to baseline assessment YAML file to compare against target assessment",
     )
     parser.add_argument(
+        "--baseline-manifest",
+        type=Path,
+        default=None,
+        help="Path to target-manifest.yaml for the baseline assessment in diff mode",
+    )
+    parser.add_argument(
+        "--baseline-repo-path",
+        type=Path,
+        default=None,
+        help="Path to repository root for the baseline assessment in diff mode (defaults to --repo-path)",
+    )
+    parser.add_argument(
         "--reference",
         "--tasks-ref",
         dest="tasks_ref",
@@ -684,10 +696,11 @@ def main(argv: list[str] | None = None) -> int:
         orchestrator = ReviewReportOrchestrator()
 
         try:
+            baseline_repo_path = args.baseline_repo_path or args.repo_path
             b_report, b_verified = orchestrator.load_and_verify(
                 assessment_path=args.diff_baseline,
-                manifest_path=args.manifest,
-                repo_path=args.repo_path,
+                manifest_path=args.baseline_manifest,
+                repo_path=baseline_repo_path,
                 allow_unverified_provenance=args.allow_unverified_provenance,
                 tasks_ref=args.tasks_ref,
                 evidence_schema=args.evidence_schema,

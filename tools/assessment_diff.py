@@ -114,12 +114,14 @@ class AssessmentDiffRecord:
     unchanged_count: int
     claim_boundary: tuple[str, ...]
     provenance_verified: bool = True
+    observations_compared: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "baseline_id": self.baseline_id,
             "target_id": self.target_id,
             "provenance_verified": self.provenance_verified,
+            "observations_compared": self.observations_compared,
             "target_metadata_diff": [f.to_dict() for f in self.target_metadata_diff],
             "task_diffs": [td.to_dict() for td in self.task_diffs],
             "summary": {
@@ -284,15 +286,13 @@ class AssessmentDiffEngine:
                         )
                     )
 
-                # Cannot claim comparison with canonical sorting
-                b_cc = tuple(sorted(b_finding.cannot_claim))
-                t_cc = tuple(sorted(t_finding.cannot_claim))
-                if b_cc != t_cc:
+                # Cannot claim comparison preserving author order (aligned with D1 contract)
+                if list(b_finding.cannot_claim) != list(t_finding.cannot_claim):
                     field_diffs.append(
                         FieldDiff(
                             field_name="cannot_claim",
-                            baseline_value=b_finding.cannot_claim,
-                            target_value=t_finding.cannot_claim,
+                            baseline_value=list(b_finding.cannot_claim),
+                            target_value=list(t_finding.cannot_claim),
                         )
                     )
 
@@ -328,6 +328,7 @@ class AssessmentDiffEngine:
             unchanged_count=unchanged_count,
             claim_boundary=tuple(merged_cb),
             provenance_verified=provenance_verified,
+            observations_compared=False,
         )
 
 
@@ -360,6 +361,13 @@ class DeterministicDiffRenderer:
         lines.append("> Does not assert, verify, or certify any changes in security posture, control effectiveness, or adherence.")
         for cb in record.claim_boundary:
             lines.append(f"> - {cb}")
+        lines.append("")
+
+        # Observation comparison scope notice
+        lines.append("> [!NOTE]")
+        lines.append(
+            "> **Observation Comparison**: Not included in this comparison. (Non-normative observations are excluded from S1-D3 diffing)."
+        )
         lines.append("")
 
         # Summary section
