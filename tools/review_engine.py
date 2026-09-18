@@ -35,6 +35,11 @@ from tools.assessment_diff import (
     AssessmentDiffEngine,
     DeterministicDiffRenderer as DiffRenderer,
 )
+from tools.review_queue_projection import (
+    DeterministicQueueActionRenderer as QueueActionRenderer,
+    ReviewQueueProjector,
+    ReviewQueueProjectionError,
+)
 from tools.validate_target_manifest import parse_target_manifest, validate_target_manifest_file
 
 BASIS_PRIORITY: dict[str, int] = {
@@ -653,6 +658,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Path to repository root for the baseline assessment in diff mode (defaults to --repo-path)",
     )
     parser.add_argument(
+        "--project-queue",
+        action="store_true",
+        help="Project assessment findings into reviewer action queue candidates view",
+    )
+    parser.add_argument(
         "--reference",
         "--tasks-ref",
         dest="tasks_ref",
@@ -768,6 +778,78 @@ def main(argv: list[str] | None = None) -> int:
                     sys.stderr.write(f"Output path validation failed: {json_path} escapes output directory {out_dir}\n")
                     return 1
                 json_path.write_text(diff_renderer.render_json(diff_record) + "\n", encoding="utf-8")
+
+        return 0
+
+    # Branch for Review Queue Action Projection mode (Phase S1-D4)
+    if args.project_queue:
+        orchestrator = ReviewReportOrchestrator()
+        try:
+            report, provenance_verified = orchestrator.load_and_verify(
+                assessment_path=args.target,
+                manifest_path=args.manifest,
+                repo_path=args.repo_path,
+                allow_unverified_provenance=args.allow_unverified_provenance,
+                tasks_ref=args.tasks_ref,
+                evidence_schema=args.evidence_schema,
+                review_queue_schema=args.review_queue_schema,
+            )
+        except ReviewValidationError as exc:
+            sys.stderr.write("Review Validation Failed:\n")
+            for err in exc.errors:
+                sys.stderr.write(f"  - {err}\n")
+            return 1
+        except ReviewProvenanceError as exc:
+            sys.stderr.write(f"Review Provenance Validation Failed: {exc}\n")
+            return 1
+        except ReviewOrchestrationError as exc:
+            sys.stderr.write(f"Review Orchestration Failed: {exc}\n")
+            return 1
+        except Exception as exc:
+            sys.stderr.write(f"Unexpected error during review orchestration: {exc}\n")
+            return 1
+
+        queue_projector = ReviewQueueProjector()
+        queue_renderer = QueueActionRenderer()
+        try:
+            queue_record = queue_projector.project_queue(
+                report=report,
+                provenance_verified=provenance_verified,
+            )
+        except ReviewQueueProjectionError as exc:
+            sys.stderr.write(f"Review Queue Projection Failed: {exc}\n")
+            return 1
+
+        if args.stdout:
+            if selected_format == "json":
+                sys.stdout.write(queue_renderer.render_json(queue_record) + "\n")
+            else:
+                sys.stdout.write(queue_renderer.render_markdown(queue_record))
+
+        if args.out_dir:
+            try:
+                _validate_safe_output_name(report.id)
+            except ReviewOrchestrationError as exc:
+                sys.stderr.write(f"Output path validation failed: {exc}\n")
+                return 1
+
+            out_dir = args.out_dir.resolve()
+            out_dir.mkdir(parents=True, exist_ok=True)
+            base_name = f"{report.id}.queue-actions"
+
+            if selected_format in ("markdown", "both"):
+                md_path = (out_dir / f"{base_name}.md").resolve()
+                if not md_path.is_relative_to(out_dir):
+                    sys.stderr.write(f"Output path validation failed: {md_path} escapes output directory {out_dir}\n")
+                    return 1
+                md_path.write_text(queue_renderer.render_markdown(queue_record), encoding="utf-8")
+
+            if selected_format in ("json", "both"):
+                json_path = (out_dir / f"{base_name}.json").resolve()
+                if not json_path.is_relative_to(out_dir):
+                    sys.stderr.write(f"Output path validation failed: {json_path} escapes output directory {out_dir}\n")
+                    return 1
+                json_path.write_text(queue_renderer.render_json(queue_record) + "\n", encoding="utf-8")
 
         return 0
 

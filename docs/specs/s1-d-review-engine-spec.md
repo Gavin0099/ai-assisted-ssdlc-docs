@@ -317,4 +317,170 @@ python tools/review_engine.py <target_assessment.yaml> \
 **When** 執行比對時  
 **Then** 該任務標記為 `MODIFIED`，其 `changed_fields` 列出順序轉變，尊重作者排序語意。
 
+---
+
+## 8. S1-D4: Review Queue Action Projection Specification
+
+### 8.1 職責與唯讀不變性 (Responsibilities & Read-Only Invariant)
+Phase S1-D4 負責將評估報告中的發現（Findings）確定性地投影為審查員行動清單（Reviewer Action View / Candidates）：
+1. **唯讀不變性（Read-Only Invariant）**:
+   - 投影引擎嚴格作為「建議展示器」，僅生成行動視圖報表（Markdown / JSON）或候選清單。
+   - **嚴禁自動修改、覆寫或寫入現有的 `review-queue.yaml` 或 `review-queue.md`**。佇列決策與狀態變更權力嚴格保留予人類審查員。
+2. **無評價與合規宣稱（Without Evaluative Claims）**:
+   - 建議行動項目陳述客觀事實與待辦事項，嚴禁聲稱「已修復」、「符合規範」或「安全」。
+3. **出處信任邊界完整繼承（Fail-Closed Provenance）**:
+   - 若評估報告未通過儲存庫與清單出處校驗，且未顯式宣告 `--allow-unverified-provenance`，投影即刻 Fail-Closed（Exit 1）。
+   - 直接調用 Library API 時，`provenance_verified` 預設為 `False`，渲染時強制呈現 `UNVERIFIED` 警示橫幅。
+
+### 8.2 領域模型與資料結構 (Domain Models & DTOs)
+```python
+class ActionPriority(str, Enum):
+    HIGH = "HIGH"       # needs_changes, rejected
+    MEDIUM = "MEDIUM"   # accepted_with_review_due, pending
+    LOW = "LOW"         # deferred, accepted
+
+class ReviewQueueProjectionError(ValueError):
+    """Raised when queue projection encounters unsupported recommendations or invalid data."""
+    pass
+
+@dataclass(frozen=True)
+class ReviewQueueActionItem:
+    """Represents a deterministic action candidate projected from a task finding or observation."""
+    source_kind: str  # "task_finding" | "non_normative_observation"
+    finding_id: str
+    review_queue_recommendation: str
+    action_priority: ActionPriority
+    suggested_action: str
+    company_source_ref: str
+    basis_summary: str
+    cannot_claim: tuple[str, ...]
+    task_id: str | None = None
+    coverage_verdict: str | None = None
+    evidence_strength: str | None = None
+    observation_text: str | None = None
+
+    def to_dict(self) -> dict[str, Any]: ...
+
+@dataclass(frozen=True)
+class ReviewQueueProjectionRecord:
+    """Aggregate root for the review queue action view."""
+    assessment_id: str
+    target_repo: str
+    target_commit: str
+    action_items: tuple[ReviewQueueActionItem, ...]
+    needs_action_count: int      # HIGH & MEDIUM
+    informational_count: int     # LOW
+    claim_boundary: tuple[str, ...]
+    provenance_verified: bool = False
+
+    def to_dict(self) -> dict[str, Any]: ...
+```
+
+### 8.3 確定性映射矩陣與排序合約 (Action Mapping & Ordering Contract)
+
+**優先級正交性 (Priority Orthogonality)**:
+`ActionPriority` **僅由 `review_queue_recommendation` 決定**，`coverage_verdict` 絕不參與優先級計算（維持維度正交獨立，例如 `coverage_verdict == "MISSING"` 搭配 `review_queue_recommendation == "accepted"` 時，優先級依然為 `LOW`）。
+
+**Task Finding 映射矩陣 (`TASK_RECOMMENDATION_MAPPING`)**:
+| Recommendation | ActionPriority | Suggested Action Text Template |
+| :--- | :--- | :--- |
+| `needs_changes` | `HIGH` | Open review queue item: policy or evidence revision required for {task_id}. |
+| `rejected` | `HIGH` | Open review queue item: rejected evidence or statement requires replacement for {task_id}. |
+| `accepted_with_review_due` | `MEDIUM` | Schedule due review: accepted with periodic review obligation for {task_id}. |
+| `pending` | `MEDIUM` | Track pending review: awaiting human reviewer assessment for {task_id}. |
+| `deferred` | `LOW` | Log deferred item: review postponed for {task_id}. |
+| `accepted` | `LOW` | Retain record: findings accepted without immediate queue action for {task_id}. |
+
+**Observation 映射矩陣 (`OBSERVATION_RECOMMENDATION_MAPPING`)**:
+| Recommendation | ActionPriority | Suggested Action Text Template |
+| :--- | :--- | :--- |
+| `needs_changes` | `HIGH` | Open review queue item: review observation finding {finding_id} for necessary adjustments. |
+| `rejected` | `HIGH` | Open review queue item: rejected observation statement requires replacement for {finding_id}. |
+| `accepted_with_review_due` | `MEDIUM` | Schedule due review: observation accepted with periodic review obligation for {finding_id}. |
+| `pending` | `MEDIUM` | Track pending review: awaiting human reviewer assessment for observation {finding_id}. |
+| `deferred` | `LOW` | Log deferred item: observation review postponed for {finding_id}. |
+| `accepted` | `LOW` | Retain record: observation accepted without immediate queue action for {finding_id}. |
+
+**未知 Recommendation Fail-Closed 合約**:
+若 `review_queue_recommendation` 不在對應映射表中（例如使用者自訂 schema 定義之 `waived` 或 `blocked`），禁止猜測優先級（如預設 `MEDIUM`），必須直接拋出 `ReviewQueueProjectionError`，CLI 終止並 Exit Code 1。
+
+**排序合約**:
+- 第一排序鍵：優先級權重（`HIGH` = 1, `MEDIUM` = 2, `LOW` = 3）。
+- 第二排序鍵：`source_kind` 權重（`task_finding` = 0, `non_normative_observation` = 1）。
+- 第三排序鍵：`task_id` 或 `finding_id`（字典序升冪）。
+- 第四排序鍵：`finding_id`（字典序升冪）。
+
+**Multiline Claim Boundary 渲染合約**:
+每一行（包含空行與段落接續行）皆必須以 `>` 前綴包裹於 `[!IMPORTANT]` admonition 內，嚴禁任何文字行溢出區塊。
+
+### 8.4 服務介面與 CLI 選項 (Service Interface & CLI Options)
+```python
+class IReviewQueueProjector(Protocol):
+    def project_queue(
+        self,
+        report: CorpusAssessmentReport,
+        provenance_verified: bool = False,
+    ) -> ReviewQueueProjectionRecord:
+        """Projects assessment recommendations into deterministic review queue action items."""
+        ...
+```
+
+CLI 參數規格：
+```text
+python tools/review_engine.py <target_assessment.yaml> \
+  --project-queue \
+  [--manifest <target-manifest.yaml>] \
+  [--repo-path <target_repo_dir>] \
+  [--allow-unverified-provenance] \
+  [--stdout] [--out-dir <out_dir>] [--format {markdown,json,both}]
+```
+
+### 8.5 S1-D4 行為驅動開發場景 (BDD Scenarios)
+
+### Scenario 14: Action Item Priority & Recommendation Projection
+**Given** 一份包含 `needs_changes`、`accepted_with_review_due` 與 `accepted` 之合法評估報告  
+**When** 執行 `projector.project_queue(report)` 時  
+**Then** `needs_changes` 映射為 `HIGH` 優先級  
+**And** `accepted_with_review_due` 映射為 `MEDIUM` 優先級  
+**And** `accepted` 映射為 `LOW` 優先級  
+**And** 清單依優先級順序與 `task_id` 確定性排列。
+
+### Scenario 15: Read-Only Invariant Enforcement
+**Given** 一個包含既有 `review-queue.yaml` 之工作區  
+**When** 執行帶有 `--project-queue` 之 CLI 產出檔案時  
+**Then** 僅於 `--out-dir` 產出 `<assessment_id>.queue-actions.md` 或 `.queue-actions.json`  
+**And** 既有之 `review-queue.yaml` 內容完全未被修改。
+
+### Scenario 16: Provenance Trust Boundary Enforcement in Action Projection
+**Given** 一份 `repository_corpus` 評估 YAML 且未提供 `--manifest` / `--repo-path`  
+**When** 未提供 `--allow-unverified-provenance` 旗標而執行 `--project-queue` 時  
+**Then** CLI 以 Exit Code 1 結束，拋出 `ReviewProvenanceError`  
+**And** 若提供 `--allow-unverified-provenance`，則產出 `provenance_verified: false` 並置頂呈現 `UNVERIFIED` 警示橫幅。
+
+### Scenario 17: Direct Library Default Fail-Closed
+**Given** 直接調用 `ReviewQueueProjector().project_queue(report)` 且未帶 `provenance_verified`  
+**When** 產出 `ReviewQueueProjectionRecord` 時  
+**Then** `record.provenance_verified` 為 `False`  
+**And** 渲染之 Markdown 報表強制呈現 `> [!WARNING] Provenance Verification: UNVERIFIED` 橫幅。
+
+### Scenario 18: Observation Action Projection & Separation
+**Given** 一份包含 `non_normative_observations` 之評估報告  
+**When** 執行 `projector.project_queue(report)` 時  
+**Then** 觀察條目被投影為 `source_kind: "non_normative_observation"` 之行動條目  
+**And** 不偽造 `task_id`、`coverage_verdict` 或 `evidence_strength`（欄位為 `None`）  
+**And** 依 `review_queue_recommendation` 確定性計算優先級並排序。
+
+### Scenario 19: Unknown Recommendation Fail-Closed Enforcement
+**Given** 一份包含未映射之自訂建議（如 `waived`）之評估報告  
+**When** 執行 `project_queue(report)` 或 CLI `--project-queue` 時  
+**Then** 拋出 `ReviewQueueProjectionError` / CLI Exit Code 1  
+**And** 絕不猜測或預設指派 `MEDIUM` 優先級。
+
+### Scenario 20: Coverage Verdict Orthogonality
+**Given** 一個 `coverage_verdict` 為 `MISSING` 但 `review_queue_recommendation` 為 `accepted` 之任務發現  
+**When** 執行 `project_queue(report)` 時  
+**Then** 投影之行動條目優先級嚴格為 `LOW`  
+**And** 證明 `coverage_verdict` 不影響行動優先級。
+
+
 
