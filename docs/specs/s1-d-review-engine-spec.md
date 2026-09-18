@@ -8,12 +8,12 @@
 
 | Slice | 核心目標 | 嚴格邊界（明確不做） |
 | :--- | :--- | :--- |
-| **S1-D1 Review Contract** | 定義 Reviewer View 固定欄位、確定性排序演算、保留 6 大核心維度與 Claim Boundary | 不改寫任何 assessment verdict，不引入跨 commit 比較 |
-| **S1-D2 Deterministic Report** | 將 `ReadOnlyReviewRecord` 渲染為結構化 Markdown / JSON 審查報告 | 不推論 gap 關閉（closure）或法規合規性（compliance） |
+| **S1-D1 Review Contract & Core Projection** | 定義 Reviewer View 固定欄位、確定性投影、純函式渲染函式庫（Pure Renderer Library）、保留 6 大核心維度與 Claim Boundary | 不實作 CLI / 檔案寫入，不改寫任何 assessment verdict，不引入跨 commit 比較 |
+| **S1-D2 CLI Wiring & Reporting** | 實作 CLI 進入點、檔案/構件輸出（File/Artifact Output）與輸入驗證編排（Input Validation Orchestration） | 不推論 gap 關閉（closure）或法規合規性（compliance） |
 | **S1-D3 Comparison (Diffing)** | 比對相同 repo / 任務在不同 commit 間的 assessment 差異 | 不將 diff 結果自動推論為「改善」或「退步」等評價性結論 |
 | **S1-D4 Review Queue Projection** | 將評估建議投影至審查行動清單（Reviewer Action View） | 不自動更改或寫入 Review Queue 狀態 |
 
-**本規格核心定義 S1-D1 Review Contract**。
+**本規格核心定義 S1-D1 Review Contract & Core Projection**。
 
 ---
 
@@ -39,37 +39,47 @@
 6. **`company_source_ref`**:
    - 引用之語料庫文件相對路徑與章節錨點，或 `<corpus>#unmentioned` 哨兵。
 
+### 固定輸出形狀 (Fixed Output Shape)
+為利於下游消費（D2 CLI、D3 Diffing、D4 Queue Projection），`ReadOnlyReviewRecord` 輸出至字典或 JSON 時，結構欄位永遠保持固定。即使無任何非規範觀察，亦必須輸出 `"observations": []`，嚴禁動態省略該鍵值。
+
 ---
 
-## 3. 確定性排序規則 (Deterministic Ordering Rules)
+## 3. 確定性排序規則與可重現邊界 (Deterministic Ordering & Reproducibility)
 
-為保證無論評估報告的原始列表順序為何，多次執行投影均能產生**完全一致、位元級可重現（Bit-for-bit Reproducible）**的輸出，審查引擎遵循下列確定性排序演算法：
+為保證輸出之確定性，審查引擎區分兩類集合的處理邊界：
 
+### A. 規範集合：保證輸入順序無關（Input-Order Independence via Canonical Ordering）
+對下列已明確定義 Canonical 排序規則的集合，無論輸入清單的原始先後順序為何，多次投影保證產出完全一致的排序：
 1. **Findings 排序**:
-   - 第一排序鍵：`task_id`（以字串字典序升冪排序，例如 `PO.1.2` < `PO.3.1` < `PS.2.1` < `PW.1.1` ...）。
-   - 第二排序鍵：`finding_id`（以字串字典序升冪排序）。
+   - 第一排序鍵：`task_id`（字典序升冪，如 `PO.1.2` < `PO.3.1` < `PS.2.1` < `PW.1.1` ...）。
+   - 第二排序鍵：`finding_id`（字典序升冪）。
 2. **Observations 排序**:
-   - 依 `finding_id`（以字串字典序升冪排序）。
-3. **Basis 條目排序**:
-   - 依基準類型權重排序：
-     1. `nist_normative` (優先級 1)
-     2. `local_derived_guidance` (優先級 2)
-     3. `reviewer_inference` (優先級 3)
-     4. 其他未知類型 (優先級 4)
-   - 若優先級相同，依 `rationale` 字典序排序。
+   - 依 `finding_id`（字典序升冪）。
+3. **Basis 條目排序 (完整 Tie-breaker)**:
+   - 依 `(priority, rationale, task_id or "", source or "")` 排序：
+     1. 類型權重：`nist_normative` (1) -> `local_derived_guidance` (2) -> `reviewer_inference` (3) -> 其他 (4)
+     2. `rationale`（字典序升冪）
+     3. `task_id`（字典序升冪）
+     4. `source`（字典序升冪）
 4. **Identified Evidence 排序**:
-   - 依 `source_ref` 字典序升冪排序；若相同則依 `type` 字典序排序。
+   - 依 `source_ref` 字典序升冪；若相同則依 `type` 字典序升冪。
+
+### B. 語意文字清單：保證同輸入確定性重現（Deterministic Reproduction for Identical Inputs）
+具有作者原有意圖表達順序之文字清單（如 `claim_boundary`、`assessment_rationale`、`cannot_claim`），審查引擎**不人為打亂或重新排序**，以保留原作者之語意權重；對於相同的已驗證輸入，引擎保證產出 bit-for-bit 完全相同的投影結果。
 
 ---
 
-## 4. 唯讀投影與不重判保證 (No Evaluative Inference Guarantee)
+## 4. 唯讀投影、不重判保證與 D2 驗證邊界
 
-- **投影職責**:
+- **投影職責 (Pure Projection)**:
   審查引擎（`ReadOnlyReviewProjector`）之職責僅為將已經由驗證器核可的 `CorpusAssessmentReport` 投影轉換為適合審查員檢視的結構化領域模型（`ReadOnlyReviewRecord`）。
-- **禁止行為**:
+- **禁止行為 (No Evaluative Inference)**:
   - 禁止根據 finding statement 或 rationale 的內容，自行修正或覆寫原先 assessment 記錄的 `coverage_verdict`。
   - 禁止在報表中加入未經由原始 finding 授權的結論性語句（如「此項目已達標」、「組織已具備威脅建模能力」）。
   - 所有宣稱限制事項（`claim_boundary` 與各項 finding 之 `cannot_claim`）必須完整保留並於報表中清晰展示。
+- **D2 整合與驗證編排邊界 (D2 Validation Orchestration Rule)**:
+  - D1 投影引擎本身**假設輸入為已驗證之合法領域模型**，不重複塞入驗證器邏輯。
+  - 後續 S1-D2 CLI（`tools/review_engine.py <file>`）**嚴禁**直接 parse 任意未驗證 YAML 後逕行投影，必須先編排通過 S1-C 結構性與 Provenance 合約校驗（`validate_ssdf_assessment` 與 Snapshot Provenance 驗證）後，方可交付 D1 Projector 投影。
 
 ---
 

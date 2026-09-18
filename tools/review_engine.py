@@ -136,9 +136,8 @@ class ReadOnlyReviewRecord:
             "scope_tasks": list(self.scope_tasks),
             "claim_boundary": list(self.claim_boundary),
             "findings": [f.to_dict() for f in self.findings],
+            "observations": [obs.to_dict() for obs in self.observations],
         }
-        if self.observations:
-            d["observations"] = [obs.to_dict() for obs in self.observations]
         return d
 
 
@@ -166,9 +165,13 @@ class ReadOnlyReviewProjector:
     """Deterministic, non-evaluative review projector.
 
     Guarantees:
-    1. Bit-for-bit reproducibility via deterministic ordering (task_id, finding_id).
+    1. Bit-for-bit reproducibility via deterministic ordering (task_id, finding_id, basis tie-breakers).
     2. Zero evaluative inference: never changes verdicts or infers closure.
     3. Dimension preservation: keeps verdict, strength, recommendation, basis, cannot_claim, and source_ref separate.
+
+    Note:
+        Expects a structurally and contractually validated CorpusAssessmentReport.
+        Validation orchestration is the responsibility of the caller (e.g. S1-D2 CLI).
     """
 
     def project(self, report: CorpusAssessmentReport) -> ReadOnlyReviewRecord:
@@ -176,7 +179,12 @@ class ReadOnlyReviewProjector:
         for finding in sorted(report.findings, key=lambda f: (f.task_id, f.finding_id)):
             sorted_basis = sorted(
                 finding.basis,
-                key=lambda b: (BASIS_PRIORITY.get(b.type, 99), b.rationale),
+                key=lambda b: (
+                    BASIS_PRIORITY.get(b.type, 99),
+                    b.rationale,
+                    b.task_id or "",
+                    b.source or "",
+                ),
             )
             basis_records = tuple(
                 ReviewBasisRecord(

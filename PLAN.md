@@ -30,8 +30,8 @@
 - [x] S1-A-r2: Target Manifest Schema Authority & Repo Identity Closure (Zero-fallback executable schema validation, source_type syntax binding, and glob semantics layering; delivered in PR #10).
 - [x] S1-A Review Closure: Hardened local_git repo URL scheme exclusion and malformed schema fail-closed checks.
 - [x] S1-B: Repo Corpus Resolver (Materialize authoritative repository files into an immutable corpus based on Target Manifest include/exclude surface).
-- [x] S1-D1: Review Contract & Deterministic Projection Layer (Defined non-collapsible 6 dimensions, deterministic ordering rules, ReadOnlyReviewRecord domain models, and zero-evaluative-inference review projector with Markdown/JSON renderer; 145/145 tests pass).
-- [ ] S1-D2: Deterministic Report Formatting & CLI Wiring (Expose report rendering via CLI command and output structured reviewer artifacts).
+- [x] S1-D1: Review Contract & Deterministic Projection Layer (Defined non-collapsible 6 dimensions, deterministic ordering with full tie-breakers, fixed output shape, ReadOnlyReviewRecord domain models, and pure renderer library; 145/145 tests pass).
+- [ ] S1-D2: CLI Wiring & Reporting Orchestration (Expose report rendering via CLI command, orchestrate S1-C validation before projection, and output structured reviewer artifacts).
 - [ ] S1-D3: Assessment Comparison & Diffing Engine (Deterministic comparison between assessment versions without evaluative sentiment).
 - [ ] S1-D4: Review Queue Action Projection (Project assessment recommendations into reviewer action view).
 

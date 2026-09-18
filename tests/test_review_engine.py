@@ -268,6 +268,94 @@ class TestReviewEngine(unittest.TestCase):
         self.assertIn("findings", data)
         self.assertIn("observations", data)
 
+    def test_fixed_output_shape_with_empty_observations(self) -> None:
+        report_no_obs = CorpusAssessmentReport(
+            id="S1-REPORT-NO-OBS",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.target,
+            scope_tasks=["PO.1.2"],
+            claim_boundary=["Claim boundary statement."],
+            findings=[self.finding_po12],
+            observations=[],
+        )
+        record = self.projector.project(report_no_obs)
+        d = record.to_dict()
+        # Must always output observations key with empty list, never omit it
+        self.assertIn("observations", d)
+        self.assertEqual(d["observations"], [])
+
+        json_str = self.renderer.render_json(record)
+        self.assertIn('"observations": []', json_str)
+
+    def test_basis_tie_breaker_deterministic_ordering(self) -> None:
+        basis_b = CorpusAssessmentBasis(
+            type="local_derived_guidance",
+            rationale="Check ownership",
+            task_id="PO.1.2",
+            source="source_beta",
+        )
+        basis_a = CorpusAssessmentBasis(
+            type="local_derived_guidance",
+            rationale="Check ownership",
+            task_id="PO.1.2",
+            source="source_alpha",
+        )
+
+        finding_order1 = CorpusTaskFinding(
+            finding_id="F-TIE-01",
+            task_id="PO.1.2",
+            company_source_ref="policy/roles.md",
+            company_statement="Statement.",
+            coverage_verdict="COVERED",
+            basis=[basis_b, basis_a],  # beta first
+            assessment_rationale=["Rationale."],
+            identified_evidence=[],
+            evidence_strength="strong",
+            review_queue_recommendation="accepted",
+            cannot_claim=["No compliance."],
+        )
+
+        finding_order2 = CorpusTaskFinding(
+            finding_id="F-TIE-01",
+            task_id="PO.1.2",
+            company_source_ref="policy/roles.md",
+            company_statement="Statement.",
+            coverage_verdict="COVERED",
+            basis=[basis_a, basis_b],  # alpha first
+            assessment_rationale=["Rationale."],
+            identified_evidence=[],
+            evidence_strength="strong",
+            review_queue_recommendation="accepted",
+            cannot_claim=["No compliance."],
+        )
+
+        rep1 = CorpusAssessmentReport(
+            id="TIE-1",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.target,
+            scope_tasks=["PO.1.2"],
+            claim_boundary=["Claim boundary."],
+            findings=[finding_order1],
+        )
+        rep2 = CorpusAssessmentReport(
+            id="TIE-1",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.target,
+            scope_tasks=["PO.1.2"],
+            claim_boundary=["Claim boundary."],
+            findings=[finding_order2],
+        )
+
+        rec1 = self.projector.project(rep1)
+        rec2 = self.projector.project(rep2)
+
+        # Both records must have identical basis order: alpha before beta
+        sources1 = [b.source for b in rec1.findings[0].basis]
+        sources2 = [b.source for b in rec2.findings[0].basis]
+        self.assertEqual(sources1, ["source_alpha", "source_beta"])
+        self.assertEqual(sources2, ["source_alpha", "source_beta"])
+        self.assertEqual(rec1.to_dict(), rec2.to_dict())
+
 
 if __name__ == "__main__":
     unittest.main()
