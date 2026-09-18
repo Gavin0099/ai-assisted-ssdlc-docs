@@ -1,0 +1,100 @@
+# S1-D Read-Only Review Engine & Reporting Specification
+
+## 1. 領域定位與階段劃分 (Scope & Phased Slices)
+
+在 Phase S1-C 完成多檔案儲存庫評估合約與來源綁定驗證層（Corpus Assessment Contract & Source-Bound Validation Layer）之後，**Phase S1-D** 負責建立**唯讀審查引擎與報表生成層（Read-Only Review Engine & Reporting）**。
+
+為防止在報表層引入不當推論或將前期建立的精細證據與宣稱護欄抹平，S1-D 嚴格劃分為四個漸進 Slice：
+
+| Slice | 核心目標 | 嚴格邊界（明確不做） |
+| :--- | :--- | :--- |
+| **S1-D1 Review Contract** | 定義 Reviewer View 固定欄位、確定性排序演算、保留 6 大核心維度與 Claim Boundary | 不改寫任何 assessment verdict，不引入跨 commit 比較 |
+| **S1-D2 Deterministic Report** | 將 `ReadOnlyReviewRecord` 渲染為結構化 Markdown / JSON 審查報告 | 不推論 gap 關閉（closure）或法規合規性（compliance） |
+| **S1-D3 Comparison (Diffing)** | 比對相同 repo / 任務在不同 commit 間的 assessment 差異 | 不將 diff 結果自動推論為「改善」或「退步」等評價性結論 |
+| **S1-D4 Review Queue Projection** | 將評估建議投影至審查行動清單（Reviewer Action View） | 不自動更改或寫入 Review Queue 狀態 |
+
+**本規格核心定義 S1-D1 Review Contract**。
+
+---
+
+## 2. 審查合約與六大核心維度保留 (Dimension Preservation Contract)
+
+審查引擎與產出報表**嚴格禁止**將多維度評估信號濃縮為單一概括標籤（例如 `Risk: High` 或 `Status: Bad`）。
+每一個任務審查記錄（`ReadOnlyReviewFindingRecord`）必須獨立完整保留以下六大維度：
+
+1. **`coverage_verdict`**:
+   - 僅允許合約合法值：`COVERED` | `PARTIAL` | `MISSING` | `NOT_APPLICABLE` | `UNRESOLVED`。
+   - 審查引擎嚴格透傳，不得自行改判。
+2. **`evidence_strength`**:
+   - `strong` | `medium` | `weak`。
+3. **`review_queue_recommendation`**:
+   - `pending` | `needs_changes` | `accepted` | `accepted_with_review_due` | `deferred` | `rejected`。
+4. **`basis` & Attribution**:
+   - 保持嚴格區分的三類基準：
+     - `nist_normative`: NIST SP 800-218 規範條文要求。
+     - `local_derived_guidance`: 本地衍生指引或檢查問題。
+     - `reviewer_inference`: 審查員領域推論（非規範性）。
+5. **`cannot_claim`**:
+   - 該項發現明確宣告不能宣稱之限制事項清單（如不證明合規、不證明漏洞已修復）。
+6. **`company_source_ref`**:
+   - 引用之語料庫文件相對路徑與章節錨點，或 `<corpus>#unmentioned` 哨兵。
+
+---
+
+## 3. 確定性排序規則 (Deterministic Ordering Rules)
+
+為保證無論評估報告的原始列表順序為何，多次執行投影均能產生**完全一致、位元級可重現（Bit-for-bit Reproducible）**的輸出，審查引擎遵循下列確定性排序演算法：
+
+1. **Findings 排序**:
+   - 第一排序鍵：`task_id`（以字串字典序升冪排序，例如 `PO.1.2` < `PO.3.1` < `PS.2.1` < `PW.1.1` ...）。
+   - 第二排序鍵：`finding_id`（以字串字典序升冪排序）。
+2. **Observations 排序**:
+   - 依 `finding_id`（以字串字典序升冪排序）。
+3. **Basis 條目排序**:
+   - 依基準類型權重排序：
+     1. `nist_normative` (優先級 1)
+     2. `local_derived_guidance` (優先級 2)
+     3. `reviewer_inference` (優先級 3)
+     4. 其他未知類型 (優先級 4)
+   - 若優先級相同，依 `rationale` 字典序排序。
+4. **Identified Evidence 排序**:
+   - 依 `source_ref` 字典序升冪排序；若相同則依 `type` 字典序排序。
+
+---
+
+## 4. 唯讀投影與不重判保證 (No Evaluative Inference Guarantee)
+
+- **投影職責**:
+  審查引擎（`ReadOnlyReviewProjector`）之職責僅為將已經由驗證器核可的 `CorpusAssessmentReport` 投影轉換為適合審查員檢視的結構化領域模型（`ReadOnlyReviewRecord`）。
+- **禁止行為**:
+  - 禁止根據 finding statement 或 rationale 的內容，自行修正或覆寫原先 assessment 記錄的 `coverage_verdict`。
+  - 禁止在報表中加入未經由原始 finding 授權的結論性語句（如「此項目已達標」、「組織已具備威脅建模能力」）。
+  - 所有宣稱限制事項（`claim_boundary` 與各項 finding 之 `cannot_claim`）必須完整保留並於報表中清晰展示。
+
+---
+
+## 5. 行為驅動開發場景 (BDD Scenarios)
+
+### Scenario 1: Deterministic Review Projection & Ordering
+**Given** 一份經由 S1-C 驗證核可的 `CorpusAssessmentReport`，其內部的 findings 順序被打亂（如 `PW.8.1`, `PO.1.2`, `PW.1.1`）  
+**When** 審查投影引擎執行 `project(report)` 時  
+**Then** 產生的 `ReadOnlyReviewRecord` 中的 `findings` 必須嚴格依據 `task_id` 字典序排列（`PO.1.2` 先於 `PW.1.1` 先於 `PW.8.1`）  
+**And** 連續多次投影之輸出內容完全一致。
+
+### Scenario 2: Faithful Dimension Preservation (No Roll-up)
+**Given** 一份包含 `PARTIAL` 判決、`weak` 證據強度、`needs_changes` 建議與明確 `cannot_claim` 清單之評估發現  
+**When** 審查引擎將其轉換為 `ReadOnlyReviewFindingRecord` 時  
+**Then** 這 6 個維度必須完整且獨立地存在於記錄中  
+**And** 投影模型與渲染報表不得將其濃縮為單一概括狀態標籤。
+
+### Scenario 3: Non-Evaluative Projection Guarantee
+**Given** 一份報告中特定任務的 `coverage_verdict` 為 `PARTIAL`，其 rationale 包含詳細的政策描述  
+**When** 審查引擎執行投影與報表渲染時  
+**Then** 產出的審查視圖中該任務 verdict 必須維持 `PARTIAL`  
+**And** 不得推論任何「已改善」、「合規」或「通過」之評價性結論。
+
+### Scenario 4: Strict Claim Boundary Display
+**Given** 一份包含全域 `claim_boundary` 之評估報告  
+**When** 審查引擎產出審查報告視圖（Markdown 或 JSON）時  
+**Then** 全域 `claim_boundary` 必須置於獨立且顯要的區塊展示  
+**And** 每一項 finding 的局部 `cannot_claim` 必須完整附加於該任務條目下方。
