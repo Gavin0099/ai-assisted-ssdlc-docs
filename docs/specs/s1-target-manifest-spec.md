@@ -75,3 +75,70 @@ When 執行 validate_target_manifest 驗證
 Then 驗證必須失敗 (exit code 1)
 And 錯誤訊息必須明確指出 version 必須為字串型別，禁止數值型別
 ```
+
+---
+
+## S1-B 物化演算法與合約 (S1-B Materialization Algorithm & Contract)
+
+Repo Corpus Resolver 在指定 commit SHA 下物化權威文件時，必須保證以下演算法之確定性與安全性：
+
+1. **Commit SHA 凍結確認與儲存庫身分驗證 (Commit & Source Verification)**:
+   - 驗證目標儲存庫是否存在該 40 字元 commit SHA，若 commit 不存在或儲存庫無效立即 Fail-Closed。
+   - **GitHub 來源身分綁定**：若 `source_type == "github"`，必須驗證本機儲存庫之 remote `origin` URL 確切包含並綁定宣告之 `owner/repo`，未設定或身分不符立即 Fail-Closed，防止來源偽冒。
+2. **零工作目錄污染與原始路徑讀取 (Zero Working-Tree Checkout & Raw Path Parsing)**:
+   - 透過 `git -c core.quotepath=false ls-tree -r -z --full-tree <commit>` 直接以二進位讀取 NUL (`\0`) 分隔之物件記錄。
+   - 檔名不做 C-quoting，支援中文及空格檔名（如 `policy/安全政策.md` 與 `policy/code review.md`），檔名路徑強制以嚴格 UTF-8 解碼。
+3. **過濾非檔案物件 (Regular Files Only)**:
+   - 僅接受常規 `blob`，排除目錄樹與符號連結（Git mode `120000`），防止符號連結引發任意檔案讀取或路徑逃逸。
+4. **權威表面篩選與語意子集 (Authority Surface Filtering & Glob Subset v1)**:
+   - Glob 模式嚴格限定為 **Supported Glob Subset v1**：僅支援 `*`、`**`、`?`。任何包含 `[`、`]`、`{`、`}`、`!` 等未支援語法之模式一律 Fail-Closed 阻斷。
+   - 候選路徑必須符合 `authority_surface.include` 之 glob 模式。
+   - 若定義 `authority_surface.exclude`，凡符合 exclude 模式之候選路徑一律予以排除（Exclude Always Wins）。
+5. **嚴格純文字與非二進位保證 (Strict Text & Binary Rejection)**:
+   - 讀取之二進位串流若包含 NUL byte (`\x00`) 或除 TAB (`\t`)、LF (`\n`)、CR (`\r`) 以外之 C0 控制字元，立即判定為二進位檔案並拋出異常阻斷（Fail-Closed）。
+   - 內容必須可成功以嚴格 UTF-8 解碼。
+6. **禁止空文件庫 (Non-Empty Corpus Guarantee)**:
+   - 若 include 模式未匹配任何檔案，或匹配之檔案全數被 exclude 排除導致物化檔案數為 0，立即 Fail-Closed 拋出異常，防止 downstream 審查引擎對空文件庫產出錯誤結論。
+7. **確定性排序與整體指紋 (Deterministic Sorting & Corpus Digest)**:
+   - 物化後之檔案集合一律依 `relative_path`（正斜線路徑字串）升序排序。
+   - 全體數位指紋計算公式：
+     `corpus_digest = SHA256(sum_i(f"{file_i.relative_path}\t{file_i.content_hash}\n"))`
+   - 確保相同 commit 與 manifest 產出的指紋具備嚴格數學可重現性。
+
+### 場景 5: 成功於指定 Commit SHA 物化 CorpusSnapshot（含中文與空格路徑）
+```gherkin
+Given 一份合法的 Target Manifest 指向 repo 且 commit 為特定 40 字元 SHA
+And repo 包含中文檔名 "policy/安全政策.md" 與空格檔名 "policy/code review.md"
+And authority_surface 定義 include: ["policy/**"] 與 exclude: ["archive/**"]
+When 執行 RepoCorpusResolver.resolve() 物化儲存庫
+Then 回傳不可變的 CorpusSnapshot
+And 所有檔案路徑（包含中文及空格）完整還原且內容正確解碼
+And snapshot.corpus_digest 必須不為空且可穩定重現
+```
+
+### 場景 6: Exclude 規則優先於 Include (Exclude Always Wins)
+```gherkin
+Given authority_surface 定義 include: ["docs/**"] 與 exclude: ["docs/drafts/**"]
+And repo 在 docs/drafts/ 有檔案 "docs/drafts/draft.md"
+When 執行物化解析
+Then 物化後的 snapshot 檔案清單中絕對不得包含 "docs/drafts/draft.md"
+```
+
+### 場景 7: 符號連結 (Symlinks) 略過不物化
+```gherkin
+Given repo 在指定 commit 下包含指向儲存庫外部或敏感檔案之 symlink "policy/link.md"
+When 執行物化解析
+Then 物化後的 snapshot 檔案清單中必須排除 "policy/link.md"
+And 不得拋出異常亦不得讀取符號連結指向之實體檔案
+```
+
+### 場景 8: 空文件庫或二進位/NUL 檔案觸發 Fail-Closed
+```gherkin
+Given authority_surface.include 未匹配任何檔案，或檔案全數被 exclude 排除
+When 執行物化解析
+Then 必須拋出 CorpusResolverError 拒絕產生空文件庫
+
+Given 權威文件包含 NUL 位元組 (b"a\x00b") 或 C0 控制字元
+When 執行物化解析
+Then 必須拋出 CorpusResolverError 拒絕二進位檔案
+```
