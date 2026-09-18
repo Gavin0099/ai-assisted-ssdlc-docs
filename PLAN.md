@@ -32,7 +32,7 @@
 - [x] S1-B: Repo Corpus Resolver (Materialize authoritative repository files into an immutable corpus based on Target Manifest include/exclude surface).
 - [x] S1-D1: Review Contract & Deterministic Projection Layer (Defined non-collapsible 6 dimensions, deterministic ordering with full tie-breakers, fixed output shape, ReadOnlyReviewRecord domain models, and pure renderer library; 145/145 tests pass).
 - [x] S1-D2: CLI Wiring & Reporting Orchestration (Implemented ReviewReportOrchestrator, fail-closed validation orchestration, CLI options with stdout/file artifact outputs; 158/158 tests pass).
-- [ ] S1-D3: Assessment Comparison & Diffing Engine (Deterministic comparison between assessment versions without evaluative sentiment).
+- [x] S1-D3: Assessment Comparison & Diffing Engine (Deterministic, evaluative-free comparison between assessment versions; added tools/assessment_diff.py, CLI --diff-baseline flag, 172/172 tests pass).
 - [ ] S1-D4: Review Queue Action Projection (Project assessment recommendations into reviewer action view).
 
 - [x] Adopt AI Governance baseline with a framework checkout.

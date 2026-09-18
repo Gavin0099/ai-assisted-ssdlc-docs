@@ -31,6 +31,10 @@ from tools.validate_ssdf_assessment import (
     DEFAULT_TASKS_REF,
     validate_ssdf_assessment,
 )
+from tools.assessment_diff import (
+    AssessmentDiffEngine,
+    DeterministicDiffRenderer as DiffRenderer,
+)
 from tools.validate_target_manifest import parse_target_manifest, validate_target_manifest_file
 
 BASIS_PRIORITY: dict[str, int] = {
@@ -466,7 +470,7 @@ class ReviewReportOrchestrator:
         self.corpus_resolver = corpus_resolver or RepoCorpusResolver()
         self.source_ref_validator = source_ref_validator or StrictCorpusSourceRefValidator()
 
-    def orchestrate(
+    def load_and_verify(
         self,
         assessment_path: Path,
         manifest_path: Path | None = None,
@@ -475,7 +479,8 @@ class ReviewReportOrchestrator:
         tasks_ref: Path | None = None,
         evidence_schema: Path | None = None,
         review_queue_schema: Path | None = None,
-    ) -> ReadOnlyReviewRecord:
+    ) -> tuple[CorpusAssessmentReport, bool]:
+        """Loads and strictly validates an assessment report and its provenance against trust boundaries."""
         assessment_path = Path(assessment_path)
         if not assessment_path.is_file():
             raise ReviewValidationError([f"Assessment file not found: {assessment_path}"])
@@ -566,7 +571,27 @@ class ReviewReportOrchestrator:
 
                 provenance_verified = True
 
-        # 4. Pure deterministic projection
+        return report, provenance_verified
+
+    def orchestrate(
+        self,
+        assessment_path: Path,
+        manifest_path: Path | None = None,
+        repo_path: Path | None = None,
+        allow_unverified_provenance: bool = False,
+        tasks_ref: Path | None = None,
+        evidence_schema: Path | None = None,
+        review_queue_schema: Path | None = None,
+    ) -> ReadOnlyReviewRecord:
+        report, provenance_verified = self.load_and_verify(
+            assessment_path=assessment_path,
+            manifest_path=manifest_path,
+            repo_path=repo_path,
+            allow_unverified_provenance=allow_unverified_provenance,
+            tasks_ref=tasks_ref,
+            evidence_schema=evidence_schema,
+            review_queue_schema=review_queue_schema,
+        )
         return self.projector.project(report, provenance_verified=provenance_verified)
 
 
@@ -610,6 +635,24 @@ def main(argv: list[str] | None = None) -> int:
         help="Print rendered report to standard output stream",
     )
     parser.add_argument(
+        "--diff-baseline",
+        type=Path,
+        default=None,
+        help="Path to baseline assessment YAML file to compare against target assessment",
+    )
+    parser.add_argument(
+        "--baseline-manifest",
+        type=Path,
+        default=None,
+        help="Path to target-manifest.yaml for the baseline assessment in diff mode",
+    )
+    parser.add_argument(
+        "--baseline-repo-path",
+        type=Path,
+        default=None,
+        help="Path to repository root for the baseline assessment in diff mode (defaults to --repo-path)",
+    )
+    parser.add_argument(
         "--reference",
         "--tasks-ref",
         dest="tasks_ref",
@@ -645,6 +688,88 @@ def main(argv: list[str] | None = None) -> int:
     selected_format = args.format
     if selected_format is None:
         selected_format = "both" if args.out_dir else "markdown"
+
+    # Branch for assessment comparison / diffing mode
+    if args.diff_baseline:
+        diff_engine = AssessmentDiffEngine()
+        diff_renderer = DiffRenderer()
+        orchestrator = ReviewReportOrchestrator()
+
+        try:
+            baseline_repo_path = args.baseline_repo_path or args.repo_path
+            b_report, b_verified = orchestrator.load_and_verify(
+                assessment_path=args.diff_baseline,
+                manifest_path=args.baseline_manifest,
+                repo_path=baseline_repo_path,
+                allow_unverified_provenance=args.allow_unverified_provenance,
+                tasks_ref=args.tasks_ref,
+                evidence_schema=args.evidence_schema,
+                review_queue_schema=args.review_queue_schema,
+            )
+            t_report, t_verified = orchestrator.load_and_verify(
+                assessment_path=args.target,
+                manifest_path=args.manifest,
+                repo_path=args.repo_path,
+                allow_unverified_provenance=args.allow_unverified_provenance,
+                tasks_ref=args.tasks_ref,
+                evidence_schema=args.evidence_schema,
+                review_queue_schema=args.review_queue_schema,
+            )
+        except ReviewValidationError as exc:
+            sys.stderr.write("Review Validation Failed:\n")
+            for err in exc.errors:
+                sys.stderr.write(f"  - {err}\n")
+            return 1
+        except ReviewProvenanceError as exc:
+            sys.stderr.write(f"Review Provenance Validation Failed: {exc}\n")
+            return 1
+        except ReviewOrchestrationError as exc:
+            sys.stderr.write(f"Review Orchestration Failed: {exc}\n")
+            return 1
+        except Exception as exc:
+            sys.stderr.write(f"Unexpected error during review orchestration: {exc}\n")
+            return 1
+
+        provenance_verified = b_verified and t_verified
+        diff_record = diff_engine.compare(
+            baseline=b_report,
+            target=t_report,
+            provenance_verified=provenance_verified,
+        )
+
+        if args.stdout:
+            if selected_format == "json":
+                sys.stdout.write(diff_renderer.render_json(diff_record) + "\n")
+            else:
+                sys.stdout.write(diff_renderer.render_markdown(diff_record))
+
+        if args.out_dir:
+            try:
+                _validate_safe_output_name(b_report.id)
+                _validate_safe_output_name(t_report.id)
+            except ReviewOrchestrationError as exc:
+                sys.stderr.write(f"Output path validation failed: {exc}\n")
+                return 1
+
+            out_dir = args.out_dir.resolve()
+            out_dir.mkdir(parents=True, exist_ok=True)
+            diff_name = f"{b_report.id}_vs_{t_report.id}"
+
+            if selected_format in ("markdown", "both"):
+                md_path = (out_dir / f"{diff_name}.diff.md").resolve()
+                if not md_path.is_relative_to(out_dir):
+                    sys.stderr.write(f"Output path validation failed: {md_path} escapes output directory {out_dir}\n")
+                    return 1
+                md_path.write_text(diff_renderer.render_markdown(diff_record), encoding="utf-8")
+
+            if selected_format in ("json", "both"):
+                json_path = (out_dir / f"{diff_name}.diff.json").resolve()
+                if not json_path.is_relative_to(out_dir):
+                    sys.stderr.write(f"Output path validation failed: {json_path} escapes output directory {out_dir}\n")
+                    return 1
+                json_path.write_text(diff_renderer.render_json(diff_record) + "\n", encoding="utf-8")
+
+        return 0
 
     orchestrator = ReviewReportOrchestrator()
     try:
