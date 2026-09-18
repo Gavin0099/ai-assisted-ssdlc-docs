@@ -211,6 +211,12 @@ mode:
 #### Product Manifest Canonical Digest 規範
 `product_manifest_digest` 與 S1 Target Manifest 採用相同之 Canonical JSON (`sort_keys=True`) + SHA-256 規範，但**僅包含 Product Target Manifest 自身的 4 個語意欄位**（`manifest_version`, `target`, `authority_surface`, `mode`），嚴格不包含 Policy baseline 欄位。
 
+#### 符號連結與路徑安全邊界 (Symlink & Path Traversal Policy)
+重用 S1 infrastructure 之 `RepoCorpusResolver` 機制，實作憑證的檔案解析遵循以下嚴格原則：
+1. **符號連結安全排除 (Symlink Blob Exclusion)**：Git tree 中 mode `120000` 之符號連結於物化階段一律略過（Skip/Exclude），絕不作為合法證據 blob 載入。若預期憑證為符號連結，因其未進入物化清冊，將按規則判定為 `EVIDENCE_MISSING`，不會進入評估階段。
+2. **邊界逃逸即刻阻斷 (Path Traversal Fail-Closed)**：候選選取器（`candidate_selectors`）或路徑若包含路徑穿越運算子（如 `..` 或絕對路徑）企圖逃逸產品 Repo 邊界，系統即刻視為安全違規並 Fail-Closed (Exit 1)。
+
+
 ---
 
 ### 4.3 Static Evidence & Verification Models
@@ -349,7 +355,8 @@ class ImplementationVerificationRecord:
 ### 5.2 系統出處異常阻斷 (Fail-Closed, Exit Code 1)
 以下任一情境破壞信任邊界，引擎必須即刻中止（Fail-Closed, Exit 1），嚴禁輸出看似事實之報表：
 1. **雙邊出處未完全通過且無 Opt-In**：若 `policy_provenance_verified == False` 或 `product_provenance_verified == False`，且未顯式指定 `--allow-unverified-provenance`。
-2. **Authority Surface 逃逸**：憑證路徑逃脫產品 Repo 邊界或含有符號連結攻擊。
+2. **Authority Surface 逃逸**：候選路徑或規則企圖透過路徑穿越（如 `..` 或絕對路徑）逃脫產品 Repo 邊界（註：Git 符號連結則由 Resolver 於物化階段自動安全略過排除，視為未進入清冊）。
+
 3. **無效規則或未定義 Expectation**：Expectation 參照之 `policy_finding_id` 於 Policy 報告中不存在，或 Rule 使用未知之 Matcher / 不支援之 YAML Path 語法。
 4. **完整性約束破壞**：偵測到重複之 `rule_id` / `expectation_id`，或懸空參照、Task ID 不一致。
 
