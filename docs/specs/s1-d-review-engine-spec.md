@@ -108,3 +108,66 @@
 **When** 審查引擎產出審查報告視圖（Markdown 或 JSON）時  
 **Then** 全域 `claim_boundary` 必須置於獨立且顯要的區塊展示  
 **And** 每一項 finding 的局部 `cannot_claim` 必須完整附加於該任務條目下方。
+
+---
+
+## 6. S1-D2: CLI Wiring & Reporting Orchestration Specification
+
+### 6.1 職責與編排護欄 (Responsibilities & Guardrails)
+S1-D2 負責為審查引擎提供命令列進入點與報表產出編排服務：
+1. **強制先驗證後投影 (Fail-Closed Gate)**:
+   - 輸入之 Assessment YAML 必須先通過 S1-C `validate_ssdf_assessment` 檢核（結構、Schema、禁止宣稱語句、任務對應完整性）。
+   - 若提供 `--repo-path`，必須載入 Target Manifest 並由 `RepoCorpusResolver` 生成快照，透過 `validate_report_against_snapshot` 嚴格核對 commit、`manifest_digest`、`corpus_digest` 與所有 `company_source_ref` 存在性。
+   - 若驗證失敗，立即中斷（Exit Code 1），輸出明確之錯誤原因，嚴禁產出未驗證之報表。
+2. **命令列介面規格**:
+   - `python tools/review_engine.py <assessment-file.yaml> [options]`
+   - 參數選項：
+     - `target`: Path to assessment YAML file.
+     - `--format {markdown,json,both}`: 報表輸出格式（預設值：若指定 `--stdout` 則為 `markdown`；若指定 `--out-dir` 則為 `both`）。
+     - `--out-dir <dir>`: 輸出目錄。寫入 `<assessment_id>.review.md` 與/或 `<assessment_id>.review.json`。
+     - `--stdout`: 輸出至標準輸出（支援 Unix pipeline）。
+     - `--repo-path <dir>`: 目標儲存庫根目錄路徑。提供時自動執行 S1-C Snapshot Provenance 與語料庫完整性驗證。
+     - `--reference`, `--tasks-ref`: NIST SSDF 權威任務定義檔（可選，預設指向 references）。
+     - `--evidence-schema`: Evidence Schema 檔案路徑（可選）。
+     - `--review-queue-schema`: Review Queue Schema 檔案路徑（可選）。
+
+### 6.2 抽象服務介面 (Service Interface)
+```python
+class IReviewReportOrchestrator(Protocol):
+    def orchestrate(
+        self,
+        assessment_path: Path,
+        repo_path: Path | None = None,
+        tasks_ref: Path | None = None,
+        evidence_schema: Path | None = None,
+        review_queue_schema: Path | None = None,
+    ) -> ReadOnlyReviewRecord:
+        """Validates input, materializes domain models, and projects to review record."""
+        ...
+```
+
+### 6.3 S1-D2 行為驅動開發場景 (BDD Scenarios)
+
+### Scenario 5: Input Validation Orchestration (Fail-Closed on Invalid Assessment)
+**Given** 一份未通過 S1-C 結構性或語意約束的評估 YAML（如缺少 `cannot_claim` 或含有禁止之宣稱語句）  
+**When** 審查編排服務或 CLI 執行評估報告處理時  
+**Then** 必須拋出 `ReviewValidationError` 或 CLI 以 Exit Code 1 結束  
+**And** 輸出清晰的驗證錯誤清單，嚴禁產出任何報表。
+
+### Scenario 6: Provenance & Snapshot Validation Orchestration
+**Given** 一份宣告之 `corpus_digest` 或 `commit` 與 `--repo-path` 實體儲存庫不符之評估 YAML  
+**When** 執行帶有 `--repo-path` 之審查編排服務或 CLI 時  
+**Then** 必須拋出 `ReviewProvenanceError` 或 CLI 以 Exit Code 1 結束  
+**And** 明確回報 Provenance 不符原因。
+
+### Scenario 7: Deterministic Artifact Output Generation
+**Given** 一份合規之評估 YAML 與 `--out-dir output/ --format both`  
+**When** 執行 CLI 產生報告時  
+**Then** `output/<assessment_id>.review.md` 與 `output/<assessment_id>.review.json` 必須被正確寫入  
+**And** 產出的內容必須具備確定性（與 Renderer 直接產出內容 bit-for-bit 一致）。
+
+### Scenario 8: Stdout Output Streaming
+**Given** 一份合規之評估 YAML 與 `--stdout --format markdown`  
+**When** 執行 CLI 產生報告時  
+**Then** 格式化之 Markdown 報表輸出至標準輸出，Exit Code 為 0。
+

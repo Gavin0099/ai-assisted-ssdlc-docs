@@ -1,7 +1,9 @@
-from __future__ import annotations
-
+import io
 import json
+import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from pathlib import Path
 
 from tools.corpus_assessment_engine import (
     CorpusAssessmentBasis,
@@ -13,10 +15,16 @@ from tools.corpus_assessment_engine import (
 )
 from tools.review_engine import (
     DeterministicReviewReportRenderer,
+    IReviewReportOrchestrator,
     ReadOnlyReviewFindingRecord,
     ReadOnlyReviewObservationRecord,
     ReadOnlyReviewProjector,
     ReadOnlyReviewRecord,
+    ReviewOrchestrationError,
+    ReviewProvenanceError,
+    ReviewReportOrchestrator,
+    ReviewValidationError,
+    main,
 )
 
 
@@ -422,7 +430,191 @@ class TestReviewEngine(unittest.TestCase):
         )
         self.assertIn(expected_block, md)
 
+    def _build_valid_7task_report(self) -> CorpusAssessmentReport:
+        scope_tasks = ["PO.1.2", "PO.3.1", "PS.2.1", "PW.1.1", "PW.4.4", "PW.8.1", "RV.1.3"]
+        findings = []
+        for idx, task_id in enumerate(scope_tasks, start=1):
+            findings.append(
+                CorpusTaskFinding(
+                    finding_id=f"F-TEST-{idx:02d}",
+                    task_id=task_id,
+                    company_source_ref="policy/security.md#sec-1",
+                    company_statement="All requirements must be documented.",
+                    coverage_verdict="PARTIAL",
+                    basis=[
+                        CorpusAssessmentBasis(
+                            type="nist_normative",
+                            task_id=task_id,
+                            source="NIST_SP_800_218_v1.1",
+                            rationale="Normative task requirement.",
+                        ),
+                    ],
+                    assessment_rationale=["The policy requires documentation."],
+                    identified_evidence=[
+                        IdentifiedEvidence(
+                            type="policy_statement",
+                            source_ref="policy/security.md#sec-1",
+                        )
+                    ],
+                    evidence_strength="medium",
+                    review_queue_recommendation="needs_changes",
+                    cannot_claim=["This does not prove compliance."],
+                )
+            )
+        return CorpusAssessmentReport(
+            id="S1-ORCH-001",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.target,
+            scope_tasks=scope_tasks,
+            claim_boundary=["This is an assessment boundary."],
+            findings=findings,
+            observations=[],
+        )
+
+    def test_orchestrator_validates_and_projects_success(self) -> None:
+        report = self._build_valid_7task_report()
+        orchestrator = ReviewReportOrchestrator()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
+            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            record = orchestrator.orchestrate(yaml_path)
+            self.assertIsInstance(record, ReadOnlyReviewRecord)
+            self.assertEqual(record.assessment_id, "S1-ORCH-001")
+            self.assertEqual(len(record.findings), 7)
+
+    def test_orchestrator_fails_closed_on_invalid_linter_yaml(self) -> None:
+        report = self._build_valid_7task_report()
+        yaml_dict = report.to_dict()
+        # Corrupt: inject forbidden affirmative claim in rationale
+        yaml_dict["results"][0]["assessment_rationale"] = ["The system is fully compliant with NIST SSDF."]
+
+        import yaml
+        orchestrator = ReviewReportOrchestrator()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "invalid-assessment.yaml"
+            yaml_path.write_text(yaml.dump(yaml_dict), encoding="utf-8")
+
+            with self.assertRaises(ReviewValidationError) as ctx:
+                orchestrator.orchestrate(yaml_path)
+            self.assertTrue(len(ctx.exception.errors) > 0)
+            self.assertTrue(any("prohibited claim" in err for err in ctx.exception.errors))
+
+    def test_orchestrator_fails_closed_on_missing_repo_path_manifest(self) -> None:
+        report = self._build_valid_7task_report()
+        orchestrator = ReviewReportOrchestrator()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
+            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            empty_repo = Path(tmp_dir) / "empty_repo"
+            empty_repo.mkdir()
+
+            with self.assertRaises(ReviewProvenanceError) as ctx:
+                orchestrator.orchestrate(yaml_path, repo_path=empty_repo)
+            self.assertIn("Target manifest not found", str(ctx.exception))
+
+    def test_cli_stdout_markdown_output(self) -> None:
+        report = self._build_valid_7task_report()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
+            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                exit_code = main([str(yaml_path), "--stdout", "--format", "markdown"])
+
+            self.assertEqual(exit_code, 0)
+            out = buf.getvalue()
+            self.assertIn("# SSDF Direct Assessment Review Report: S1-ORCH-001", out)
+            self.assertIn("## Claim Boundary", out)
+
+    def test_cli_stdout_json_output(self) -> None:
+        report = self._build_valid_7task_report()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
+            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                exit_code = main([str(yaml_path), "--stdout", "--format", "json"])
+
+            self.assertEqual(exit_code, 0)
+            parsed = json.loads(buf.getvalue())
+            self.assertEqual(parsed["assessment_id"], "S1-ORCH-001")
+            self.assertEqual(len(parsed["findings"]), 7)
+
+    def test_cli_out_dir_generates_both_artifacts(self) -> None:
+        report = self._build_valid_7task_report()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
+            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            out_dir = Path(tmp_dir) / "reports"
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                exit_code = main([str(yaml_path), "--out-dir", str(out_dir), "--format", "both"])
+
+            self.assertEqual(exit_code, 0)
+            md_file = out_dir / "S1-ORCH-001.review.md"
+            json_file = out_dir / "S1-ORCH-001.review.json"
+            self.assertTrue(md_file.is_file())
+            self.assertTrue(json_file.is_file())
+
+            content_md = md_file.read_text(encoding="utf-8")
+            self.assertIn("# SSDF Direct Assessment Review Report: S1-ORCH-001", content_md)
+
+    def test_cli_fails_closed_on_invalid_assessment(self) -> None:
+        report = self._build_valid_7task_report()
+        yaml_dict = report.to_dict()
+        yaml_dict["results"][0]["cannot_claim"] = []  # Corrupt: empty cannot_claim
+
+        import yaml
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "invalid-assessment.yaml"
+            yaml_path.write_text(yaml.dump(yaml_dict), encoding="utf-8")
+
+            err_buf = io.StringIO()
+            with redirect_stderr(err_buf):
+                exit_code = main([str(yaml_path), "--stdout"])
+
+            self.assertEqual(exit_code, 1)
+            err_msg = err_buf.getvalue()
+            self.assertIn("cannot_claim must be a non-empty list", err_msg)
+
+    def test_cli_fails_closed_on_stdout_format_both(self) -> None:
+        report = self._build_valid_7task_report()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
+            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            err_buf = io.StringIO()
+            with redirect_stderr(err_buf):
+                exit_code = main([str(yaml_path), "--stdout", "--format", "both"])
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("cannot be used with --stdout", err_buf.getvalue())
+
+    def test_cli_subprocess_invocation(self) -> None:
+        import subprocess
+        import sys
+        report = self._build_valid_7task_report()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
+            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            res = subprocess.run(
+                [sys.executable, "tools/review_engine.py", str(yaml_path), "--stdout"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(res.returncode, 0)
+            self.assertIn("# SSDF Direct Assessment Review Report: S1-ORCH-001", res.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
+
+
 

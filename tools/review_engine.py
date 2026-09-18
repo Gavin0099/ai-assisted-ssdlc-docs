@@ -1,13 +1,38 @@
 from __future__ import annotations
 
+import argparse
 import json
+import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Protocol
 
+ROOT_DIR = Path(__file__).resolve().parents[1]
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
+import yaml
+
 from tools.corpus_assessment_engine import (
+    CorpusAssessmentError,
     CorpusAssessmentReport,
     CorpusAssessmentTarget,
+    ICorpusSourceRefValidator,
+    StrictCorpusSourceRefValidator,
+    parse_corpus_assessment_dict,
+    validate_report_against_snapshot,
 )
+from tools.repo_corpus_resolver import IRepoCorpusResolver, RepoCorpusResolver
+from tools.validate_ssdf_assessment import (
+    DEFAULT_EVIDENCE_SCHEMA,
+    DEFAULT_REVIEW_QUEUE_SCHEMA,
+    DEFAULT_TASKS_REF,
+    validate_ssdf_assessment,
+)
+from tools.validate_target_manifest import validate_target_manifest_file
 
 BASIS_PRIORITY: dict[str, int] = {
     "nist_normative": 1,
@@ -139,6 +164,35 @@ class ReadOnlyReviewRecord:
             "observations": [obs.to_dict() for obs in self.observations],
         }
         return d
+
+
+class ReviewOrchestrationError(Exception):
+    """Base exception for review reporting orchestration."""
+
+
+class ReviewValidationError(ReviewOrchestrationError):
+    """Raised when assessment YAML fails linter/schema validation."""
+
+    def __init__(self, errors: list[str]) -> None:
+        super().__init__("\n".join(errors))
+        self.errors = errors
+
+
+class ReviewProvenanceError(ReviewOrchestrationError):
+    """Raised when target provenance or corpus snapshot validation fails."""
+
+
+class IReviewReportOrchestrator(Protocol):
+    def orchestrate(
+        self,
+        assessment_path: Path,
+        repo_path: Path | None = None,
+        tasks_ref: Path | None = None,
+        evidence_schema: Path | None = None,
+        review_queue_schema: Path | None = None,
+    ) -> ReadOnlyReviewRecord:
+        """Validates input, materializes domain models, and projects to review record."""
+        ...
 
 
 class IReadOnlyReviewProjector(Protocol):
@@ -363,3 +417,184 @@ class DeterministicReviewReportRenderer:
                 lines.append("")
 
         return "\n".join(lines).strip() + "\n"
+
+
+class ReviewReportOrchestrator:
+    """Orchestrates validation, domain loading, snapshot verification, and projection."""
+
+    def __init__(
+        self,
+        projector: IReadOnlyReviewProjector | None = None,
+        corpus_resolver: IRepoCorpusResolver | None = None,
+        source_ref_validator: ICorpusSourceRefValidator | None = None,
+    ) -> None:
+        self.projector = projector or ReadOnlyReviewProjector()
+        self.corpus_resolver = corpus_resolver or RepoCorpusResolver()
+        self.source_ref_validator = source_ref_validator or StrictCorpusSourceRefValidator()
+
+    def orchestrate(
+        self,
+        assessment_path: Path,
+        repo_path: Path | None = None,
+        tasks_ref: Path | None = None,
+        evidence_schema: Path | None = None,
+        review_queue_schema: Path | None = None,
+    ) -> ReadOnlyReviewRecord:
+        assessment_path = Path(assessment_path)
+        if not assessment_path.is_file():
+            raise ReviewValidationError([f"Assessment file not found: {assessment_path}"])
+
+        # 1. Structural and linter validation via validate_ssdf_assessment
+        validation_errors = validate_ssdf_assessment(
+            assessment_path,
+            tasks_ref=tasks_ref or DEFAULT_TASKS_REF,
+            evidence_schema=evidence_schema or DEFAULT_EVIDENCE_SCHEMA,
+            review_queue_schema=review_queue_schema or DEFAULT_REVIEW_QUEUE_SCHEMA,
+        )
+        if validation_errors:
+            raise ReviewValidationError(validation_errors)
+
+        # 2. Parse YAML and load into CorpusAssessmentReport domain object
+        try:
+            with open(assessment_path, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+        except Exception as e:
+            raise ReviewValidationError([f"Failed to read or parse YAML: {e}"])
+
+        try:
+            report = parse_corpus_assessment_dict(data)
+        except CorpusAssessmentError as e:
+            raise ReviewValidationError([f"Corpus assessment schema error: {e}"])
+
+        # 3. Optional repo snapshot & provenance validation
+        if repo_path is not None:
+            repo_path_obj = Path(repo_path).resolve()
+            manifest_file = repo_path_obj / report.target.manifest_path
+            if not manifest_file.is_file():
+                raise ReviewProvenanceError(
+                    f"Target manifest not found in repository at: {report.target.manifest_path}"
+                )
+            try:
+                manifest = validate_target_manifest_file(manifest_file)
+                snapshot = self.corpus_resolver.resolve(
+                    manifest=manifest,
+                    repo_path=repo_path_obj,
+                )
+                validate_report_against_snapshot(report, snapshot, self.source_ref_validator)
+            except Exception as e:
+                raise ReviewProvenanceError(str(e))
+
+        # 4. Pure deterministic projection
+        return self.projector.project(report)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Deterministic Review Engine CLI for SSDF repository corpus assessments."
+    )
+    parser.add_argument("target", type=Path, help="Path to assessment YAML file")
+    parser.add_argument(
+        "--format",
+        choices=["markdown", "json", "both"],
+        default=None,
+        help="Output report format (markdown, json, or both)",
+    )
+    parser.add_argument(
+        "--out-dir",
+        type=Path,
+        default=None,
+        help="Directory to write rendered review reports",
+    )
+    parser.add_argument(
+        "--stdout",
+        action="store_true",
+        help="Print rendered report to standard output stream",
+    )
+    parser.add_argument(
+        "--repo-path",
+        type=Path,
+        default=None,
+        help="Path to repository root to perform provenance and corpus snapshot validation",
+    )
+    parser.add_argument(
+        "--tasks-ref",
+        type=Path,
+        default=DEFAULT_TASKS_REF,
+        help="Path to authoritative NIST SSDF tasks reference YAML",
+    )
+    parser.add_argument(
+        "--evidence-schema",
+        type=Path,
+        default=DEFAULT_EVIDENCE_SCHEMA,
+        help="Path to evidence record schema YAML",
+    )
+    parser.add_argument(
+        "--review-queue-schema",
+        type=Path,
+        default=DEFAULT_REVIEW_QUEUE_SCHEMA,
+        help="Path to review queue schema YAML",
+    )
+
+    args = parser.parse_args(argv)
+
+    # Resolution of default output behavior:
+    # If neither --out-dir nor --stdout is specified, default to --stdout
+    if not args.out_dir and not args.stdout:
+        args.stdout = True
+
+    # Validate output format constraints
+    if args.stdout and args.format == "both":
+        sys.stderr.write("Error: --format both cannot be used with --stdout; choose markdown or json.\n")
+        return 1
+
+    selected_format = args.format
+    if selected_format is None:
+        selected_format = "both" if args.out_dir else "markdown"
+
+    orchestrator = ReviewReportOrchestrator()
+    try:
+        record = orchestrator.orchestrate(
+            assessment_path=args.target,
+            repo_path=args.repo_path,
+            tasks_ref=args.tasks_ref,
+            evidence_schema=args.evidence_schema,
+            review_queue_schema=args.review_queue_schema,
+        )
+    except ReviewValidationError as exc:
+        sys.stderr.write("Review Validation Failed:\n")
+        for err in exc.errors:
+            sys.stderr.write(f"  - {err}\n")
+        return 1
+    except ReviewProvenanceError as exc:
+        sys.stderr.write(f"Review Provenance Validation Failed: {exc}\n")
+        return 1
+    except Exception as exc:
+        sys.stderr.write(f"Unexpected error during review orchestration: {exc}\n")
+        return 1
+
+    renderer = DeterministicReviewReportRenderer()
+
+    # Handle --stdout
+    if args.stdout:
+        if selected_format == "json":
+            sys.stdout.write(renderer.render_json(record) + "\n")
+        else:
+            sys.stdout.write(renderer.render_markdown(record))
+
+    # Handle --out-dir
+    if args.out_dir:
+        args.out_dir.mkdir(parents=True, exist_ok=True)
+        assessment_id = record.assessment_id
+        if selected_format in ("markdown", "both"):
+            md_path = args.out_dir / f"{assessment_id}.review.md"
+            md_path.write_text(renderer.render_markdown(record), encoding="utf-8")
+        if selected_format in ("json", "both"):
+            json_path = args.out_dir / f"{assessment_id}.review.json"
+            json_path.write_text(renderer.render_json(record) + "\n", encoding="utf-8")
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
