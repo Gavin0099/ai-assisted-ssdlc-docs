@@ -77,6 +77,30 @@ class CorpusSnapshot:
     total_files: int
     total_bytes: int
     corpus_digest: str
+    manifest_digest: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.manifest_digest:
+            canonical = {
+                "target": {
+                    "source_type": self.manifest.target.source_type,
+                    "repo": self.manifest.target.repo,
+                    "commit": self.manifest.target.commit,
+                },
+                "authority_surface": {
+                    "include": list(self.manifest.authority_surface.include),
+                    "exclude": list(self.manifest.authority_surface.exclude),
+                },
+                "baseline": {
+                    "framework": self.manifest.baseline.framework,
+                    "version": self.manifest.baseline.version,
+                },
+                "mode": {
+                    "read_only": self.manifest.mode.read_only,
+                },
+            }
+            raw = json.dumps(canonical, sort_keys=True).encode("utf-8")
+            object.__setattr__(self, "manifest_digest", hashlib.sha256(raw).hexdigest())
 
     def paths(self) -> tuple[str, ...]:
         return tuple(f.relative_path for f in self.files)
@@ -93,6 +117,7 @@ class CorpusSnapshot:
             "target_commit": self.target_commit,
             "total_files": self.total_files,
             "total_bytes": self.total_bytes,
+            "manifest_digest": self.manifest_digest,
             "corpus_digest": self.corpus_digest,
             "files": [f.to_dict() for f in self.files],
         }

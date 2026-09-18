@@ -13,8 +13,11 @@ from tools.corpus_assessment_engine import (
     CorpusAssessmentReport,
     CorpusAssessmentTarget,
     CorpusDigestMismatchError,
+    CorpusObservation,
     CorpusTaskFinding,
     IdentifiedEvidence,
+    InvalidCorpusSentinelError,
+    ManifestDigestMismatchError,
     SourceRefNotFoundError,
     StrictCorpusSourceRefValidator,
     parse_corpus_assessment_dict,
@@ -81,12 +84,11 @@ class TestCorpusAssessment(unittest.TestCase):
             total_bytes=total_bytes,
             corpus_digest=corpus_digest,
         )
-        self.manifest_digest = "ee" * 32
         self.valid_target = CorpusAssessmentTarget(
             repo="Gavin0099/ai-assisted-ssdlc-docs",
             commit=self.commit,
             manifest_path="examples/sample-target-manifest.yaml",
-            manifest_digest=self.manifest_digest,
+            manifest_digest=self.snapshot.manifest_digest,
             corpus_digest=self.snapshot.corpus_digest,
         )
 
@@ -149,19 +151,31 @@ class TestCorpusAssessment(unittest.TestCase):
             repo="Gavin0099/ai-assisted-ssdlc-docs",
             commit="00" * 20,
             manifest_path="examples/sample-target-manifest.yaml",
-            manifest_digest=self.manifest_digest,
+            manifest_digest=self.snapshot.manifest_digest,
             corpus_digest=self.snapshot.corpus_digest,
         )
         with self.assertRaises(CorpusAssessmentError) as ctx:
             validate_corpus_assessment_provenance(self.snapshot, tampered_target)
         self.assertIn("does not match target commit", str(ctx.exception))
 
+    def test_target_provenance_manifest_digest_mismatch_fails_closed(self) -> None:
+        tampered_target = CorpusAssessmentTarget(
+            repo="Gavin0099/ai-assisted-ssdlc-docs",
+            commit=self.commit,
+            manifest_path="examples/sample-target-manifest.yaml",
+            manifest_digest="99" * 32,
+            corpus_digest=self.snapshot.corpus_digest,
+        )
+        with self.assertRaises(ManifestDigestMismatchError) as ctx:
+            validate_corpus_assessment_provenance(self.snapshot, tampered_target)
+        self.assertIn("does not match target manifest_digest", str(ctx.exception))
+
     def test_target_provenance_corpus_digest_mismatch_fails_closed(self) -> None:
         tampered_target = CorpusAssessmentTarget(
             repo="Gavin0099/ai-assisted-ssdlc-docs",
             commit=self.commit,
             manifest_path="examples/sample-target-manifest.yaml",
-            manifest_digest=self.manifest_digest,
+            manifest_digest=self.snapshot.manifest_digest,
             corpus_digest="11" * 32,
         )
         with self.assertRaises(CorpusDigestMismatchError) as ctx:
@@ -195,30 +209,78 @@ class TestCorpusAssessment(unittest.TestCase):
         with self.assertRaises(SourceRefNotFoundError):
             validator.validate_source_ref(self.snapshot, "")
 
-    def test_source_ref_validation_allows_global_corpus_sentinel_for_missing_or_unresolved(self) -> None:
+    def test_source_ref_validation_allows_exact_corpus_sentinel_for_missing_or_unresolved(self) -> None:
         validator = StrictCorpusSourceRefValidator()
-        # Should succeed for MISSING and UNRESOLVED
         validator.validate_source_ref(self.snapshot, "<corpus>#unmentioned", coverage_verdict="MISSING")
         validator.validate_source_ref(self.snapshot, "<corpus>#unmentioned", coverage_verdict="UNRESOLVED")
 
     def test_source_ref_validation_rejects_sentinel_for_covered_or_partial(self) -> None:
         validator = StrictCorpusSourceRefValidator()
-        # Must fail closed if coverage is claimed while using sentinel
-        with self.assertRaises(CorpusAssessmentError) as ctx:
+        with self.assertRaises(InvalidCorpusSentinelError) as ctx:
             validator.validate_source_ref(self.snapshot, "<corpus>#unmentioned", coverage_verdict="COVERED")
-        self.assertIn("not permitted for coverage_verdict 'COVERED'", str(ctx.exception))
+        self.assertIn("permitted only for MISSING or UNRESOLVED", str(ctx.exception))
 
-        with self.assertRaises(CorpusAssessmentError) as ctx:
+        with self.assertRaises(InvalidCorpusSentinelError) as ctx:
             validator.validate_source_ref(self.snapshot, "<corpus>#unmentioned", coverage_verdict="PARTIAL")
-        self.assertIn("not permitted for coverage_verdict 'PARTIAL'", str(ctx.exception))
+        self.assertIn("permitted only for MISSING or UNRESOLVED", str(ctx.exception))
+
+    def test_source_ref_validation_rejects_sentinel_for_not_applicable(self) -> None:
+        validator = StrictCorpusSourceRefValidator()
+        with self.assertRaises(InvalidCorpusSentinelError) as ctx:
+            validator.validate_source_ref(self.snapshot, "<corpus>#unmentioned", coverage_verdict="NOT_APPLICABLE")
+        self.assertIn("permitted only for MISSING or UNRESOLVED", str(ctx.exception))
+
+    def test_source_ref_validation_rejects_malformed_or_invented_sentinels(self) -> None:
+        validator = StrictCorpusSourceRefValidator()
+        with self.assertRaises(InvalidCorpusSentinelError) as ctx:
+            validator.validate_source_ref(self.snapshot, "<corpus>#invented", coverage_verdict="MISSING")
+        self.assertIn("only '<corpus>#unmentioned' is supported", str(ctx.exception))
+
+        with self.assertRaises(InvalidCorpusSentinelError) as ctx:
+            validator.validate_source_ref(self.snapshot, "<corpus-not-real>", coverage_verdict="MISSING")
+        self.assertIn("only '<corpus>#unmentioned' is supported", str(ctx.exception))
 
     def test_source_ref_normalization_with_backslashes(self) -> None:
         validator = StrictCorpusSourceRefValidator()
-        # Windows-style backslash should normalize cleanly
         validator.validate_source_ref(self.snapshot, r"policy\security.md#section-1")
 
     def test_validate_report_against_snapshot_success(self) -> None:
         validate_report_against_snapshot(self.valid_report, self.snapshot)
+
+    def test_validate_report_against_snapshot_with_valid_observation(self) -> None:
+        obs = CorpusObservation(
+            finding_id="OBS-S1-01",
+            company_source_ref="process/review.md#notes",
+            observation="Observed engineering review procedure.",
+        )
+        report_with_obs = CorpusAssessmentReport(
+            id="S1-TEST-OBS",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.valid_target,
+            scope_tasks=self.valid_report.scope_tasks,
+            claim_boundary=self.valid_report.claim_boundary,
+            findings=self.valid_report.findings,
+            observations=[obs],
+        )
+        validate_report_against_snapshot(report_with_obs, self.snapshot)
+
+    def test_validate_report_against_snapshot_fails_when_observation_references_phantom_file(self) -> None:
+        obs = CorpusObservation(
+            finding_id="OBS-S1-PHANTOM",
+            company_source_ref="phantom/doc.md#notes",
+            observation="Observed phantom file.",
+        )
+        report_with_obs = CorpusAssessmentReport(
+            id="S1-TEST-OBS-PHANTOM",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.valid_target,
+            scope_tasks=self.valid_report.scope_tasks,
+            claim_boundary=self.valid_report.claim_boundary,
+            findings=self.valid_report.findings,
+            observations=[obs],
+        )
+        with self.assertRaises(SourceRefNotFoundError):
+            validate_report_against_snapshot(report_with_obs, self.snapshot)
 
     def test_validate_report_against_snapshot_fails_on_phantom_source_ref(self) -> None:
         phantom_finding = CorpusTaskFinding(
@@ -259,17 +321,34 @@ class TestCorpusAssessment(unittest.TestCase):
         self.assertIn("at least one finding", str(ctx.exception))
 
     def test_parse_corpus_assessment_dict_roundtrip(self) -> None:
-        report_dict = self.valid_report.to_dict()
+        obs = CorpusObservation(
+            finding_id="OBS-S1-01",
+            company_source_ref="process/review.md#notes",
+            observation="Observed engineering review procedure.",
+        )
+        report_with_obs = CorpusAssessmentReport(
+            id="S1-TEST-001",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.valid_target,
+            scope_tasks=self.valid_report.scope_tasks,
+            claim_boundary=self.valid_report.claim_boundary,
+            findings=self.valid_report.findings,
+            observations=[obs],
+        )
+
+        report_dict = report_with_obs.to_dict()
         parsed = parse_corpus_assessment_dict(report_dict)
-        self.assertEqual(parsed.id, self.valid_report.id)
-        self.assertEqual(parsed.target.manifest_digest, self.valid_report.target.manifest_digest)
-        self.assertEqual(parsed.target.corpus_digest, self.valid_report.target.corpus_digest)
-        self.assertEqual(len(parsed.findings), len(self.valid_report.findings))
+        self.assertEqual(parsed.id, report_with_obs.id)
+        self.assertEqual(parsed.target.manifest_digest, report_with_obs.target.manifest_digest)
+        self.assertEqual(parsed.target.corpus_digest, report_with_obs.target.corpus_digest)
+        self.assertEqual(len(parsed.findings), len(report_with_obs.findings))
+        self.assertEqual(len(parsed.observations), 1)
+        self.assertEqual(parsed.observations[0].finding_id, "OBS-S1-01")
 
     def test_report_serialization_and_linter_validation(self) -> None:
         yaml_str = self.valid_report.to_yaml()
         self.assertIn("repository_corpus", yaml_str)
-        self.assertIn(self.manifest_digest, yaml_str)
+        self.assertIn(self.snapshot.manifest_digest, yaml_str)
         self.assertIn(self.snapshot.corpus_digest, yaml_str)
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -337,7 +416,29 @@ class TestCorpusAssessment(unittest.TestCase):
             tmp_path = Path(tmp_dir) / "invalid.yaml"
             tmp_path.write_text(yaml.dump(report_dict), encoding="utf-8")
             errors = validate_ssdf_assessment(tmp_path)
-            self.assertTrue(any("sentinel '<corpus>#unmentioned' is not permitted" in e for e in errors), f"Expected sentinel error: {errors}")
+            self.assertTrue(any("sentinel '<corpus>#unmentioned' is permitted only for MISSING or UNRESOLVED" in e for e in errors), f"Expected sentinel error: {errors}")
+
+    def test_linter_rejects_sentinel_for_not_applicable_verdict(self) -> None:
+        report_dict = self.valid_report.to_dict()
+        report_dict["results"][0]["coverage_verdict"] = "NOT_APPLICABLE"
+        report_dict["results"][0]["company_source_ref"] = "<corpus>#unmentioned"
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir) / "invalid.yaml"
+            tmp_path.write_text(yaml.dump(report_dict), encoding="utf-8")
+            errors = validate_ssdf_assessment(tmp_path)
+            self.assertTrue(any("sentinel '<corpus>#unmentioned' is permitted only for MISSING or UNRESOLVED" in e for e in errors), f"Expected sentinel error: {errors}")
+
+    def test_linter_rejects_malformed_corpus_sentinel(self) -> None:
+        report_dict = self.valid_report.to_dict()
+        report_dict["results"][0]["coverage_verdict"] = "MISSING"
+        report_dict["results"][0]["company_source_ref"] = "<corpus>#invented"
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir) / "invalid.yaml"
+            tmp_path.write_text(yaml.dump(report_dict), encoding="utf-8")
+            errors = validate_ssdf_assessment(tmp_path)
+            self.assertTrue(any("invalid sentinel format" in e for e in errors), f"Expected sentinel error: {errors}")
 
 
 if __name__ == "__main__":

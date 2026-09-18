@@ -25,6 +25,14 @@ class CorpusDigestMismatchError(CorpusAssessmentError):
     """Raised when the declared corpus_digest does not match the actual snapshot digest."""
 
 
+class ManifestDigestMismatchError(CorpusAssessmentError):
+    """Raised when the declared manifest_digest does not match the snapshot manifest digest."""
+
+
+class InvalidCorpusSentinelError(CorpusAssessmentError):
+    """Raised when an invalid sentinel format or unauthorized verdict uses the sentinel."""
+
+
 @dataclass(frozen=True)
 class CorpusAssessmentTarget:
     repo: str
@@ -106,6 +114,28 @@ class CorpusTaskFinding:
 
 
 @dataclass(frozen=True)
+class CorpusObservation:
+    finding_id: str
+    company_source_ref: str
+    observation: str
+    basis: str = "reviewer_inference"
+    review_queue_recommendation: str = "needs_changes"
+    cannot_claim: list[str] = field(default_factory=list)
+    finding_type: str = "non_normative_observation"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "finding_id": self.finding_id,
+            "finding_type": self.finding_type,
+            "company_source_ref": self.company_source_ref,
+            "observation": self.observation,
+            "basis": self.basis,
+            "review_queue_recommendation": self.review_queue_recommendation,
+            "cannot_claim": list(self.cannot_claim),
+        }
+
+
+@dataclass(frozen=True)
 class CorpusAssessmentReport:
     id: str
     baseline: str
@@ -113,8 +143,13 @@ class CorpusAssessmentReport:
     scope_tasks: list[str]
     claim_boundary: list[str]
     findings: list[CorpusTaskFinding]
+    observations: list[CorpusObservation] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        results_list: list[dict[str, Any]] = [f.to_dict() for f in self.findings]
+        for obs in self.observations:
+            results_list.append(obs.to_dict())
+
         return {
             "assessment": {
                 "id": self.id,
@@ -130,7 +165,7 @@ class CorpusAssessmentReport:
                 "scope_tasks": list(self.scope_tasks),
                 "claim_boundary": list(self.claim_boundary),
             },
-            "results": [f.to_dict() for f in self.findings],
+            "results": results_list,
         }
 
     def to_yaml(self) -> str:
@@ -171,12 +206,16 @@ class StrictCorpusSourceRefValidator:
         if not source_ref or not source_ref.strip():
             raise SourceRefNotFoundError("Empty company_source_ref is not allowed.")
 
-        # Sentinel check: <corpus>#unmentioned is strictly allowed ONLY for MISSING or UNRESOLVED
-        if source_ref.startswith("<corpus>"):
-            if coverage_verdict is not None and coverage_verdict not in ("MISSING", "UNRESOLVED"):
-                raise CorpusAssessmentError(
-                    f"Sentinel '<corpus>#unmentioned' is not permitted for coverage_verdict {coverage_verdict!r}; "
-                    "verdicts with claimed or partial coverage must reference an actual corpus file."
+        # Sentinel check: strictly allow ONLY '<corpus>#unmentioned' and ONLY for MISSING or UNRESOLVED
+        if "<corpus" in source_ref or source_ref.startswith("<corpus"):
+            if source_ref != "<corpus>#unmentioned":
+                raise InvalidCorpusSentinelError(
+                    f"Invalid corpus sentinel {source_ref!r}; only '<corpus>#unmentioned' is supported."
+                )
+            if coverage_verdict not in ("MISSING", "UNRESOLVED"):
+                raise InvalidCorpusSentinelError(
+                    f"Sentinel '<corpus>#unmentioned' is permitted only for MISSING or UNRESOLVED verdicts, "
+                    f"got {coverage_verdict!r}."
                 )
             return
 
@@ -202,6 +241,10 @@ def validate_corpus_assessment_provenance(
         raise CorpusAssessmentError(
             f"Snapshot commit {snapshot.target_commit} does not match target commit {target.commit}"
         )
+    if snapshot.manifest_digest != target.manifest_digest:
+        raise ManifestDigestMismatchError(
+            f"Snapshot manifest_digest {snapshot.manifest_digest} does not match target manifest_digest {target.manifest_digest}"
+        )
     if snapshot.corpus_digest != target.corpus_digest:
         raise CorpusDigestMismatchError(
             f"Snapshot corpus_digest {snapshot.corpus_digest} does not match target corpus_digest {target.corpus_digest}"
@@ -216,8 +259,8 @@ def validate_report_against_snapshot(
     """Validates the entire assessment report against the given materialized corpus snapshot."""
     validate_corpus_assessment_provenance(snapshot, report.target)
 
-    if not report.findings:
-        raise CorpusAssessmentError("Corpus assessment report must contain at least one finding.")
+    if not report.findings and not report.observations:
+        raise CorpusAssessmentError("Corpus assessment report must contain at least one finding or observation.")
 
     validator = source_ref_validator or StrictCorpusSourceRefValidator()
     for finding in report.findings:
@@ -225,6 +268,13 @@ def validate_report_against_snapshot(
             snapshot,
             finding.company_source_ref,
             coverage_verdict=finding.coverage_verdict,
+        )
+
+    for obs in report.observations:
+        validator.validate_source_ref(
+            snapshot,
+            obs.company_source_ref,
+            coverage_verdict=None,
         )
 
 
@@ -255,47 +305,64 @@ def parse_corpus_assessment_dict(data: dict[str, Any]) -> CorpusAssessmentReport
         raise CorpusAssessmentError("Assessment results must be a list of findings.")
 
     findings: list[CorpusTaskFinding] = []
+    observations: list[CorpusObservation] = []
     for item in results_raw:
         if not isinstance(item, dict):
-            raise CorpusAssessmentError("Each finding in results must be a mapping.")
+            raise CorpusAssessmentError("Each item in results must be a mapping.")
 
-        basis_items: list[CorpusAssessmentBasis] = []
-        for b in item.get("basis", []):
-            if isinstance(b, dict):
-                basis_items.append(
-                    CorpusAssessmentBasis(
-                        type=str(b.get("type", "")),
-                        rationale=str(b.get("rationale", "")),
-                        task_id=b.get("task_id"),
-                        source=b.get("source"),
+        ftype = item.get("finding_type", "task_finding")
+        if ftype == "task_finding":
+            basis_items: list[CorpusAssessmentBasis] = []
+            for b in item.get("basis", []):
+                if isinstance(b, dict):
+                    basis_items.append(
+                        CorpusAssessmentBasis(
+                            type=str(b.get("type", "")),
+                            rationale=str(b.get("rationale", "")),
+                            task_id=b.get("task_id"),
+                            source=b.get("source"),
+                        )
                     )
-                )
 
-        evidence_items: list[IdentifiedEvidence] = []
-        for e in item.get("identified_evidence", []):
-            if isinstance(e, dict):
-                evidence_items.append(
-                    IdentifiedEvidence(
-                        type=str(e.get("type", "")),
-                        source_ref=str(e.get("source_ref", "")),
+            evidence_items: list[IdentifiedEvidence] = []
+            for e in item.get("identified_evidence", []):
+                if isinstance(e, dict):
+                    evidence_items.append(
+                        IdentifiedEvidence(
+                            type=str(e.get("type", "")),
+                            source_ref=str(e.get("source_ref", "")),
+                        )
                     )
-                )
 
-        finding = CorpusTaskFinding(
-            finding_id=str(item.get("finding_id", "")),
-            finding_type=str(item.get("finding_type", "task_finding")),
-            task_id=str(item.get("task_id", "")),
-            company_source_ref=str(item.get("company_source_ref", "")),
-            company_statement=str(item.get("company_statement", "")),
-            coverage_verdict=str(item.get("coverage_verdict", "")),
-            basis=basis_items,
-            assessment_rationale=list(item.get("assessment_rationale", [])),
-            identified_evidence=evidence_items,
-            evidence_strength=str(item.get("evidence_strength", "")),
-            review_queue_recommendation=str(item.get("review_queue_recommendation", "")),
-            cannot_claim=list(item.get("cannot_claim", [])),
-        )
-        findings.append(finding)
+            finding = CorpusTaskFinding(
+                finding_id=str(item.get("finding_id", "")),
+                finding_type="task_finding",
+                task_id=str(item.get("task_id", "")),
+                company_source_ref=str(item.get("company_source_ref", "")),
+                company_statement=str(item.get("company_statement", "")),
+                coverage_verdict=str(item.get("coverage_verdict", "")),
+                basis=basis_items,
+                assessment_rationale=list(item.get("assessment_rationale", [])),
+                identified_evidence=evidence_items,
+                evidence_strength=str(item.get("evidence_strength", "")),
+                review_queue_recommendation=str(item.get("review_queue_recommendation", "")),
+                cannot_claim=list(item.get("cannot_claim", [])),
+            )
+            findings.append(finding)
+
+        elif ftype == "non_normative_observation":
+            obs = CorpusObservation(
+                finding_id=str(item.get("finding_id", "")),
+                company_source_ref=str(item.get("company_source_ref", "")),
+                observation=str(item.get("observation", "")),
+                basis=str(item.get("basis", "reviewer_inference")),
+                review_queue_recommendation=str(item.get("review_queue_recommendation", "needs_changes")),
+                cannot_claim=list(item.get("cannot_claim", [])),
+                finding_type="non_normative_observation",
+            )
+            observations.append(obs)
+        else:
+            raise CorpusAssessmentError(f"Unknown finding_type: {ftype!r}")
 
     return CorpusAssessmentReport(
         id=str(hdr.get("id", "")),
@@ -304,4 +371,5 @@ def parse_corpus_assessment_dict(data: dict[str, Any]) -> CorpusAssessmentReport
         scope_tasks=list(hdr.get("scope_tasks", [])),
         claim_boundary=list(hdr.get("claim_boundary", [])),
         findings=findings,
+        observations=observations,
     )

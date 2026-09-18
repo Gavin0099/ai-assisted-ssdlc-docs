@@ -349,12 +349,14 @@ def validate_ssdf_assessment(
         if not source_ref:
             errors.append(f"{fid}: missing company_source_ref")
         else:
-            if isinstance(source_ref, str) and source_ref.startswith("<corpus>"):
-                if verdict in ("COVERED", "PARTIAL"):
-                    errors.append(
-                        f"{fid}: sentinel '<corpus>#unmentioned' is not permitted for coverage_verdict {verdict!r}; "
-                        "must reference an actual document path"
-                    )
+            if isinstance(source_ref, str) and source_ref.startswith("<corpus"):
+                if source_ref == "<corpus>#unmentioned":
+                    if verdict not in ("MISSING", "UNRESOLVED"):
+                        errors.append(
+                            f"{fid}: sentinel '<corpus>#unmentioned' is permitted only for MISSING or UNRESOLVED verdicts, got {verdict!r}"
+                        )
+                else:
+                    errors.append(f"{fid}: invalid sentinel format in company_source_ref: {source_ref!r}")
         if not finding.get("company_statement"):
             errors.append(f"{fid}: missing company_statement")
 
