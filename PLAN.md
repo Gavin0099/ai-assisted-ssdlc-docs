@@ -2,7 +2,7 @@
 <!-- governance-baseline: overridable -->
 <!-- baseline_version: 1.0.0 -->
 
-> **最後更新**: 2026-07-17
+> **最後更新**: 2026-09-18
 > **Owner**: TODO
 > **Freshness**: Sprint (7d)
 
@@ -16,10 +16,20 @@
 - [x] Phase B: Add example packs for file upload, dependency upgrade, and incident follow-up
 - [x] Phase C: Expand schema-aware validation and reviewer-ready reporting
 - [x] Phase D: Harden Security Decision claim-boundary and control-mapping validation
+- [x] Phase S0: NIST SSDF Direct Assessment (S0-A Contract, S0-B Golden, S0-C Linter, S0-D Blind Eval - 3 P1 review findings resolved; delivery pending PR merge)
+- [ ] Phase S1: Real Repo Document Coverage Assessment Pilot (Target Manifest, Corpus Resolver, Multi-file SSDF Assessment, Read-Only Review Engine)
 
 ## Active Sprint
 
 <!-- Required: list current sprint tasks -->
+
+- [x] S0-A: Assessment Contract definition and source-type bounding.
+- [x] S0-B: Hand-crafted Golden Fixture for 7 NIST SSDF tasks.
+- [x] S0-C: Deterministic assessment YAML linter and CI wiring.
+- [x] S0 Review Closure: Resolved 3 P1 linter findings (scoped tasks full 1:1 coverage, nist_normative source baseline match, clause-aware negation scanning).
+- [x] S1-A-r2: Target Manifest Schema Authority & Repo Identity Closure (Zero-fallback executable schema validation, source_type syntax binding, and glob semantics layering).
+- [x] S1-A Review Closure: Hardened local_git repo URL scheme exclusion and malformed schema fail-closed checks.
+- [ ] S1-B: Repo Corpus Resolver (Materialize authoritative repository files into an immutable corpus based on Target Manifest include/exclude surface).
 
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
@@ -34,6 +44,8 @@
 
 <!-- Required: prioritized items not yet started -->
 
+- P1: Phase S1 - Real Repo Document Coverage Assessment Pilot (Target Manifest, Corpus Resolver, Multi-file SSDF Assessment, Read-Only Review Engine).
+- P2: Phase S2 - Implementation Evidence Verification Pilot (Product Repo CI / Artifact Evidence vs Company SSDLC Policy).
 - P2: Apply a shared strict date parser to due-review generation.
 - P2: Add a status-only Review Receipt schema and validator.
 
@@ -50,6 +62,12 @@
 - 2026-07-17: Treat YAML schemas as executable validator inputs and require CLI-level positive and negative fixtures.
 - 2026-07-17: Keep reviewer reports aggregation-only; `source_ref` is opaque metadata and cannot establish queue-to-evidence joins or closure.
 - 2026-07-17: Treat Control Mapping evidence as an opaque reference and reject unsupported claims outside the `Cannot Claim` boundary without inferring evidence joins.
+- 2026-09-17: Phase S0-D-r1 blind rerun with isolated subagent verified direct assessment capability without golden contamination using 20 Golden Gap Atoms; attribution defect in RV.1.3 resolved by separating reviewer inference; pending PR remote CI.
+- 2026-09-17: Phase S0 qualified and Remote CI (PR #10, Run 35212697108) verified ssdlc-validators and governance-drift green; delivery pending PR merge to main.
+- 2026-09-17: Phase S1-A-r1 Target Manifest Contract Hardening: transformed target-manifest.schema.yaml into executable validator source of truth, added target.source_type (local_git | github), enforced strict string type for baseline.version (prohibiting float 1.1), and established fail-closed glob boundaries (no absolute paths, no '..', normalized '/').
+- 2026-09-17: Phase S1-A-r2 Schema Authority & Repo Identity Closure: eliminated all silent Python fallbacks from validator (schema fails closed if rules missing), syntax-bound target.repo to source_type (github strictly owner/repo, local_git strictly local path), and clarified S1-A pattern boundaries vs S1-B materialization obligations.
+- 2026-09-17: Phase S1 Architecture Decision: Treat target SSDLC documentation as a Git repository corpus pinned to a fixed commit SHA with explicit Target Manifest (include/exclude authority surface). Decouple Layer 1 (Document Coverage Assessment on policy repo) from Layer 2 (Implementation Evidence Assessment on product repos).
+- 2026-09-18: Hardened S0 linter to require full 1:1 coverage of scope_tasks, baseline match for normative sources, and clause-aware negation to prevent boundary bypass; hardened S1-A target manifest schema against URL schemes in local_git and enforced fail-closed regex/type compilation.
 
 ## Known Risks
 

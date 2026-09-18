@@ -1,0 +1,46 @@
+schema_name: target-manifest
+schema_version: "1.0.0"
+
+required_sections:
+  - target
+  - authority_surface
+  - baseline
+  - mode
+
+target:
+  required_fields:
+    - source_type
+    - repo
+    - commit
+  allowed_source_types:
+    - local_git
+    - github
+  commit_format: "^[0-9a-fA-F]{40}$"
+  repo_formats:
+    github: "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"
+    local_git: "^(?!(?:[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$|[a-zA-Z][a-zA-Z0-9+.-]*://|git@)).+$"
+
+authority_surface:
+  required_fields:
+    - include
+  optional_fields:
+    - exclude
+  disallow_absolute_paths: true
+  disallow_parent_traversal: true
+  path_separator: "/"
+
+baseline:
+  required_fields:
+    - framework
+    - version
+  allowed_frameworks:
+    - NIST_SP_800_218
+  allowed_versions:
+    NIST_SP_800_218:
+      - "1.1"
+
+mode:
+  required_fields:
+    - read_only
+  required_values:
+    read_only: true

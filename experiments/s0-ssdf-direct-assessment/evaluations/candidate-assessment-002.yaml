@@ -1,0 +1,363 @@
+assessment:
+  id: S0-BLIND-ASSESSMENT-20260917
+  baseline: NIST_SP_800_218_v1.1
+  target: sample-company-ssdlc.md
+  scope_tasks:
+    - PO.1.2
+    - PO.3.1
+    - PS.2.1
+    - PW.1.1
+    - PW.4.4
+    - PW.8.1
+    - RV.1.3
+  claim_boundary:
+    - "This assessment evaluates document coverage against the selected NIST SP 800-218 v1.1 reference slice only."
+    - "Document coverage does not establish NIST SSDF conformance, compliance, or organizational effectiveness."
+    - "Policy statements alone do not prove implementation, execution, or production safety."
+    - "No claim of audit readiness, full evidence completeness, remediation completion, or vulnerability closure is made."
+    - "Quantitative coverage percentages or compliance ratings are explicitly disclaimed."
+
+results:
+  - finding_id: F-S0-PO12-01
+    finding_type: task_finding
+    task_id: PO.1.2
+    company_source_ref: sample-company-ssdlc.md#2-security-requirements
+    company_statement: >-
+      All software shall be secure and protect confidential customer information.
+      Projects with known security requirements shall record them in the project
+      specification. Requirements should be reviewed when major product changes
+      occur. Exceptions may be approved by the engineering manager when
+      implementation is impractical.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PO.1.2
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects software security requirements to be identified,
+          documented, and maintained for organization-developed software.
+      - type: local_derived_guidance
+        rationale: >-
+          Derived guidance review questions check whether concrete software security
+          requirements are defined rather than broad goals, maintained across changes,
+          and governed by a structured exception process.
+      - type: reviewer_inference
+        rationale: >-
+          Using a standardized security requirements template or ticketing workflow
+          would improve requirement traceability, though NIST PO.1.2 does not mandate
+          a specific tool.
+    assessment_rationale:
+      - >-
+        The policy states an aspirational goal ("All software shall be secure and
+        protect confidential customer information"), but does not define concrete,
+        testable security requirements.
+      - >-
+        Documenting requirements is conditioned on projects having "known security
+        requirements", leaving the process for systematically identifying requirements
+        unspecified for all scoped software.
+      - >-
+        Requirements maintenance is limited to major product changes using advisory
+        wording ("should be reviewed"), and exception approval lacks objective criteria
+        and lifecycle records.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: sample-company-ssdlc.md#2-security-requirements
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - "The policy statement alone does not prove software security requirements are implemented."
+      - "Document coverage does not establish NIST SSDF conformance or organizational compliance."
+      - "This finding does not establish that customer confidential data is adequately protected."
+
+  - finding_id: F-S0-PO31-01
+    finding_type: task_finding
+    task_id: PO.3.1
+    company_source_ref: sample-company-ssdlc.md#5-development-toolchain
+    company_statement: >-
+      Static analysis, dependency scanning, and other security tools may be
+      enabled when appropriate for the project. Individual teams may select
+      tools that fit their development environment. Security-tool failures
+      should be reviewed before release.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PO.3.1
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects organizations to specify security tools or tool
+          types needed in development toolchains to address identified risks, including
+          how toolchain components integrate.
+      - type: local_derived_guidance
+        rationale: >-
+          Derived guidance review questions check whether mandatory or risk-triggered
+          tool categories are identified, where they execute in the workflow, and what
+          blocking behavior occurs when checks fail.
+      - type: reviewer_inference
+        rationale: >-
+          Centralized pipeline automation and standardized tool selection reduce drift
+          across teams, although PO.3.1 permits tool variation if risks are addressed.
+    assessment_rationale:
+      - >-
+        The policy mentions security tool categories (static analysis, dependency
+        scanning) but uses permissive language ("may be enabled when appropriate")
+        instead of specifying needed tool types based on defined risks.
+      - >-
+        Tool selection is delegated to individual teams without defining integration
+        points into build systems or mandatory baseline configurations.
+      - >-
+        The requirement that tool failures "should be reviewed before release" does
+        not define triage criteria, release-blocking thresholds, or formal exception
+        workflows.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: sample-company-ssdlc.md#5-development-toolchain
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - "Mentioning security tools does not prove they are consistently executed or enforced in pipelines."
+      - "Document coverage does not establish NIST SSDF conformance or toolchain effectiveness."
+
+  - finding_id: F-S0-PS21-01
+    finding_type: task_finding
+    task_id: PS.2.1
+    company_source_ref: sample-company-ssdlc.md#6-build-and-release
+    company_statement: >-
+      Release candidates require approval from the project manager and engineering
+      manager. Production binaries shall be code-signed when applicable. Release
+      packages may include a checksum when requested by the customer. The release
+      owner shall retain the final package and release notes.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PS.2.1
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects organizations to provide software acquirers with
+          information they can use to verify software release integrity.
+      - type: local_derived_guidance
+        rationale: >-
+          Derived guidance review questions check whether integrity verification
+          mechanisms are governed rather than optional, how acquirers verify integrity,
+          and whether key/certificate lifecycle responsibilities are defined.
+      - type: reviewer_inference
+        rationale: >-
+          Publishing cryptographic checksum manifests alongside signed release notes
+          via automated distribution portals is recommended industry practice.
+    assessment_rationale:
+      - >-
+        Code signing is conditioned on undefined applicability ("when applicable")
+        without defining criteria or key protection controls.
+      - >-
+        Checksums are provided only upon customer request ("when requested by the
+        customer"), failing to establish a default, systematic integrity verification
+        mechanism for all software acquirers.
+      - >-
+        The policy does not define how acquirers obtain verification materials, verify
+        signatures, or validate package integrity.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: sample-company-ssdlc.md#6-build-and-release
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - "Release approval and package retention do not by themselves prove release integrity."
+      - "A code-signing policy statement does not prove key protection or verification behavior."
+      - "This mapping does not establish NIST SSDF conformance."
+
+  - finding_id: F-S0-PW11-01
+    finding_type: task_finding
+    task_id: PW.1.1
+    company_source_ref: sample-company-ssdlc.md#3-secure-design
+    company_statement: >-
+      Software with complex security-sensitive features should receive a security
+      design review before implementation. The reviewer should consider
+      authentication, authorization, data protection, and externally supplied
+      input. Threat modeling may be used when the reviewer considers it necessary.
+      The design review result should be recorded in the project notes.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PW.1.1
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects organizations to use risk-modeling techniques,
+          such as threat modeling or attack-surface analysis, to assess software
+          security risk.
+      - type: local_derived_guidance
+        rationale: >-
+          Derived guidance review questions check when risk modeling is required,
+          whether trust boundaries and attack surfaces are evaluated, and whether
+          identified risks link to design mitigations.
+      - type: reviewer_inference
+        rationale: >-
+          Adopting recognized threat modeling frameworks (such as STRIDE) and maintaining
+          formal threat model documents provides structured security design evidence.
+    assessment_rationale:
+      - >-
+        Threat modeling is identified as an optional practice ("may be used when the
+        reviewer considers it necessary") rather than a defined risk-modeling requirement.
+      - >-
+        Security design reviews are non-mandatory ("should receive") and apply only to
+        unspecified "complex security-sensitive features" without objective thresholds.
+      - >-
+        Recording review results in informal "project notes" does not ensure that
+        identified architectural risks are systematically linked to mitigations or
+        tracked to closure.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: sample-company-ssdlc.md#3-secure-design
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - "A generic secure-design statement does not prove risk modeling occurred."
+      - "Recording design review results in project notes does not prove architecture risks are mitigated."
+      - "This mapping does not establish NIST SSDF conformance."
+
+  - finding_id: F-S0-PW44-01
+    finding_type: task_finding
+    task_id: PW.4.4
+    company_source_ref: sample-company-ssdlc.md#4-third-party-components
+    company_statement: >-
+      Development teams should use stable and commonly adopted third-party
+      libraries and packages. Where possible, dependencies should be updated to a
+      recent stable version before a major release. Known critical vulnerabilities
+      should be fixed before shipment unless the engineering manager approves an
+      exception. Open-source components that are already widely used in the
+      industry may be accepted without additional security review.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PW.4.4
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects organizations to verify that acquired commercial,
+          open-source, and other third-party software components satisfy applicable
+          security requirements.
+      - type: local_derived_guidance
+        rationale: >-
+          Derived guidance review questions check for defined third-party approval
+          criteria, vulnerability/maintenance/EOL status tracking, and structured
+          exception processes.
+      - type: reviewer_inference
+        rationale: >-
+          Maintaining an automated Software Bill of Materials (SBOM) and continuous
+          dependency vulnerability scanning helps track third-party risk effectively.
+    assessment_rationale:
+      - >-
+        The policy explicitly exempts widely used open-source components from security
+        review, directly bypassing the requirement to verify that third-party components
+        satisfy security requirements.
+      - >-
+        Criteria for dependency selection rely on subjective concepts ("stable and
+        commonly adopted") rather than defined security requirements or EOL evaluation.
+      - >-
+        Updating dependencies is aspirational ("Where possible..."), and exceptions for
+        critical vulnerabilities do not specify documentation or lifecycle requirements.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: sample-company-ssdlc.md#4-third-party-components
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - "Using recent or widely adopted packages does not prove third-party components meet security requirements."
+      - "This task finding does not establish that an SBOM is required by NIST PW.4.4."
+      - "This mapping does not establish NIST SSDF conformance."
+
+  - finding_id: F-S0-PW81-01
+    finding_type: task_finding
+    task_id: PW.8.1
+    company_source_ref: sample-company-ssdlc.md#7-security-verification
+    company_statement: >-
+      Security verification shall be performed before release for products that
+      handle sensitive information or have externally reachable interfaces.
+      Verification may include code review, static analysis, penetration testing,
+      or other appropriate methods. The project team determines the required
+      scope based on schedule, risk, and available resources. Security issues
+      found before release should be tracked and resolved when practical.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: PW.8.1
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects organizations to determine whether executable-code
+          testing is needed to find vulnerabilities not found by earlier review or
+          analysis, and to select appropriate testing types when needed.
+      - type: local_derived_guidance
+        rationale: >-
+          Derived guidance review questions check whether criteria define when security
+          testing is required, whether test types reflect software risk, and whether
+          discovered issues route to an accountable workflow.
+      - type: reviewer_inference
+        rationale: >-
+          Mandating dynamic application security testing (DAST) or independent penetration
+          testing for all network-exposed endpoints would strengthen executable verification.
+    assessment_rationale:
+      - >-
+        The policy defines broad triggers for pre-release verification, but fails to
+        specifically evaluate or select executable-code testing versus static review.
+      - >-
+        Testing scope and methodology selection are permissive ("may include") and
+        can be compromised by schedule or resource constraints without governance review.
+      - >-
+        Remediation of discovered security issues is non-mandatory and lacks defined
+        timelines or gating ("should be tracked and resolved when practical").
+    identified_evidence:
+      - type: policy_statement
+        source_ref: sample-company-ssdlc.md#7-security-verification
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - "A statement that verification is performed does not prove executable code is adequately tested."
+      - "The policy does not prove that all discovered vulnerabilities are resolved prior to release."
+      - "This mapping does not establish NIST SSDF conformance."
+
+  - finding_id: F-S0-RV13-01
+    finding_type: task_finding
+    task_id: RV.1.3
+    company_source_ref: sample-company-ssdlc.md#8-vulnerability-response
+    company_statement: >-
+      Customers and internal teams may report suspected security issues through
+      normal support channels. Reported vulnerabilities will be evaluated by the
+      responsible engineering team and fixed as soon as reasonably practical.
+      Critical issues should be escalated to engineering management. External
+      disclosure will be handled case by case.
+    coverage_verdict: PARTIAL
+    basis:
+      - type: nist_normative
+        task_id: RV.1.3
+        source: NIST_SP_800_218_v1.1
+        rationale: >-
+          The selected task expects organizations to maintain a vulnerability
+          disclosure and remediation policy with the roles, responsibilities, and
+          processes needed to operate it.
+      - type: local_derived_guidance
+        rationale: >-
+          Derived guidance review questions check whether report intake and triage
+          are defined, whether disclosure/remediation/escalation roles are explicit,
+          and whether an operational process exists rather than generic intentions.
+      - type: reviewer_inference
+        rationale: >-
+          Publishing an RFC 9116 security.txt file, maintaining dedicated security
+          mailboxes, or implementing coordinated vulnerability disclosure (CVD)
+          improves external vulnerability intake.
+    assessment_rationale:
+      - >-
+        The policy acknowledges vulnerability reporting and internal escalation, but
+        routes reports through general support channels rather than maintaining a
+        formal vulnerability disclosure process.
+      - >-
+        Vulnerability remediation commitments lack defined timelines, severity-based
+        remediation SLAs, or tracking procedures ("fixed as soon as reasonably practical").
+      - >-
+        External disclosure is handled ad hoc ("case by case") without documented
+        disclosure processes, public communication criteria, or designated roles.
+    identified_evidence:
+      - type: policy_statement
+        source_ref: sample-company-ssdlc.md#8-vulnerability-response
+    evidence_strength: weak
+    review_queue_recommendation: needs_changes
+    cannot_claim:
+      - "Routing issues through general support channels does not establish an operational vulnerability disclosure policy."
+      - "This task finding does not require specific PGP keys, security.txt, or bug bounty programs in this S0 scope."
+      - "This mapping does not establish NIST SSDF conformance."

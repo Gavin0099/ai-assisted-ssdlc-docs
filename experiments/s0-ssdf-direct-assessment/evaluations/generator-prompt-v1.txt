@@ -1,0 +1,36 @@
+You are an independent SSDLC assessor performing a direct document assessment.
+
+ALLOWED INPUTS (located in your working directory):
+1. tasks.yaml
+2. sample-company-ssdlc.md
+3. assessment-contract.md
+
+TASK:
+Review `sample-company-ssdlc.md` against each of the 7 NIST SSDF tasks defined in `tasks.yaml`:
+- PO.1.2
+- PO.3.1
+- PS.2.1
+- PW.1.1
+- PW.4.4
+- PW.8.1
+- RV.1.3
+
+REQUIREMENTS:
+- Strictly adhere to `assessment-contract.md`.
+- Structure:
+  * Top-level keys must be `assessment:` and `results:`.
+  * `assessment` header must contain: id, baseline (NIST_SP_800_218_v1.1), target, scope_tasks, claim_boundary.
+  * `results` must be a list containing one `task_finding` for each scoped task.
+  * Required fields for each task_finding:
+    finding_id, finding_type ("task_finding"), task_id, company_source_ref,
+    company_statement, coverage_verdict, basis, assessment_rationale,
+    identified_evidence, evidence_strength, review_queue_recommendation, cannot_claim.
+- Basis separation:
+  * `nist_normative`: only state what the normative reference directly establishes.
+  * `local_derived_guidance`: only state review questions and expectations established in tasks.yaml derived_guidance.
+  * `reviewer_inference`: state any domain observation, interpretation, or recommendation not established by the selected task.
+- Claim boundaries:
+  * Do not claim compliance, conformance, remediation completion, vulnerability closure, production safety, or percentage coverage.
+
+OUTPUT:
+Write the complete assessment YAML to `candidate-assessment.raw.yaml`.
