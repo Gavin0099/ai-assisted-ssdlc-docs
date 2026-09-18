@@ -77,7 +77,8 @@ S2 Pilot 嚴格依據 `references/nist-ssdf/v1.1/tasks.yaml` 之標準定義，�
 | :--- | :--- | :--- | :--- |
 | **`PO.3.1`**<br>Implement Supporting Toolchains | 政策要求 CI/CD 整合安全工具鏈（如 SAST, Linter, 秘密掃描等）。 | `.github/workflows/*.yml`、`.gitlab-ci.yml`、工具配置檔（如 `.semgrep.yml`, `sonar-project.properties`）。 | `yaml_path`<br>`json_pointer` |
 | **`PW.4.4`**<br>Verify Third-Party Components | 政策要求第三方相依套件進行版控鎖定、清冊追蹤與相依性檢查。 | 依賴鎖定檔（`package-lock.json`, `poetry.lock`, `Cargo.lock`, `go.sum`）、套件漏洞配置或相依性掃描 Step。 | `file_existence`<br>`yaml_path` |
-| **`PS.2.1`**<br>Verify Release Integrity | 政策要求發佈產物具備雜湊清冊、簽章程序或校驗機制。 | 發佈工作流中的 Checksum 產出腳本、簽章配置（如 Sigstore/Cosign step）、Release Manifest 配置檔。 | `yaml_path`<br>`line_span` |
+| **`PS.2.1`**<br>Verify Release Integrity | 政策要求發佈產物具備雜湊清冊、簽章程序或校驗機制。 | 發佈工作流中的 Checksum 產出腳本、簽章配置（如 Sigstore/Cosign step）、Release Manifest 配置檔。 | `yaml_path`<br>`file_existence` |
+
 
 ---
 
@@ -225,10 +226,11 @@ mode:
 ```python
 @dataclass(frozen=True)
 class EvidenceLocator:
-    """Flexible locator for structured and unstructured static evidence."""
+    """Precise locator for structured static evidence in product repo."""
 
-    kind: str                             # "yaml_path" | "json_pointer" | "line_span" | "file_existence"
+    kind: str                             # "yaml_path" | "json_pointer" | "file_existence"
     value: str                            # e.g. "jobs.security.steps[1].uses" or "package-lock.json"
+
 
 @dataclass(frozen=True)
 class EvidenceRef:
