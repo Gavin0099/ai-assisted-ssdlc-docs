@@ -231,13 +231,13 @@ def validate_ssdf_assessment(
                     if f_val is None or not isinstance(f_val, str) or not f_val.strip():
                         errors.append(f"assessment target mapping missing required non-empty field: {t_field}")
                 t_commit = target_val.get("commit")
-                if isinstance(t_commit, str) and not re.match(r"^[0-9a-f]{40}$", t_commit):
+                if isinstance(t_commit, str) and not re.match(r"^[0-9a-fA-F]{40}$", t_commit):
                     errors.append(f"assessment target commit must be a 40-character hex SHA: {t_commit!r}")
                 t_m_digest = target_val.get("manifest_digest")
-                if isinstance(t_m_digest, str) and not re.match(r"^[0-9a-f]{64}$", t_m_digest):
+                if isinstance(t_m_digest, str) and not re.match(r"^[0-9a-fA-F]{64}$", t_m_digest):
                     errors.append(f"assessment target manifest_digest must be a 64-character hex SHA-256: {t_m_digest!r}")
                 t_digest = target_val.get("corpus_digest")
-                if isinstance(t_digest, str) and not re.match(r"^[0-9a-f]{64}$", t_digest):
+                if isinstance(t_digest, str) and not re.match(r"^[0-9a-fA-F]{64}$", t_digest):
                     errors.append(f"assessment target corpus_digest must be a 64-character hex SHA-256: {t_digest!r}")
             else:
                 errors.append("assessment target must be a string path or a repository_corpus mapping")
@@ -468,8 +468,11 @@ def validate_ssdf_assessment(
         if "coverage_verdict" in obs:
             errors.append(f"{oid}: non_normative_observation must not have a coverage_verdict")
 
-        if not obs.get("company_source_ref"):
+        obs_ref = obs.get("company_source_ref")
+        if not obs_ref:
             errors.append(f"{oid}: missing company_source_ref")
+        elif isinstance(obs_ref, str) and "<corpus" in obs_ref:
+            errors.append(f"{oid}: non_normative_observation must not use corpus sentinels: {obs_ref!r}")
 
         obs_text = obs.get("observation")
         if not obs_text or not isinstance(obs_text, str) or not obs_text.strip():

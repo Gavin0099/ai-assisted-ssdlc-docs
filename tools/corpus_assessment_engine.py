@@ -9,8 +9,8 @@ import yaml
 
 from tools.repo_corpus_resolver import CorpusSnapshot
 
-COMMIT_HEX_REGEX = re.compile(r"^[0-9a-f]{40}$")
-DIGEST_HEX_REGEX = re.compile(r"^[0-9a-f]{64}$")
+COMMIT_HEX_REGEX = re.compile(r"^[0-9a-fA-F]{40}$")
+DIGEST_HEX_REGEX = re.compile(r"^[0-9a-fA-F]{64}$")
 
 
 class CorpusAssessmentError(Exception):
@@ -35,6 +35,14 @@ class InvalidCorpusSentinelError(CorpusAssessmentError):
 
 @dataclass(frozen=True)
 class CorpusAssessmentTarget:
+    """Target provenance value object for repository corpus assessment.
+
+    Note:
+        manifest_path serves as navigation metadata indicating where the target manifest
+        was located in the repository tree. Immutable provenance identity and reproducibility
+        are strictly established by manifest_digest and corpus_digest.
+    """
+
     repo: str
     commit: str
     manifest_path: str
@@ -53,6 +61,11 @@ class CorpusAssessmentTarget:
             raise CorpusAssessmentError(f"Target manifest_digest must be a 64-character hex SHA-256: {self.manifest_digest!r}")
         if not DIGEST_HEX_REGEX.match(self.corpus_digest):
             raise CorpusAssessmentError(f"Target corpus_digest must be a 64-character hex SHA-256: {self.corpus_digest!r}")
+
+        # Normalize commit and digests to lowercase
+        object.__setattr__(self, "commit", self.commit.lower())
+        object.__setattr__(self, "manifest_digest", self.manifest_digest.lower())
+        object.__setattr__(self, "corpus_digest", self.corpus_digest.lower())
 
 
 @dataclass(frozen=True)
@@ -146,11 +159,7 @@ class CorpusAssessmentReport:
     observations: list[CorpusObservation] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
-        results_list: list[dict[str, Any]] = [f.to_dict() for f in self.findings]
-        for obs in self.observations:
-            results_list.append(obs.to_dict())
-
-        return {
+        data: dict[str, Any] = {
             "assessment": {
                 "id": self.id,
                 "baseline": self.baseline,
@@ -165,8 +174,11 @@ class CorpusAssessmentReport:
                 "scope_tasks": list(self.scope_tasks),
                 "claim_boundary": list(self.claim_boundary),
             },
-            "results": results_list,
+            "results": [f.to_dict() for f in self.findings],
         }
+        if self.observations:
+            data["non_normative_observations"] = [obs.to_dict() for obs in self.observations]
+        return data
 
     def to_yaml(self) -> str:
         return yaml.dump(self.to_dict(), sort_keys=False, allow_unicode=True)
@@ -237,6 +249,10 @@ def validate_corpus_assessment_provenance(
     target: CorpusAssessmentTarget,
 ) -> None:
     """Ensure that the target provenance perfectly matches the materialized snapshot."""
+    if snapshot.manifest.target.repo != target.repo:
+        raise CorpusAssessmentError(
+            f"Snapshot repo {snapshot.manifest.target.repo!r} does not match target repo {target.repo!r}"
+        )
     if snapshot.target_commit != target.commit:
         raise CorpusAssessmentError(
             f"Snapshot commit {snapshot.target_commit} does not match target commit {target.commit}"
@@ -305,64 +321,82 @@ def parse_corpus_assessment_dict(data: dict[str, Any]) -> CorpusAssessmentReport
         raise CorpusAssessmentError("Assessment results must be a list of findings.")
 
     findings: list[CorpusTaskFinding] = []
-    observations: list[CorpusObservation] = []
     for item in results_raw:
         if not isinstance(item, dict):
             raise CorpusAssessmentError("Each item in results must be a mapping.")
 
         ftype = item.get("finding_type", "task_finding")
-        if ftype == "task_finding":
-            basis_items: list[CorpusAssessmentBasis] = []
-            for b in item.get("basis", []):
-                if isinstance(b, dict):
-                    basis_items.append(
-                        CorpusAssessmentBasis(
-                            type=str(b.get("type", "")),
-                            rationale=str(b.get("rationale", "")),
-                            task_id=b.get("task_id"),
-                            source=b.get("source"),
-                        )
-                    )
-
-            evidence_items: list[IdentifiedEvidence] = []
-            for e in item.get("identified_evidence", []):
-                if isinstance(e, dict):
-                    evidence_items.append(
-                        IdentifiedEvidence(
-                            type=str(e.get("type", "")),
-                            source_ref=str(e.get("source_ref", "")),
-                        )
-                    )
-
-            finding = CorpusTaskFinding(
-                finding_id=str(item.get("finding_id", "")),
-                finding_type="task_finding",
-                task_id=str(item.get("task_id", "")),
-                company_source_ref=str(item.get("company_source_ref", "")),
-                company_statement=str(item.get("company_statement", "")),
-                coverage_verdict=str(item.get("coverage_verdict", "")),
-                basis=basis_items,
-                assessment_rationale=list(item.get("assessment_rationale", [])),
-                identified_evidence=evidence_items,
-                evidence_strength=str(item.get("evidence_strength", "")),
-                review_queue_recommendation=str(item.get("review_queue_recommendation", "")),
-                cannot_claim=list(item.get("cannot_claim", [])),
+        if ftype != "task_finding":
+            raise CorpusAssessmentError(
+                f"Assessment results must only contain task_finding entries, got {ftype!r}. "
+                f"Non-normative observations belong in top-level 'non_normative_observations'."
             )
-            findings.append(finding)
 
-        elif ftype == "non_normative_observation":
-            obs = CorpusObservation(
-                finding_id=str(item.get("finding_id", "")),
-                company_source_ref=str(item.get("company_source_ref", "")),
-                observation=str(item.get("observation", "")),
-                basis=str(item.get("basis", "reviewer_inference")),
-                review_queue_recommendation=str(item.get("review_queue_recommendation", "needs_changes")),
-                cannot_claim=list(item.get("cannot_claim", [])),
-                finding_type="non_normative_observation",
+        basis_items: list[CorpusAssessmentBasis] = []
+        for b in item.get("basis", []):
+            if isinstance(b, dict):
+                basis_items.append(
+                    CorpusAssessmentBasis(
+                        type=str(b.get("type", "")),
+                        rationale=str(b.get("rationale", "")),
+                        task_id=b.get("task_id"),
+                        source=b.get("source"),
+                    )
+                )
+
+        evidence_items: list[IdentifiedEvidence] = []
+        for e in item.get("identified_evidence", []):
+            if isinstance(e, dict):
+                evidence_items.append(
+                    IdentifiedEvidence(
+                        type=str(e.get("type", "")),
+                        source_ref=str(e.get("source_ref", "")),
+                    )
+                )
+
+        finding = CorpusTaskFinding(
+            finding_id=str(item.get("finding_id", "")),
+            finding_type="task_finding",
+            task_id=str(item.get("task_id", "")),
+            company_source_ref=str(item.get("company_source_ref", "")),
+            company_statement=str(item.get("company_statement", "")),
+            coverage_verdict=str(item.get("coverage_verdict", "")),
+            basis=basis_items,
+            assessment_rationale=list(item.get("assessment_rationale", [])),
+            identified_evidence=evidence_items,
+            evidence_strength=str(item.get("evidence_strength", "")),
+            review_queue_recommendation=str(item.get("review_queue_recommendation", "")),
+            cannot_claim=list(item.get("cannot_claim", [])),
+        )
+        findings.append(finding)
+
+    observations_raw = data.get("non_normative_observations", [])
+    if observations_raw is None:
+        observations_raw = []
+    if not isinstance(observations_raw, list):
+        raise CorpusAssessmentError("'non_normative_observations' must be a list if present.")
+
+    observations: list[CorpusObservation] = []
+    for item in observations_raw:
+        if not isinstance(item, dict):
+            raise CorpusAssessmentError("Each item in non_normative_observations must be a mapping.")
+
+        ftype = item.get("finding_type", "non_normative_observation")
+        if ftype != "non_normative_observation":
+            raise CorpusAssessmentError(
+                f"Expected finding_type 'non_normative_observation' in non_normative_observations, got {ftype!r}"
             )
-            observations.append(obs)
-        else:
-            raise CorpusAssessmentError(f"Unknown finding_type: {ftype!r}")
+
+        obs = CorpusObservation(
+            finding_id=str(item.get("finding_id", "")),
+            company_source_ref=str(item.get("company_source_ref", "")),
+            observation=str(item.get("observation", "")),
+            basis=str(item.get("basis", "reviewer_inference")),
+            review_queue_recommendation=str(item.get("review_queue_recommendation", "needs_changes")),
+            cannot_claim=list(item.get("cannot_claim", [])),
+            finding_type="non_normative_observation",
+        )
+        observations.append(obs)
 
     return CorpusAssessmentReport(
         id=str(hdr.get("id", "")),

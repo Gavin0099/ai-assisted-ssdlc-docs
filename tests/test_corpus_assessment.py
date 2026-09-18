@@ -146,6 +146,18 @@ class TestCorpusAssessment(unittest.TestCase):
     def test_target_provenance_validation_matches_snapshot(self) -> None:
         validate_corpus_assessment_provenance(self.snapshot, self.valid_target)
 
+    def test_target_provenance_repo_mismatch_fails_closed(self) -> None:
+        tampered_target = CorpusAssessmentTarget(
+            repo="OtherOrg/other-repo",
+            commit=self.commit,
+            manifest_path="examples/sample-target-manifest.yaml",
+            manifest_digest=self.snapshot.manifest_digest,
+            corpus_digest=self.snapshot.corpus_digest,
+        )
+        with self.assertRaises(CorpusAssessmentError) as ctx:
+            validate_corpus_assessment_provenance(self.snapshot, tampered_target)
+        self.assertIn("does not match target repo", str(ctx.exception))
+
     def test_target_provenance_commit_mismatch_fails_closed(self) -> None:
         tampered_target = CorpusAssessmentTarget(
             repo="Gavin0099/ai-assisted-ssdlc-docs",
@@ -439,6 +451,103 @@ class TestCorpusAssessment(unittest.TestCase):
             tmp_path.write_text(yaml.dump(report_dict), encoding="utf-8")
             errors = validate_ssdf_assessment(tmp_path)
             self.assertTrue(any("invalid sentinel format" in e for e in errors), f"Expected sentinel error: {errors}")
+
+    def test_target_casing_normalization_and_linter_acceptance(self) -> None:
+        upper_commit = self.commit.upper()
+        upper_manifest_digest = self.snapshot.manifest_digest.upper()
+        upper_corpus_digest = self.snapshot.corpus_digest.upper()
+
+        target = CorpusAssessmentTarget(
+            repo="Gavin0099/ai-assisted-ssdlc-docs",
+            commit=upper_commit,
+            manifest_path="examples/sample-target-manifest.yaml",
+            manifest_digest=upper_manifest_digest,
+            corpus_digest=upper_corpus_digest,
+        )
+        self.assertEqual(target.commit, self.commit.lower())
+        self.assertEqual(target.manifest_digest, self.snapshot.manifest_digest.lower())
+        self.assertEqual(target.corpus_digest, self.snapshot.corpus_digest.lower())
+
+        report = CorpusAssessmentReport(
+            id="S1-TEST-002",
+            baseline="NIST_SP_800_218_v1.1",
+            target=target,
+            scope_tasks=list(self.valid_report.scope_tasks),
+            claim_boundary=list(self.valid_report.claim_boundary),
+            findings=list(self.valid_report.findings),
+        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir) / "upper-assessment.yaml"
+            tmp_path.write_text(report.to_yaml(), encoding="utf-8")
+            errors = validate_ssdf_assessment(tmp_path)
+            self.assertEqual(errors, [], f"Expected validator to accept casing: {errors}")
+
+    def test_report_with_observations_roundtrip_and_linter_clean(self) -> None:
+        obs = CorpusObservation(
+            finding_id="OBS-S1-01",
+            company_source_ref="process/review.md#step-2",
+            observation="Observed informal review notes not mandated by SSDF.",
+            basis="reviewer_inference",
+            review_queue_recommendation="needs_changes",
+            cannot_claim=["Non-normative observation cannot claim compliance."],
+        )
+        report = CorpusAssessmentReport(
+            id="S1-TEST-003",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.valid_target,
+            scope_tasks=list(self.valid_report.scope_tasks),
+            claim_boundary=list(self.valid_report.claim_boundary),
+            findings=list(self.valid_report.findings),
+            observations=[obs],
+        )
+
+        d = report.to_dict()
+        self.assertIn("non_normative_observations", d)
+        self.assertEqual(len(d["results"]), len(self.valid_report.findings))
+        self.assertEqual(len(d["non_normative_observations"]), 1)
+        # Ensure task_finding and non_normative_observation are not intermingled in results
+        for item in d["results"]:
+            self.assertEqual(item.get("finding_type"), "task_finding")
+
+        yaml_str = report.to_yaml()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir) / "obs-assessment.yaml"
+            tmp_path.write_text(yaml_str, encoding="utf-8")
+            errors = validate_ssdf_assessment(tmp_path)
+            self.assertEqual(errors, [], f"Validator should accept report with observations: {errors}")
+
+        parsed = parse_corpus_assessment_dict(yaml.safe_load(yaml_str))
+        self.assertEqual(len(parsed.findings), len(self.valid_report.findings))
+        self.assertEqual(len(parsed.observations), 1)
+        self.assertEqual(parsed.observations[0].finding_id, "OBS-S1-01")
+        validate_report_against_snapshot(parsed, self.snapshot)
+
+    def test_observation_cannot_use_corpus_sentinel(self) -> None:
+        invalid_obs = CorpusObservation(
+            finding_id="OBS-S1-BAD",
+            company_source_ref="<corpus>#unmentioned",
+            observation="Invalid observation referencing sentinel.",
+        )
+        report = CorpusAssessmentReport(
+            id="S1-TEST-004",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.valid_target,
+            scope_tasks=list(self.valid_report.scope_tasks),
+            claim_boundary=list(self.valid_report.claim_boundary),
+            findings=list(self.valid_report.findings),
+            observations=[invalid_obs],
+        )
+        with self.assertRaises(InvalidCorpusSentinelError):
+            validate_report_against_snapshot(report, self.snapshot)
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir) / "bad-obs.yaml"
+            tmp_path.write_text(report.to_yaml(), encoding="utf-8")
+            errors = validate_ssdf_assessment(tmp_path)
+            self.assertTrue(
+                any("sentinel" in e or "corpus" in e for e in errors),
+                f"Validator should reject observation with corpus sentinel: {errors}",
+            )
 
 
 if __name__ == "__main__":

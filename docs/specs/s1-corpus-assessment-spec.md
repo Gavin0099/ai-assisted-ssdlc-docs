@@ -47,26 +47,30 @@ assessment:
 
 ### 欄位約束
 1. `target.type`: 必須為 `"repository_corpus"`。
-2. `target.repo`: 必須為非空字串（若為 GitHub 來源，需符合 `owner/repo` 格式）。
-3. `target.commit`: 必須為 40 字元之十六進位 Git commit SHA。
-4. `target.manifest_path`: 指向宣告權威邊界之 Target Manifest 相對路徑。
-5. `target.manifest_digest`: 必須為 64 字元之十六進位 SHA-256 指紋，鎖定 Manifest 規則內容以保證可重現性。
-6. `target.corpus_digest`: 必須與由 `CorpusSnapshot` 依據字典序相對路徑與內容雜湊所計算出之 SHA-256 數位指紋完全相符。
+2. `target.repo`: 必須為非空字串（若為 GitHub 來源，需符合 `owner/repo` 格式），且在驗證時必須與不可變 Snapshot 的 `snapshot.manifest.target.repo` 完全一致。
+3. `target.commit`: 必須為 40 字元之十六進位 Git commit SHA（允許大小寫十六進位輸入，內部建構與驗證時一律正規化為小寫）。
+4. `target.manifest_path`: 指向宣告權威邊界之 Target Manifest 相對路徑。此欄位僅作為導覽與定位之 navigation metadata；評估合約與重現性之真實不可變依據為 `manifest_digest`。
+5. `target.manifest_digest`: 必須為 64 字元之十六進位 SHA-256 指紋（允許大小寫十六進位，內部正規化為小寫），鎖定 Manifest 規則內容以保證可重現性。
+6. `target.corpus_digest`: 必須與由 `CorpusSnapshot` 依據字典序相對路徑與內容雜湊所計算出之 SHA-256 數位指紋完全相符（允許大小寫十六進位，內部正規化為小寫）。
 
 ---
 
-## 3. 來源參照與 `<corpus>#unmentioned` 哨兵規格
+## 3. 來源參照、結構分離與 `<corpus>#unmentioned` 哨兵規格
 
 在多檔案語料庫評估中，每一項 `task_finding` 或 `non_normative_observation` 的 `company_source_ref` 必須遵守下列規則：
 
-1. **語法格式**: `<relative_path>#<section_anchor>` 或 `<relative_path>`。
+1. **頂層結構分離 (Schema Separation)**:
+   - 規範任務評估結果放置於頂層 `results:` 列表，每一項之 `finding_type` 必須為 `"task_finding"`。
+   - 非規範觀察項目放置於頂層 `non_normative_observations:` 列表，每一項之 `finding_type` 必須為 `"non_normative_observation"`。兩者在序列化與驗證中不可混用。
+2. **語法格式**: `<relative_path>#<section_anchor>` 或 `<relative_path>`。
    - 範例: `policy/secure-development-policy.md#3-security-requirements`。
-2. **存在性校驗 (Corpus-Member Source-File Validation)**:
+3. **存在性校驗 (Corpus-Member Source-File Validation)**:
    - 提取錨點前之 `<relative_path>`，必須完全匹配 `CorpusSnapshot.paths()` 中的其中一個已物化檔案。
    - 若檔案不存在於該 Snapshot 中（例如不在 Manifest include 範圍、已被 exclude 排除、或是幽靈路徑），評估引擎與驗證器必須**立即中斷並 fail-closed**。
-3. **`<corpus>#unmentioned` 哨兵使用限制**:
-   - 僅允許於 `coverage_verdict` 為 `MISSING` 或 `UNRESOLVED` 時使用。
+4. **`<corpus>#unmentioned` 哨兵使用限制**:
+   - 僅允許於 `coverage_verdict` 為 `MISSING` 或 `UNRESOLVED` 的 `task_finding` 時使用。
    - 若 `coverage_verdict` 為 `COVERED` 或 `PARTIAL`，**嚴格禁止**使用 `<corpus>#unmentioned`，必須引用具體存在之語料庫文件路徑，否則驗證器立即判定為違規。
+   - `non_normative_observation` 觀察項目**嚴格禁止**使用 `<corpus>` 哨兵，必須精確指向語料庫既有文件路徑。
 
 ---
 
