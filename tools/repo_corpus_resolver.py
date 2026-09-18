@@ -98,8 +98,22 @@ class CorpusSnapshot:
         }
 
 
+UNSUPPORTED_GLOB_CHARS = set("[]{}!~^")
+
+
 def glob_to_regex(pattern: str) -> re.Pattern[str]:
-    """Compile a POSIX repository-relative glob pattern into an anchored regex."""
+    """Compile a POSIX repository-relative glob pattern into an anchored regex.
+
+    Only supports '*', '**', and '?' (Supported Glob Subset v1).
+    Other glob syntax (e.g. bracket classes, braces, negation) is rejected fail-closed.
+    """
+    for ch in UNSUPPORTED_GLOB_CHARS:
+        if ch in pattern:
+            raise CorpusResolverError(
+                f"Unsupported glob syntax character '{ch}' in pattern '{pattern}'; "
+                "only '*', '**', '?' are supported in Supported Glob Subset v1."
+            )
+
     pattern = pattern.replace("\\", "/").strip()
     if pattern.startswith("/"):
         pattern = pattern[1:]
@@ -134,6 +148,9 @@ class ICorpusGitClient(Protocol):
     """Protocol for low-level Git repository tree and blob access."""
 
     def verify_commit_exists(self, repo_path: Path, commit: str) -> bool:
+        ...
+
+    def get_remote_url(self, repo_path: Path, remote_name: str = "origin") -> str | None:
         ...
 
     def list_tree_entries(
@@ -172,31 +189,60 @@ class GitCliClient:
         res = self._run(["cat-file", "-e", f"{commit}^{{commit}}"], cwd=repo_path)
         return res.returncode == 0
 
+    def get_remote_url(self, repo_path: Path, remote_name: str = "origin") -> str | None:
+        if not repo_path.is_dir():
+            return None
+        res = self._run(["config", "--get", f"remote.{remote_name}.url"], cwd=repo_path)
+        if res.returncode == 0:
+            val = res.stdout.strip()
+            return val if val else None
+        return None
+
     def list_tree_entries(
         self, repo_path: Path, commit: str
     ) -> list[tuple[str, str, str, str]]:
-        res = self._run(
-            [
-                "ls-tree",
-                "-r",
-                "--full-tree",
-                "--format=%(objectmode) %(objecttype) %(objectname) %(path)",
-                commit,
-            ],
-            cwd=repo_path,
-        )
+        cmd = [
+            self.git_binary,
+            "-c",
+            "core.quotepath=false",
+            "ls-tree",
+            "-r",
+            "-z",
+            "--full-tree",
+            commit,
+        ]
+        try:
+            res = subprocess.run(cmd, cwd=repo_path, capture_output=True, check=False)
+        except OSError as exc:
+            raise CorpusResolverError(f"Failed to execute git command: {exc}") from exc
+
         if res.returncode != 0:
-            raise CorpusResolverError(
-                f"Failed to list git tree at commit {commit}: {res.stderr.strip()}"
-            )
+            err_msg = res.stderr.decode("utf-8", errors="replace").strip()
+            raise CorpusResolverError(f"Failed to list git tree at commit {commit}: {err_msg}")
 
         entries: list[tuple[str, str, str, str]] = []
-        for line in res.stdout.splitlines():
-            parts = line.strip().split(maxsplit=3)
-            if len(parts) == 4:
-                mode, otype, oid, path = parts
+        # -z flag outputs NUL-delimited records: "<mode> <type> <oid>\t<path>\x00"
+        raw_records = res.stdout.split(b"\0")
+        for record in raw_records:
+            if not record:
+                continue
+            if b"\t" not in record:
+                continue
+            meta_b, path_b = record.split(b"\t", 1)
+            parts = meta_b.split(b" ", 2)
+            if len(parts) == 3:
+                mode_b, otype_b, oid_b = parts
+                mode = mode_b.decode("ascii", errors="replace")
+                otype = otype_b.decode("ascii", errors="replace")
+                oid = oid_b.decode("ascii", errors="replace")
+                try:
+                    rel_path = path_b.decode("utf-8")
+                except UnicodeDecodeError as exc:
+                    raise CorpusResolverError(
+                        f"Repository path contains non-UTF-8 bytes: {path_b!r}: {exc}"
+                    ) from exc
                 # Normalize path separators
-                entries.append((mode, otype, oid, path.replace("\\", "/")))
+                entries.append((mode, otype, oid, rel_path.replace("\\", "/")))
         return entries
 
     def read_blob_bytes(self, repo_path: Path, commit: str, rel_path: str) -> bytes:
@@ -222,6 +268,9 @@ class IRepoCorpusResolver(Protocol):
         ...
 
 
+DISALLOWED_C0_BYTES = set(range(0x00, 0x20)) - {0x09, 0x0A, 0x0D}
+
+
 class RepoCorpusResolver:
     """Deterministic Resolver materializing documentation from a Target Manifest."""
 
@@ -245,13 +294,35 @@ class RepoCorpusResolver:
         if not actual_repo_path.is_dir():
             raise CorpusResolverError(f"Target repository directory not found: {actual_repo_path}")
 
+        # Strict provenance verification for github source_type
+        if manifest.target.source_type == "github":
+            claimed_repo = manifest.target.repo.strip().lower()
+            origin_url = self.git_client.get_remote_url(actual_repo_path, "origin")
+            if not origin_url:
+                raise CorpusResolverError(
+                    f"Repository at '{actual_repo_path}' has no 'origin' remote URL configured; "
+                    f"cannot verify claimed github repository '{manifest.target.repo}'."
+                )
+            normalized_url = origin_url.strip().lower().replace("\\", "/")
+            if normalized_url.endswith(".git"):
+                normalized_url = normalized_url[:-4]
+            if not (
+                normalized_url.endswith(f"/{claimed_repo}")
+                or normalized_url.endswith(f":{claimed_repo}")
+                or normalized_url == claimed_repo
+            ):
+                raise CorpusResolverError(
+                    f"Target repository at '{actual_repo_path}' remote origin '{origin_url}' "
+                    f"does not match claimed github repository '{manifest.target.repo}'."
+                )
+
         target_commit = manifest.target.commit
         if not self.git_client.verify_commit_exists(actual_repo_path, target_commit):
             raise CorpusResolverError(
                 f"Commit not found in repository {actual_repo_path}: {target_commit}"
             )
 
-        # 1. List all tree entries in target commit
+        # 1. List all tree entries in target commit (NUL-delimited, unquoted)
         tree_entries = self.git_client.list_tree_entries(actual_repo_path, target_commit)
 
         # 2. Compile include and exclude regexes
@@ -283,12 +354,22 @@ class RepoCorpusResolver:
         # 4. Strict deterministic sorting by relative_path
         matched_paths.sort()
 
-        # 5. Read blob contents, enforce UTF-8, and compute file-level hashes
+        # 5. Read blob contents, enforce strict UTF-8 text (no binary/NUL/C0), and compute file-level hashes
         materialized_files: list[CorpusFile] = []
         digest_hasher = hashlib.sha256()
 
         for rel_path in matched_paths:
             raw_bytes = self.git_client.read_blob_bytes(actual_repo_path, target_commit, rel_path)
+
+            if b"\x00" in raw_bytes:
+                raise CorpusResolverError(
+                    f"File '{rel_path}' contains NUL byte (binary files prohibited)."
+                )
+            if any(b in DISALLOWED_C0_BYTES for b in raw_bytes):
+                raise CorpusResolverError(
+                    f"File '{rel_path}' contains disallowed C0 control characters (binary files prohibited)."
+                )
+
             try:
                 content = raw_bytes.decode("utf-8")
             except UnicodeDecodeError as exc:
@@ -309,6 +390,13 @@ class RepoCorpusResolver:
 
             # Update corpus digest: "<relative_path>\t<content_hash>\n"
             digest_hasher.update(f"{rel_path}\t{content_hash}\n".encode("utf-8"))
+
+        # 6. Prohibit empty corpus fail-closed
+        if not materialized_files:
+            raise CorpusResolverError(
+                "Corpus resolution produced 0 authoritative files; empty corpus is prohibited. "
+                "Verify authority_surface include/exclude patterns and target commit contents."
+            )
 
         total_bytes = sum(f.byte_size for f in materialized_files)
         total_files = len(materialized_files)

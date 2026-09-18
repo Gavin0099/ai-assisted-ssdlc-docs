@@ -305,6 +305,168 @@ mode:
         self.assertIn("[PASS] Repository corpus materialized successfully", res.stdout)
         self.assertTrue(export_json_path.is_file())
 
+    def test_chinese_and_spaces_in_filenames_materialize_correctly(self) -> None:
+        files = {
+            "policy/安全政策.md": "# 安全政策內容\n",
+            "policy/code review process.md": "# Code Review With Spaces\n",
+        }
+        commit_sha = self._commit_files(files)
+
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=commit_sha),
+            authority_surface=AuthoritySurfaceSpec(
+                include=("policy/**",),
+                exclude=(),
+            ),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+
+        resolver = RepoCorpusResolver()
+        snapshot = resolver.resolve(manifest, repo_path=self.repo_dir)
+
+        self.assertEqual(snapshot.total_files, 2)
+        self.assertEqual(
+            snapshot.paths(),
+            ("policy/code review process.md", "policy/安全政策.md"),
+        )
+        chinese_file = snapshot.get_file("policy/安全政策.md")
+        self.assertIsNotNone(chinese_file)
+        self.assertEqual(chinese_file.content, "# 安全政策內容\n")
+
+    def test_empty_corpus_due_to_no_include_match_fails_closed(self) -> None:
+        files = {"policy/test.md": "content\n"}
+        commit_sha = self._commit_files(files)
+
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=commit_sha),
+            authority_surface=AuthoritySurfaceSpec(
+                include=("nonexistent/**",),
+                exclude=(),
+            ),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+
+        resolver = RepoCorpusResolver()
+        with self.assertRaises(CorpusResolverError) as ctx:
+            resolver.resolve(manifest, repo_path=self.repo_dir)
+        self.assertIn("0 authoritative files", str(ctx.exception))
+
+    def test_empty_corpus_due_to_all_excluded_fails_closed(self) -> None:
+        files = {
+            "docs/draft.md": "draft\n",
+        }
+        commit_sha = self._commit_files(files)
+
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=commit_sha),
+            authority_surface=AuthoritySurfaceSpec(
+                include=("docs/**",),
+                exclude=("docs/**",),
+            ),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+
+        resolver = RepoCorpusResolver()
+        with self.assertRaises(CorpusResolverError) as ctx:
+            resolver.resolve(manifest, repo_path=self.repo_dir)
+        self.assertIn("0 authoritative files", str(ctx.exception))
+
+    def test_utf8_decodable_binary_with_nul_fails_closed(self) -> None:
+        # b"a\x00b" is decodable in UTF-8, but contains NUL byte (binary)
+        files = {
+            "policy/bad_null.md": b"a\x00b",
+        }
+        commit_sha = self._commit_files(files)
+
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=commit_sha),
+            authority_surface=AuthoritySurfaceSpec(
+                include=("policy/**",),
+                exclude=(),
+            ),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+
+        resolver = RepoCorpusResolver()
+        with self.assertRaises(CorpusResolverError) as ctx:
+            resolver.resolve(manifest, repo_path=self.repo_dir)
+        self.assertIn("binary files prohibited", str(ctx.exception).lower())
+
+    def test_binary_with_disallowed_c0_control_char_fails_closed(self) -> None:
+        # 0x01 (SOH) is a C0 control char not allowed in plain text
+        files = {
+            "policy/bad_ctrl.md": b"hello\x01world",
+        }
+        commit_sha = self._commit_files(files)
+
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=commit_sha),
+            authority_surface=AuthoritySurfaceSpec(
+                include=("policy/**",),
+                exclude=(),
+            ),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+
+        resolver = RepoCorpusResolver()
+        with self.assertRaises(CorpusResolverError) as ctx:
+            resolver.resolve(manifest, repo_path=self.repo_dir)
+        self.assertIn("binary files prohibited", str(ctx.exception).lower())
+
+    def test_github_source_type_unverified_origin_fails_closed(self) -> None:
+        files = {"policy/test.md": "policy\n"}
+        commit_sha = self._commit_files(files)
+
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="github", repo="Company/official-ssdlc", commit=commit_sha),
+            authority_surface=AuthoritySurfaceSpec(
+                include=("policy/**",),
+                exclude=(),
+            ),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+
+        resolver = RepoCorpusResolver()
+        # Case 1: no remote origin configured in local repo
+        with self.assertRaises(CorpusResolverError) as ctx:
+            resolver.resolve(manifest, repo_path=self.repo_dir)
+        err_lower = str(ctx.exception).lower()
+        self.assertTrue("remote" in err_lower and "origin" in err_lower)
+
+        # Case 2: wrong remote origin configured
+        run_git(["remote", "add", "origin", "https://github.com/OtherOrg/wrong-repo.git"], cwd=self.repo_dir)
+        with self.assertRaises(CorpusResolverError) as ctx:
+            resolver.resolve(manifest, repo_path=self.repo_dir)
+        self.assertIn("does not match claimed github repository", str(ctx.exception).lower())
+
+        # Case 3: correct remote origin matches manifest repo
+        run_git(["remote", "set-url", "origin", "https://github.com/Company/official-ssdlc.git"], cwd=self.repo_dir)
+        snapshot = resolver.resolve(manifest, repo_path=self.repo_dir)
+        self.assertEqual(snapshot.total_files, 1)
+
+    def test_unsupported_glob_syntax_fails_closed(self) -> None:
+        commit_sha = self._commit_files({"policy/a.md": "a\n"})
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=commit_sha),
+            authority_surface=AuthoritySurfaceSpec(
+                include=("policy/[abc].md",),  # bracket character class not supported
+                exclude=(),
+            ),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+
+        resolver = RepoCorpusResolver()
+        with self.assertRaises(CorpusResolverError) as ctx:
+            resolver.resolve(manifest, repo_path=self.repo_dir)
+        self.assertIn("unsupported glob syntax", str(ctx.exception).lower())
+
 
 if __name__ == "__main__":
     unittest.main()
