@@ -417,8 +417,9 @@ S2 驗證報表與資料模型必須強制附加以下免責宣告：
 
 ### Scenario 3: Evidence Discrepancy Detection via Assertion Failure
 **Given** 政策預期要求使用簽章工具 Cosign 進行 release integrity 驗證（`PS.2.1`）  
-**And** 比對規則 `RULE-PS21-COSIGN` 搜尋 `.github/workflows/release.yml`，且斷言其 uses 必須包含 `sigstore/cosign-installer`  
-**And** 產品 Repo 存在 `.github/workflows/release.yml`，但僅有產出 MD5 雜湊檔之 shell 腳本  
+**And** 比對規則 `RULE-PS21-COSIGN` 搜尋 `.github/workflows/release.yml`，且指定 `YAML_PATH_EQUALS` 斷言 `jobs.release.steps[0].uses` 必須等於 `sigstore/cosign-installer@v3`  
+**And** 產品 Repo 存在 `.github/workflows/release.yml`，但該步驟實際為 `actions/checkout@v4`（未配置 Cosign 簽章）  
+
 **When** 執行實作憑證驗證時  
 **Then** 候選檔案存在但斷言不通過，輸出判定為 `EVIDENCE_DISCREPANCY`  
 **And** `evidence_refs` 保存 failing candidate，且 `discrepancy_details` 明確記錄差異字串。
