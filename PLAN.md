@@ -30,8 +30,8 @@
 - [x] S1-A-r2: Target Manifest Schema Authority & Repo Identity Closure (Zero-fallback executable schema validation, source_type syntax binding, and glob semantics layering; delivered in PR #10).
 - [x] S1-A Review Closure: Hardened local_git repo URL scheme exclusion and malformed schema fail-closed checks.
 - [x] S1-B: Repo Corpus Resolver (Materialize authoritative repository files into an immutable corpus based on Target Manifest include/exclude surface).
-- [x] S1-B Review Closure: Resolved NUL-delimited git ls-tree parsing (supporting non-ASCII/spaces), enforced github remote origin verification, fail-closed on empty corpus, and rejected binary/NUL/C0 control characters.
-- [ ] S1-C: Multi-File Corpus SSDF Assessment Engine & Contract (Extend assessment logic from single-file fixture to multi-file repository corpus with exact source file tracking).
+- [x] S1-C: Multi-File Corpus SSDF Assessment Engine & Contract (Extended assessment domain models, protocols, exact source file tracking, provenance digest verification, and SSDF linter support for repository corpus).
+- [ ] S1-D: Read-Only Review Engine & Reporting (Deterministic comparison, diffing, and aggregation-only reporting over multi-file corpus assessments).
 
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
@@ -71,7 +71,8 @@
 - 2026-09-17: Phase S1 Architecture Decision: Treat target SSDLC documentation as a Git repository corpus pinned to a fixed commit SHA with explicit Target Manifest (include/exclude authority surface). Decouple Layer 1 (Document Coverage Assessment on policy repo) from Layer 2 (Implementation Evidence Assessment on product repos).
 - 2026-09-18: Hardened S0 linter to require full 1:1 coverage of scope_tasks, baseline match for normative sources, and clause-aware negation to prevent boundary bypass; hardened S1-A target manifest schema against URL schemes in local_git and enforced fail-closed regex/type compilation.
 - 2026-09-18: Phase S1-B Repo Corpus Resolver Architecture: Implemented zero-working-tree Git materialization via `git ls-tree` and `git cat-file`, enforced Exclude Always Wins, filtered symlinks (`120000`), enforced UTF-8, and established deterministic `corpus_digest` calculation across all authoritative documents.
-- 2026-09-18: Phase S1-B Review Closure: Upgraded Git tree parsing to `git -c core.quotepath=false ls-tree -r -z` for raw NUL-delimited path handling (supporting non-ASCII Chinese and spaces without C-quote corruption), enforced remote origin verification for `github` source_type, prohibited empty corpus materialization, fail-closed on binary/NUL/C0 control characters, and restricted glob syntax to Supported Glob Subset v1 (`*`, `**`, `?`).
+- [x] S1-B Review Closure: Resolved NUL-delimited git ls-tree parsing (supporting non-ASCII/spaces), enforced github remote origin verification, fail-closed on empty corpus, and rejected binary/NUL/C0 control characters.
+- 2026-09-18: Phase S1-C Multi-File Corpus SSDF Assessment Engine & Contract: Extended SSDF assessment to multi-file repository corpora pinned by Target Manifest and Corpus Snapshot (`corpus_digest`). Enforced exact source file tracking requiring `company_source_ref` paths to strictly exist within the materialized corpus snapshot, and expanded SSDF linter to validate `repository_corpus` provenance envelope while preserving all claim ceiling boundaries.
 
 ## Known Risks
 

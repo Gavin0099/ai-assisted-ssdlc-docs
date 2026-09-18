@@ -6,6 +6,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
 import yaml
 
 from _schema_rules import SchemaDefinitionError, load_schema, string_list
@@ -213,6 +217,31 @@ def validate_ssdf_assessment(
             if val is None or (isinstance(val, str) and not val.strip()):
                 errors.append(f"assessment header missing required field: {req_field}")
 
+        target_val = assessment_hdr.get("target")
+        if target_val is not None:
+            if isinstance(target_val, str):
+                if not target_val.strip():
+                    errors.append("assessment target string cannot be empty")
+            elif isinstance(target_val, dict):
+                t_type = target_val.get("type")
+                if t_type != "repository_corpus":
+                    errors.append(f"assessment target mapping must have type 'repository_corpus', got {t_type!r}")
+                for t_field in ("repo", "commit", "manifest_path", "manifest_digest", "corpus_digest"):
+                    f_val = target_val.get(t_field)
+                    if f_val is None or not isinstance(f_val, str) or not f_val.strip():
+                        errors.append(f"assessment target mapping missing required non-empty field: {t_field}")
+                t_commit = target_val.get("commit")
+                if isinstance(t_commit, str) and not re.match(r"^[0-9a-fA-F]{40}$", t_commit):
+                    errors.append(f"assessment target commit must be a 40-character hex SHA: {t_commit!r}")
+                t_m_digest = target_val.get("manifest_digest")
+                if isinstance(t_m_digest, str) and not re.match(r"^[0-9a-fA-F]{64}$", t_m_digest):
+                    errors.append(f"assessment target manifest_digest must be a 64-character hex SHA-256: {t_m_digest!r}")
+                t_digest = target_val.get("corpus_digest")
+                if isinstance(t_digest, str) and not re.match(r"^[0-9a-fA-F]{64}$", t_digest):
+                    errors.append(f"assessment target corpus_digest must be a 64-character hex SHA-256: {t_digest!r}")
+            else:
+                errors.append("assessment target must be a string path or a repository_corpus mapping")
+
         assessment_baseline = assessment_hdr.get("baseline")
         if assessment_baseline and expected_baseline and assessment_baseline != expected_baseline:
             errors.append(
@@ -316,8 +345,18 @@ def validate_ssdf_assessment(
             errors.append(f"{fid}: cannot_claim must be a non-empty list of strings")
 
         # Source ref and statement
-        if not finding.get("company_source_ref"):
+        source_ref = finding.get("company_source_ref")
+        if not source_ref:
             errors.append(f"{fid}: missing company_source_ref")
+        else:
+            if isinstance(source_ref, str) and source_ref.startswith("<corpus"):
+                if source_ref == "<corpus>#unmentioned":
+                    if verdict not in ("MISSING", "UNRESOLVED"):
+                        errors.append(
+                            f"{fid}: sentinel '<corpus>#unmentioned' is permitted only for MISSING or UNRESOLVED verdicts, got {verdict!r}"
+                        )
+                else:
+                    errors.append(f"{fid}: invalid sentinel format in company_source_ref: {source_ref!r}")
         if not finding.get("company_statement"):
             errors.append(f"{fid}: missing company_statement")
 
@@ -429,8 +468,11 @@ def validate_ssdf_assessment(
         if "coverage_verdict" in obs:
             errors.append(f"{oid}: non_normative_observation must not have a coverage_verdict")
 
-        if not obs.get("company_source_ref"):
+        obs_ref = obs.get("company_source_ref")
+        if not obs_ref:
             errors.append(f"{oid}: missing company_source_ref")
+        elif isinstance(obs_ref, str) and "<corpus" in obs_ref:
+            errors.append(f"{oid}: non_normative_observation must not use corpus sentinels: {obs_ref!r}")
 
         obs_text = obs.get("observation")
         if not obs_text or not isinstance(obs_text, str) or not obs_text.strip():
