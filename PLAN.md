@@ -49,7 +49,6 @@
 
 <!-- Required: prioritized items not yet started -->
 
-- [x] Phase S1: Real Repo Document Coverage Assessment Pilot (Delivered and formally closed at main 79e33ae).
 - P2: Phase S2 - Implementation Evidence Verification Pilot (Product Repo CI / Artifact Evidence vs Company SSDLC Policy).
 - P2: Apply a shared strict date parser to due-review generation.
 - P2: Add a status-only Review Receipt schema and validator.
