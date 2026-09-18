@@ -113,7 +113,7 @@ class AssessmentDiffRecord:
     modified_count: int
     unchanged_count: int
     claim_boundary: tuple[str, ...]
-    provenance_verified: bool = True
+    provenance_verified: bool = False
     observations_compared: bool = False
 
     def to_dict(self) -> dict[str, Any]:
@@ -142,7 +142,7 @@ class IAssessmentDiffEngine(Protocol):
         self,
         baseline: CorpusAssessmentReport,
         target: CorpusAssessmentReport,
-        provenance_verified: bool = True,
+        provenance_verified: bool = False,
     ) -> AssessmentDiffRecord:
         """Determines differences between two assessment reports deterministically."""
         ...
@@ -155,7 +155,7 @@ class AssessmentDiffEngine:
         self,
         baseline: CorpusAssessmentReport,
         target: CorpusAssessmentReport,
-        provenance_verified: bool = True,
+        provenance_verified: bool = False,
     ) -> AssessmentDiffRecord:
         # 1. Compare target metadata
         metadata_diffs: list[FieldDiff] = []

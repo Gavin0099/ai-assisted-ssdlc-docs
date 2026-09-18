@@ -934,6 +934,35 @@ mode:
             self.assertEqual(exit_code, 1)
             self.assertIn("Review Provenance Validation Failed", stderr_buf.getvalue())
 
+    def test_default_library_compare_is_unverified_with_warning(self) -> None:
+        """P1 Contract: Calling compare() directly defaults to provenance_verified=False and renders UNVERIFIED warning."""
+        report_a = self._create_report("REPORT-A")
+        report_b = self._create_report("REPORT-B")
+
+        record = self.engine.compare(report_a, report_b)
+        self.assertFalse(record.provenance_verified)
+
+        md = self.renderer.render_markdown(record)
+        self.assertIn("Provenance Verification: UNVERIFIED", md)
+        self.assertIn("--allow-unverified-provenance", md)
+
+        json_data = json.loads(self.renderer.render_json(record))
+        self.assertFalse(json_data["provenance_verified"])
+
+    def test_explicit_verified_library_compare_has_no_warning(self) -> None:
+        """P1 Contract: Explicitly supplying provenance_verified=True sets flag to True and renders no UNVERIFIED warning."""
+        report_a = self._create_report("REPORT-A")
+        report_b = self._create_report("REPORT-B")
+
+        record = self.engine.compare(report_a, report_b, provenance_verified=True)
+        self.assertTrue(record.provenance_verified)
+
+        md = self.renderer.render_markdown(record)
+        self.assertNotIn("Provenance Verification: UNVERIFIED", md)
+
+        json_data = json.loads(self.renderer.render_json(record))
+        self.assertTrue(json_data["provenance_verified"])
+
 
 if __name__ == "__main__":
     unittest.main()
