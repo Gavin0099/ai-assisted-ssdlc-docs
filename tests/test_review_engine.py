@@ -471,17 +471,29 @@ class TestReviewEngine(unittest.TestCase):
             observations=[],
         )
 
-    def test_orchestrator_validates_and_projects_success(self) -> None:
+    def test_orchestrator_validates_and_projects_unverified_provenance(self) -> None:
         report = self._build_valid_7task_report()
         orchestrator = ReviewReportOrchestrator()
         with tempfile.TemporaryDirectory() as tmp_dir:
             yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
             yaml_path.write_text(report.to_yaml(), encoding="utf-8")
 
-            record = orchestrator.orchestrate(yaml_path)
+            record = orchestrator.orchestrate(yaml_path, allow_unverified_provenance=True)
             self.assertIsInstance(record, ReadOnlyReviewRecord)
             self.assertEqual(record.assessment_id, "S1-ORCH-001")
             self.assertEqual(len(record.findings), 7)
+            self.assertFalse(record.provenance_verified)
+
+    def test_orchestrator_fails_closed_without_provenance_or_opt_in(self) -> None:
+        report = self._build_valid_7task_report()
+        orchestrator = ReviewReportOrchestrator()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
+            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            with self.assertRaises(ReviewProvenanceError) as ctx:
+                orchestrator.orchestrate(yaml_path)
+            self.assertIn("requires both --manifest and --repo-path", str(ctx.exception))
 
     def test_orchestrator_fails_closed_on_invalid_linter_yaml(self) -> None:
         report = self._build_valid_7task_report()
@@ -496,23 +508,224 @@ class TestReviewEngine(unittest.TestCase):
             yaml_path.write_text(yaml.dump(yaml_dict), encoding="utf-8")
 
             with self.assertRaises(ReviewValidationError) as ctx:
-                orchestrator.orchestrate(yaml_path)
+                orchestrator.orchestrate(yaml_path, allow_unverified_provenance=True)
             self.assertTrue(len(ctx.exception.errors) > 0)
             self.assertTrue(any("prohibited claim" in err for err in ctx.exception.errors))
 
-    def test_orchestrator_fails_closed_on_missing_repo_path_manifest(self) -> None:
+    def test_orchestrator_fails_on_manifest_path_traversal(self) -> None:
         report = self._build_valid_7task_report()
+        # Corrupt target manifest_path with path traversal
+        traversal_target = CorpusAssessmentTarget(
+            repo=report.target.repo,
+            commit=report.target.commit,
+            manifest_path="../outside.yaml",
+            manifest_digest=report.target.manifest_digest,
+            corpus_digest=report.target.corpus_digest,
+        )
+        report_with_traversal = CorpusAssessmentReport(
+            id="TRAVERSAL-TEST",
+            baseline=report.baseline,
+            target=traversal_target,
+            scope_tasks=report.scope_tasks,
+            claim_boundary=report.claim_boundary,
+            findings=report.findings,
+        )
         orchestrator = ReviewReportOrchestrator()
         with tempfile.TemporaryDirectory() as tmp_dir:
-            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
-            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
-
-            empty_repo = Path(tmp_dir) / "empty_repo"
-            empty_repo.mkdir()
+            yaml_path = Path(tmp_dir) / "traversal-assessment.yaml"
+            yaml_path.write_text(report_with_traversal.to_yaml(), encoding="utf-8")
 
             with self.assertRaises(ReviewProvenanceError) as ctx:
-                orchestrator.orchestrate(yaml_path, repo_path=empty_repo)
-            self.assertIn("Target manifest not found", str(ctx.exception))
+                orchestrator.orchestrate(yaml_path, allow_unverified_provenance=True)
+            self.assertIn("clean relative path without traversal", str(ctx.exception))
+
+    def test_orchestrator_and_cli_full_provenance_positive_integration(self) -> None:
+        import subprocess
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_dir = Path(tmp_dir) / "test_repo"
+            repo_dir.mkdir()
+
+            def run_git(args: list[str]) -> str:
+                res = subprocess.run(
+                    ["git"] + args, cwd=repo_dir, capture_output=True, text=True, check=True
+                )
+                return res.stdout.strip()
+
+            run_git(["init", "-b", "main"])
+            run_git(["config", "user.name", "Test Assessor"])
+            run_git(["config", "user.email", "assessor@test.local"])
+
+            policy_dir = repo_dir / "policy"
+            policy_dir.mkdir()
+            (policy_dir / "security.md").write_text("# Security Policy\nAll software shall be secure.\n", encoding="utf-8")
+
+            manifest_content = f"""manifest_version: "1.0"
+target:
+  source_type: local_git
+  repo: "{repo_dir.as_posix()}"
+  commit: "0000000000000000000000000000000000000000"
+authority_surface:
+  include:
+    - "policy/**"
+  exclude: []
+baseline:
+  framework: NIST_SP_800_218
+  version: "1.1"
+mode:
+  read_only: true
+  enforce_clean: false
+"""
+            manifest_path = repo_dir / "target-manifest.yaml"
+            manifest_path.write_text(manifest_content, encoding="utf-8")
+
+            run_git(["add", "policy/"])
+            run_git(["commit", "-m", "initial commit"])
+            target_commit = run_git(["rev-parse", "HEAD"])
+
+            manifest_content_final = manifest_content.replace("0000000000000000000000000000000000000000", target_commit)
+            manifest_path.write_text(manifest_content_final, encoding="utf-8")
+            run_git(["add", "target-manifest.yaml"])
+            run_git(["commit", "-m", "add manifest"])
+
+            # Resolve snapshot to compute real manifest and corpus digests
+            import yaml
+            from tools.repo_corpus_resolver import RepoCorpusResolver
+            from tools.validate_target_manifest import parse_target_manifest
+
+            manifest_data = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+            manifest = parse_target_manifest(manifest_data)
+            resolver = RepoCorpusResolver()
+            snapshot = resolver.resolve(manifest=manifest, repo_path=repo_dir)
+
+            target = CorpusAssessmentTarget(
+                repo=repo_dir.as_posix(),
+                commit=target_commit,
+                manifest_path="target-manifest.yaml",
+                manifest_digest=manifest.digest,
+                corpus_digest=snapshot.corpus_digest,
+                target_type="repository_corpus",
+            )
+            scope_tasks = ["PO.1.2", "PO.3.1", "PS.2.1", "PW.1.1", "PW.4.4", "PW.8.1", "RV.1.3"]
+            findings = []
+            for idx, task_id in enumerate(scope_tasks, start=1):
+                findings.append(
+                    CorpusTaskFinding(
+                        finding_id=f"F-TEST-{idx:02d}",
+                        task_id=task_id,
+                        company_source_ref="policy/security.md#security-policy",
+                        company_statement="All software shall be secure.",
+                        coverage_verdict="PARTIAL",
+                        basis=[
+                            CorpusAssessmentBasis(
+                                type="nist_normative",
+                                task_id=task_id,
+                                source="NIST_SP_800_218_v1.1",
+                                rationale="Normative task requirement.",
+                            ),
+                        ],
+                        assessment_rationale=["The policy requires documentation."],
+                        identified_evidence=[
+                            IdentifiedEvidence(
+                                type="policy_statement",
+                                source_ref="policy/security.md#security-policy",
+                            )
+                        ],
+                        evidence_strength="medium",
+                        review_queue_recommendation="needs_changes",
+                        cannot_claim=["This does not prove compliance."],
+                    )
+                )
+            report = CorpusAssessmentReport(
+                id="S1-E2E-001",
+                baseline="NIST_SP_800_218_v1.1",
+                target=target,
+                scope_tasks=scope_tasks,
+                claim_boundary=["This is an assessment boundary."],
+                findings=findings,
+            )
+            assessment_yaml_path = Path(tmp_dir) / "e2e-assessment.yaml"
+            assessment_yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            # 1. Orchestrator positive test
+            orchestrator = ReviewReportOrchestrator()
+            record = orchestrator.orchestrate(
+                assessment_yaml_path,
+                manifest_path=manifest_path,
+                repo_path=repo_dir,
+            )
+            self.assertTrue(record.provenance_verified)
+            self.assertEqual(record.assessment_id, "S1-E2E-001")
+
+            # 2. CLI positive test with --manifest and --repo-path
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                exit_code = main([
+                    str(assessment_yaml_path),
+                    "--manifest", str(manifest_path),
+                    "--repo-path", str(repo_dir),
+                    "--stdout",
+                ])
+            self.assertEqual(exit_code, 0)
+            out = buf.getvalue()
+            self.assertIn("- **Provenance Verified**: `true`", out)
+            self.assertNotIn("UNVERIFIED", out)
+
+            # 3. Test manifest digest mismatch fails closed
+            tampered_report = CorpusAssessmentReport(
+                id="TAMPERED-DIGEST",
+                baseline=report.baseline,
+                target=CorpusAssessmentTarget(
+                    repo=target.repo,
+                    commit=target.commit,
+                    manifest_path=target.manifest_path,
+                    manifest_digest="f" * 64,  # tampered
+                    corpus_digest=target.corpus_digest,
+                ),
+                scope_tasks=report.scope_tasks,
+                claim_boundary=report.claim_boundary,
+                findings=report.findings,
+            )
+            tampered_path = Path(tmp_dir) / "tampered-manifest-digest.yaml"
+            tampered_path.write_text(tampered_report.to_yaml(), encoding="utf-8")
+            with self.assertRaises(ReviewProvenanceError) as ctx:
+                orchestrator.orchestrate(tampered_path, manifest_path=manifest_path, repo_path=repo_dir)
+            self.assertIn("Target manifest digest mismatch", str(ctx.exception))
+
+            # 4. Test manifest outside repo fails closed
+            outside_manifest = Path(tmp_dir) / "outside-manifest.yaml"
+            outside_manifest.write_text(manifest_path.read_text(encoding="utf-8"), encoding="utf-8")
+            with self.assertRaises(ReviewProvenanceError) as ctx:
+                orchestrator.orchestrate(assessment_yaml_path, manifest_path=outside_manifest, repo_path=repo_dir)
+            self.assertIn("located outside target repository", str(ctx.exception))
+
+            # 5. Test phantom company_source_ref fails closed
+            phantom_findings = list(report.findings)
+            phantom_findings[0] = CorpusTaskFinding(
+                finding_id=phantom_findings[0].finding_id,
+                task_id=phantom_findings[0].task_id,
+                company_source_ref="policy/phantom.md#sec-1",
+                company_statement=phantom_findings[0].company_statement,
+                coverage_verdict=phantom_findings[0].coverage_verdict,
+                basis=phantom_findings[0].basis,
+                assessment_rationale=phantom_findings[0].assessment_rationale,
+                identified_evidence=phantom_findings[0].identified_evidence,
+                evidence_strength=phantom_findings[0].evidence_strength,
+                review_queue_recommendation=phantom_findings[0].review_queue_recommendation,
+                cannot_claim=phantom_findings[0].cannot_claim,
+            )
+            phantom_report = CorpusAssessmentReport(
+                id="PHANTOM-REPORT",
+                baseline=report.baseline,
+                target=target,
+                scope_tasks=report.scope_tasks,
+                claim_boundary=report.claim_boundary,
+                findings=phantom_findings,
+            )
+            phantom_path = Path(tmp_dir) / "phantom-assessment.yaml"
+            phantom_path.write_text(phantom_report.to_yaml(), encoding="utf-8")
+            with self.assertRaises(ReviewProvenanceError) as ctx:
+                orchestrator.orchestrate(phantom_path, manifest_path=manifest_path, repo_path=repo_dir)
+            self.assertIn("not found in materialized corpus snapshot", str(ctx.exception))
 
     def test_cli_stdout_markdown_output(self) -> None:
         report = self._build_valid_7task_report()
@@ -522,12 +735,13 @@ class TestReviewEngine(unittest.TestCase):
 
             buf = io.StringIO()
             with redirect_stdout(buf):
-                exit_code = main([str(yaml_path), "--stdout", "--format", "markdown"])
+                exit_code = main([str(yaml_path), "--allow-unverified-provenance", "--stdout", "--format", "markdown"])
 
             self.assertEqual(exit_code, 0)
             out = buf.getvalue()
             self.assertIn("# SSDF Direct Assessment Review Report: S1-ORCH-001", out)
             self.assertIn("## Claim Boundary", out)
+            self.assertIn("Provenance Verification: UNVERIFIED", out)
 
     def test_cli_stdout_json_output(self) -> None:
         report = self._build_valid_7task_report()
@@ -537,12 +751,13 @@ class TestReviewEngine(unittest.TestCase):
 
             buf = io.StringIO()
             with redirect_stdout(buf):
-                exit_code = main([str(yaml_path), "--stdout", "--format", "json"])
+                exit_code = main([str(yaml_path), "--allow-unverified-provenance", "--stdout", "--format", "json"])
 
             self.assertEqual(exit_code, 0)
             parsed = json.loads(buf.getvalue())
             self.assertEqual(parsed["assessment_id"], "S1-ORCH-001")
             self.assertEqual(len(parsed["findings"]), 7)
+            self.assertFalse(parsed["provenance_verified"])
 
     def test_cli_out_dir_generates_both_artifacts(self) -> None:
         report = self._build_valid_7task_report()
@@ -553,7 +768,7 @@ class TestReviewEngine(unittest.TestCase):
             out_dir = Path(tmp_dir) / "reports"
             buf = io.StringIO()
             with redirect_stdout(buf):
-                exit_code = main([str(yaml_path), "--out-dir", str(out_dir), "--format", "both"])
+                exit_code = main([str(yaml_path), "--allow-unverified-provenance", "--out-dir", str(out_dir), "--format", "both"])
 
             self.assertEqual(exit_code, 0)
             md_file = out_dir / "S1-ORCH-001.review.md"
@@ -576,7 +791,7 @@ class TestReviewEngine(unittest.TestCase):
 
             err_buf = io.StringIO()
             with redirect_stderr(err_buf):
-                exit_code = main([str(yaml_path), "--stdout"])
+                exit_code = main([str(yaml_path), "--allow-unverified-provenance", "--stdout"])
 
             self.assertEqual(exit_code, 1)
             err_msg = err_buf.getvalue()
@@ -590,10 +805,54 @@ class TestReviewEngine(unittest.TestCase):
 
             err_buf = io.StringIO()
             with redirect_stderr(err_buf):
-                exit_code = main([str(yaml_path), "--stdout", "--format", "both"])
+                exit_code = main([str(yaml_path), "--allow-unverified-provenance", "--stdout", "--format", "both"])
 
             self.assertEqual(exit_code, 1)
             self.assertIn("cannot be used with --stdout", err_buf.getvalue())
+
+    def test_cli_fails_closed_on_path_traversal_assessment_id(self) -> None:
+        report = self._build_valid_7task_report()
+        traversal_report = CorpusAssessmentReport(
+            id="../escaped_report",
+            baseline=report.baseline,
+            target=report.target,
+            scope_tasks=report.scope_tasks,
+            claim_boundary=report.claim_boundary,
+            findings=report.findings,
+        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "traversal-id-assessment.yaml"
+            yaml_path.write_text(traversal_report.to_yaml(), encoding="utf-8")
+
+            out_dir = Path(tmp_dir) / "reports"
+            err_buf = io.StringIO()
+            with redirect_stderr(err_buf):
+                exit_code = main([
+                    str(yaml_path),
+                    "--allow-unverified-provenance",
+                    "--out-dir", str(out_dir),
+                ])
+            self.assertEqual(exit_code, 1)
+            self.assertIn("path traversal or invalid characters", err_buf.getvalue())
+            # Ensure no file was created
+            self.assertFalse(out_dir.exists())
+
+    def test_cli_accepts_reference_alias(self) -> None:
+        report = self._build_valid_7task_report()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            yaml_path = Path(tmp_dir) / "valid-assessment.yaml"
+            yaml_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                exit_code = main([
+                    str(yaml_path),
+                    "--reference", "references/nist-ssdf/v1.1/tasks.yaml",
+                    "--allow-unverified-provenance",
+                    "--stdout",
+                ])
+            self.assertEqual(exit_code, 0)
+            self.assertIn("# SSDF Direct Assessment Review Report:", buf.getvalue())
 
     def test_cli_subprocess_invocation(self) -> None:
         import subprocess
@@ -604,7 +863,13 @@ class TestReviewEngine(unittest.TestCase):
             yaml_path.write_text(report.to_yaml(), encoding="utf-8")
 
             res = subprocess.run(
-                [sys.executable, "tools/review_engine.py", str(yaml_path), "--stdout"],
+                [
+                    sys.executable,
+                    "tools/review_engine.py",
+                    str(yaml_path),
+                    "--allow-unverified-provenance",
+                    "--stdout",
+                ],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -615,6 +880,7 @@ class TestReviewEngine(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 
 
 

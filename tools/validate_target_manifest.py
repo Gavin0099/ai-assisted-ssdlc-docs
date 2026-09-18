@@ -14,6 +14,8 @@ as the executable single source of truth. Zero silent fallbacks:
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import re
 import sys
 from dataclasses import dataclass
@@ -61,6 +63,30 @@ class TargetManifest:
     authority_surface: AuthoritySurfaceSpec
     baseline: BaselineSpec
     mode: ModeSpec
+
+    @property
+    def digest(self) -> str:
+        """Compute the deterministic SHA-256 digest of this target manifest."""
+        canonical = {
+            "target": {
+                "source_type": self.target.source_type,
+                "repo": self.target.repo,
+                "commit": self.target.commit,
+            },
+            "authority_surface": {
+                "include": list(self.authority_surface.include),
+                "exclude": list(self.authority_surface.exclude),
+            },
+            "baseline": {
+                "framework": self.baseline.framework,
+                "version": self.baseline.version,
+            },
+            "mode": {
+                "read_only": self.mode.read_only,
+            },
+        }
+        raw = json.dumps(canonical, sort_keys=True).encode("utf-8")
+        return hashlib.sha256(raw).hexdigest()
 
 
 def load_manifest_schema(schema_path: Path = DEFAULT_SCHEMA_PATH) -> dict[str, Any]:

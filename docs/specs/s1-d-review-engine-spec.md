@@ -115,19 +115,28 @@
 
 ### 6.1 職責與編排護欄 (Responsibilities & Guardrails)
 S1-D2 負責為審查引擎提供命令列進入點與報表產出編排服務：
-1. **強制先驗證後投影 (Fail-Closed Gate)**:
+1. **完整出處驗證信任邊界 (Full Provenance Trust Boundary as Default)**:
    - 輸入之 Assessment YAML 必須先通過 S1-C `validate_ssdf_assessment` 檢核（結構、Schema、禁止宣稱語句、任務對應完整性）。
-   - 若提供 `--repo-path`，必須載入 Target Manifest 並由 `RepoCorpusResolver` 生成快照，透過 `validate_report_against_snapshot` 嚴格核對 commit、`manifest_digest`、`corpus_digest` 與所有 `company_source_ref` 存在性。
-   - 若驗證失敗，立即中斷（Exit Code 1），輸出明確之錯誤原因，嚴禁產出未驗證之報表。
-2. **命令列介面規格**:
+   - 對於 `repository_corpus` 評估類型，CLI 預設**強制要求**同時提供 `--manifest <target-manifest.yaml>` 與 `--repo-path <dir>`，絕不允許靜默降級為半驗證（結構驗證）報表。
+   - 若使用者明確需要離線渲染，必須顯式加上 `--allow-unverified-provenance` 旗標；產出之報表（Markdown 與 JSON）將明確標記 `provenance_verified: false`，並置頂顯要警示。
+2. **明確 Manifest 輸入與導覽分離**:
+   - `assessment.target.manifest_path` 嚴格維持其 S1-C 凍結之「導覽 metadata」語意，不再作為執行時 locator。
+   - CLI 透過 `--manifest <path>` 明確傳入 Target Manifest 檔案，校驗其 Schema 與合法性後，比對計算之 `manifest.digest` 是否與 `assessment.target.manifest_digest` 一致。
+   - 傳入之 `--manifest` 檔案實體路徑必須局限於 `--repo-path` 儲存庫邊界內，嚴禁路徑穿越。
+3. **安全輸出檔名防護 (Safe Filename & Directory Traversal Protection)**:
+   - 輸出至 `--out-dir` 時，`assessment_id` 嚴格限定為安全檔名字元（禁止包含 `/`、`\`、`..`、控制字元或空字串）。
+   - 驗證解析後之報告輸出路徑嚴格位於 `--out-dir` 目錄內部，一旦發現越界立即 Fail-Closed 中斷，嚴禁寫入任何檔案。
+4. **命令列介面規格**:
    - `python tools/review_engine.py <assessment-file.yaml> [options]`
    - 參數選項：
      - `target`: Path to assessment YAML file.
+     - `--manifest <path>`: 目標 Target Manifest YAML 檔案路徑（`repository_corpus` 預設必填）。
+     - `--repo-path <dir>`: 目標儲存庫根目錄路徑（`repository_corpus` 預設必填）。
+     - `--allow-unverified-provenance`: 明確允許在未驗證儲存庫出處與快照之情況下產出未驗證報表。
      - `--format {markdown,json,both}`: 報表輸出格式（預設值：若指定 `--stdout` 則為 `markdown`；若指定 `--out-dir` 則為 `both`）。
      - `--out-dir <dir>`: 輸出目錄。寫入 `<assessment_id>.review.md` 與/或 `<assessment_id>.review.json`。
      - `--stdout`: 輸出至標準輸出（支援 Unix pipeline）。
-     - `--repo-path <dir>`: 目標儲存庫根目錄路徑。提供時自動執行 S1-C Snapshot Provenance 與語料庫完整性驗證。
-     - `--reference`, `--tasks-ref`: NIST SSDF 權威任務定義檔（可選，預設指向 references）。
+     - `--reference`, `--tasks-ref`: NIST SSDF 權威任務定義檔別名（可選，預設指向 references）。
      - `--evidence-schema`: Evidence Schema 檔案路徑（可選）。
      - `--review-queue-schema`: Review Queue Schema 檔案路徑（可選）。
 
@@ -137,7 +146,9 @@ class IReviewReportOrchestrator(Protocol):
     def orchestrate(
         self,
         assessment_path: Path,
+        manifest_path: Path | None = None,
         repo_path: Path | None = None,
+        allow_unverified_provenance: bool = False,
         tasks_ref: Path | None = None,
         evidence_schema: Path | None = None,
         review_queue_schema: Path | None = None,
@@ -154,20 +165,20 @@ class IReviewReportOrchestrator(Protocol):
 **Then** 必須拋出 `ReviewValidationError` 或 CLI 以 Exit Code 1 結束  
 **And** 輸出清晰的驗證錯誤清單，嚴禁產出任何報表。
 
-### Scenario 6: Provenance & Snapshot Validation Orchestration
-**Given** 一份宣告之 `corpus_digest` 或 `commit` 與 `--repo-path` 實體儲存庫不符之評估 YAML  
-**When** 執行帶有 `--repo-path` 之審查編排服務或 CLI 時  
-**Then** 必須拋出 `ReviewProvenanceError` 或 CLI 以 Exit Code 1 結束  
-**And** 明確回報 Provenance 不符原因。
+### Scenario 6: Full Provenance Verification Success & Digest Matching
+**Given** 一份合法之 assessment YAML、合法的 `--manifest` 與 `--repo-path` 實體儲存庫  
+**When** 執行帶有 `--manifest` 與 `--repo-path` 之審查編排服務或 CLI 時  
+**Then** 完整校驗 commit、`manifest_digest`、`corpus_digest` 與所有 `company_source_ref` 存在性  
+**And** 產出的審查記錄與報表中 `provenance_verified` 為 `true`。
 
-### Scenario 7: Deterministic Artifact Output Generation
-**Given** 一份合規之評估 YAML 與 `--out-dir output/ --format both`  
-**When** 執行 CLI 產生報告時  
-**Then** `output/<assessment_id>.review.md` 與 `output/<assessment_id>.review.json` 必須被正確寫入  
-**And** 產出的內容必須具備確定性（與 Renderer 直接產出內容 bit-for-bit 一致）。
+### Scenario 7: Provenance Trust Boundary Violation (Missing Repo/Manifest without Opt-In)
+**Given** 一份 `repository_corpus` 評估 YAML，且未傳入 `--manifest` 或 `--repo-path`  
+**When** 未提供 `--allow-unverified-provenance` 旗標而執行 CLI 時  
+**Then** CLI 以 Exit Code 1 結束，拋出 `ReviewProvenanceError` 拒絕產出未驗證報表。
 
-### Scenario 8: Stdout Output Streaming
-**Given** 一份合規之評估 YAML 與 `--stdout --format markdown`  
-**When** 執行 CLI 產生報告時  
-**Then** 格式化之 Markdown 報表輸出至標準輸出，Exit Code 為 0。
+### Scenario 8: Output Directory Traversal Protection
+**Given** 一份 `assessment.id` 為 `../escaped_report` 之評估 YAML 與指定之 `--out-dir`  
+**When** 執行 CLI 產出檔案時  
+**Then** CLI 以 Exit Code 1 結束，拒絕寫入任何檔案至 `--out-dir` 外部。
+
 
