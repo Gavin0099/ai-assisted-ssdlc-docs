@@ -470,7 +470,7 @@ class ReviewReportOrchestrator:
         self.corpus_resolver = corpus_resolver or RepoCorpusResolver()
         self.source_ref_validator = source_ref_validator or StrictCorpusSourceRefValidator()
 
-    def orchestrate(
+    def load_and_verify(
         self,
         assessment_path: Path,
         manifest_path: Path | None = None,
@@ -479,7 +479,8 @@ class ReviewReportOrchestrator:
         tasks_ref: Path | None = None,
         evidence_schema: Path | None = None,
         review_queue_schema: Path | None = None,
-    ) -> ReadOnlyReviewRecord:
+    ) -> tuple[CorpusAssessmentReport, bool]:
+        """Loads and strictly validates an assessment report and its provenance against trust boundaries."""
         assessment_path = Path(assessment_path)
         if not assessment_path.is_file():
             raise ReviewValidationError([f"Assessment file not found: {assessment_path}"])
@@ -570,7 +571,27 @@ class ReviewReportOrchestrator:
 
                 provenance_verified = True
 
-        # 4. Pure deterministic projection
+        return report, provenance_verified
+
+    def orchestrate(
+        self,
+        assessment_path: Path,
+        manifest_path: Path | None = None,
+        repo_path: Path | None = None,
+        allow_unverified_provenance: bool = False,
+        tasks_ref: Path | None = None,
+        evidence_schema: Path | None = None,
+        review_queue_schema: Path | None = None,
+    ) -> ReadOnlyReviewRecord:
+        report, provenance_verified = self.load_and_verify(
+            assessment_path=assessment_path,
+            manifest_path=manifest_path,
+            repo_path=repo_path,
+            allow_unverified_provenance=allow_unverified_provenance,
+            tasks_ref=tasks_ref,
+            evidence_schema=evidence_schema,
+            review_queue_schema=review_queue_schema,
+        )
         return self.projector.project(report, provenance_verified=provenance_verified)
 
 
@@ -660,56 +681,48 @@ def main(argv: list[str] | None = None) -> int:
     if args.diff_baseline:
         diff_engine = AssessmentDiffEngine()
         diff_renderer = DiffRenderer()
+        orchestrator = ReviewReportOrchestrator()
 
-        # Load & validate baseline
-        baseline_path = Path(args.diff_baseline)
-        if not baseline_path.is_file():
-            sys.stderr.write(f"Baseline assessment file not found: {baseline_path}\n")
-            return 1
-        b_errors = validate_ssdf_assessment(
-            baseline_path,
-            tasks_ref=args.tasks_ref,
-            evidence_schema=args.evidence_schema,
-            review_queue_schema=args.review_queue_schema,
-        )
-        if b_errors:
-            sys.stderr.write("Baseline Review Validation Failed:\n")
-            for err in b_errors:
+        try:
+            b_report, b_verified = orchestrator.load_and_verify(
+                assessment_path=args.diff_baseline,
+                manifest_path=args.manifest,
+                repo_path=args.repo_path,
+                allow_unverified_provenance=args.allow_unverified_provenance,
+                tasks_ref=args.tasks_ref,
+                evidence_schema=args.evidence_schema,
+                review_queue_schema=args.review_queue_schema,
+            )
+            t_report, t_verified = orchestrator.load_and_verify(
+                assessment_path=args.target,
+                manifest_path=args.manifest,
+                repo_path=args.repo_path,
+                allow_unverified_provenance=args.allow_unverified_provenance,
+                tasks_ref=args.tasks_ref,
+                evidence_schema=args.evidence_schema,
+                review_queue_schema=args.review_queue_schema,
+            )
+        except ReviewValidationError as exc:
+            sys.stderr.write("Review Validation Failed:\n")
+            for err in exc.errors:
                 sys.stderr.write(f"  - {err}\n")
             return 1
-        try:
-            with open(baseline_path, "r", encoding="utf-8") as f:
-                b_data = yaml.safe_load(f)
-            baseline_report = parse_corpus_assessment_dict(b_data)
-        except Exception as e:
-            sys.stderr.write(f"Failed to parse baseline assessment: {e}\n")
+        except ReviewProvenanceError as exc:
+            sys.stderr.write(f"Review Provenance Validation Failed: {exc}\n")
+            return 1
+        except ReviewOrchestrationError as exc:
+            sys.stderr.write(f"Review Orchestration Failed: {exc}\n")
+            return 1
+        except Exception as exc:
+            sys.stderr.write(f"Unexpected error during review orchestration: {exc}\n")
             return 1
 
-        # Load & validate target
-        target_path = Path(args.target)
-        if not target_path.is_file():
-            sys.stderr.write(f"Target assessment file not found: {target_path}\n")
-            return 1
-        t_errors = validate_ssdf_assessment(
-            target_path,
-            tasks_ref=args.tasks_ref,
-            evidence_schema=args.evidence_schema,
-            review_queue_schema=args.review_queue_schema,
+        provenance_verified = b_verified and t_verified
+        diff_record = diff_engine.compare(
+            baseline=b_report,
+            target=t_report,
+            provenance_verified=provenance_verified,
         )
-        if t_errors:
-            sys.stderr.write("Target Review Validation Failed:\n")
-            for err in t_errors:
-                sys.stderr.write(f"  - {err}\n")
-            return 1
-        try:
-            with open(target_path, "r", encoding="utf-8") as f:
-                t_data = yaml.safe_load(f)
-            target_report = parse_corpus_assessment_dict(t_data)
-        except Exception as e:
-            sys.stderr.write(f"Failed to parse target assessment: {e}\n")
-            return 1
-
-        diff_record = diff_engine.compare(baseline=baseline_report, target=target_report)
 
         if args.stdout:
             if selected_format == "json":
@@ -719,15 +732,15 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.out_dir:
             try:
-                _validate_safe_output_name(baseline_report.id)
-                _validate_safe_output_name(target_report.id)
+                _validate_safe_output_name(b_report.id)
+                _validate_safe_output_name(t_report.id)
             except ReviewOrchestrationError as exc:
                 sys.stderr.write(f"Output path validation failed: {exc}\n")
                 return 1
 
             out_dir = args.out_dir.resolve()
             out_dir.mkdir(parents=True, exist_ok=True)
-            diff_name = f"{baseline_report.id}_vs_{target_report.id}"
+            diff_name = f"{b_report.id}_vs_{t_report.id}"
 
             if selected_format in ("markdown", "both"):
                 md_path = (out_dir / f"{diff_name}.diff.md").resolve()

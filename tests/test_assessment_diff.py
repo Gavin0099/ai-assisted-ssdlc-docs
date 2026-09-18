@@ -352,8 +352,190 @@ class TestAssessmentDiff(unittest.TestCase):
         self.assertEqual(record.task_diffs[0].diff_kind, DiffKind.UNCHANGED)
 
 
+    def test_rationale_change_marked_modified(self) -> None:
+        """Changing only assessment_rationale marks the finding MODIFIED."""
+        report_a = self._create_report("REPORT-A")
+        report_b = self._create_report("REPORT-B")
+
+        # Mutate rationale on PO.1.2
+        target_findings = list(report_b.findings)
+        first_finding = target_findings[0]
+        target_findings[0] = CorpusTaskFinding(
+            finding_id=first_finding.finding_id,
+            task_id=first_finding.task_id,
+            company_source_ref=first_finding.company_source_ref,
+            company_statement=first_finding.company_statement,
+            coverage_verdict=first_finding.coverage_verdict,
+            basis=first_finding.basis,
+            assessment_rationale=["Updated rationale text with new analysis."],
+            identified_evidence=first_finding.identified_evidence,
+            evidence_strength=first_finding.evidence_strength,
+            review_queue_recommendation=first_finding.review_queue_recommendation,
+            cannot_claim=first_finding.cannot_claim,
+        )
+        report_b = CorpusAssessmentReport(
+            id=report_b.id,
+            baseline=report_b.baseline,
+            target=report_b.target,
+            scope_tasks=report_b.scope_tasks,
+            claim_boundary=report_b.claim_boundary,
+            findings=target_findings,
+        )
+
+        record = self.engine.compare(report_a, report_b)
+        self.assertEqual(record.modified_count, 1)
+        self.assertEqual(record.unchanged_count, 6)
+        diff_p12 = next(d for d in record.task_diffs if d.task_id == "PO.1.2")
+        self.assertEqual(diff_p12.diff_kind, DiffKind.MODIFIED)
+        changed_fields = {f.field_name for f in diff_p12.changed_fields}
+        self.assertIn("assessment_rationale", changed_fields)
+
+    def test_evidence_change_marked_modified(self) -> None:
+        """Changing only identified_evidence marks the finding MODIFIED."""
+        report_a = self._create_report("REPORT-A")
+        report_b = self._create_report("REPORT-B")
+
+        target_findings = list(report_b.findings)
+        first_finding = target_findings[0]
+        target_findings[0] = CorpusTaskFinding(
+            finding_id=first_finding.finding_id,
+            task_id=first_finding.task_id,
+            company_source_ref=first_finding.company_source_ref,
+            company_statement=first_finding.company_statement,
+            coverage_verdict=first_finding.coverage_verdict,
+            basis=first_finding.basis,
+            assessment_rationale=first_finding.assessment_rationale,
+            identified_evidence=[
+                IdentifiedEvidence(
+                    type="procedure",
+                    source_ref="policy/updated_proc.md#sec-2",
+                )
+            ],
+            evidence_strength=first_finding.evidence_strength,
+            review_queue_recommendation=first_finding.review_queue_recommendation,
+            cannot_claim=first_finding.cannot_claim,
+        )
+        report_b = CorpusAssessmentReport(
+            id=report_b.id,
+            baseline=report_b.baseline,
+            target=report_b.target,
+            scope_tasks=report_b.scope_tasks,
+            claim_boundary=report_b.claim_boundary,
+            findings=target_findings,
+        )
+
+        record = self.engine.compare(report_a, report_b)
+        self.assertEqual(record.modified_count, 1)
+        self.assertEqual(record.unchanged_count, 6)
+        diff_p12 = next(d for d in record.task_diffs if d.task_id == "PO.1.2")
+        self.assertEqual(diff_p12.diff_kind, DiffKind.MODIFIED)
+        changed_fields = {f.field_name for f in diff_p12.changed_fields}
+        self.assertIn("identified_evidence", changed_fields)
+
+    def test_evidence_reordering_is_unchanged(self) -> None:
+        """Reordering identified_evidence does not produce a MODIFIED finding."""
+        ev1 = IdentifiedEvidence(type="policy", source_ref="policy/doc1.md#s1")
+        ev2 = IdentifiedEvidence(type="procedure", source_ref="policy/doc2.md#s2")
+
+        report_a = self._create_report(
+            "REPORT-A",
+            findings=[
+                CorpusTaskFinding(
+                    finding_id="F-01",
+                    task_id="PO.1.2",
+                    company_source_ref="policy/doc1.md",
+                    company_statement="Statement",
+                    coverage_verdict="COVERED",
+                    basis=[
+                        CorpusAssessmentBasis(
+                            type="nist_normative",
+                            task_id="PO.1.2",
+                            source="NIST",
+                            rationale="Rationale",
+                        )
+                    ],
+                    assessment_rationale=["Rationale"],
+                    identified_evidence=[ev1, ev2],
+                    evidence_strength="high",
+                    review_queue_recommendation="accepted",
+                    cannot_claim=["No guarantee"],
+                )
+            ],
+        )
+
+        report_b = self._create_report(
+            "REPORT-B",
+            findings=[
+                CorpusTaskFinding(
+                    finding_id="F-01",
+                    task_id="PO.1.2",
+                    company_source_ref="policy/doc1.md",
+                    company_statement="Statement",
+                    coverage_verdict="COVERED",
+                    basis=[
+                        CorpusAssessmentBasis(
+                            type="nist_normative",
+                            task_id="PO.1.2",
+                            source="NIST",
+                            rationale="Rationale",
+                        )
+                    ],
+                    assessment_rationale=["Rationale"],
+                    identified_evidence=[ev2, ev1],  # reversed
+                    evidence_strength="high",
+                    review_queue_recommendation="accepted",
+                    cannot_claim=["No guarantee"],
+                )
+            ],
+        )
+
+        record = self.engine.compare(report_a, report_b)
+        self.assertEqual(record.modified_count, 0)
+        self.assertEqual(record.unchanged_count, 1)
+        self.assertEqual(record.task_diffs[0].diff_kind, DiffKind.UNCHANGED)
+
+    def test_cli_diff_requires_provenance_or_allow_unverified(self) -> None:
+        """CLI diff on repository_corpus fails closed without provenance or explicit allow flag."""
+        import io
+        from contextlib import redirect_stderr, redirect_stdout
+        from tempfile import TemporaryDirectory
+        from tools.review_engine import main
+
+        report = self._create_report("DIFF-TEST-PROV")
+        with TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            assessment_path = tmp_path / "assessment.yaml"
+            assessment_path.write_text(report.to_yaml(), encoding="utf-8")
+
+            # 1. Fail closed without --allow-unverified-provenance
+            stderr_buf = io.StringIO()
+            with redirect_stderr(stderr_buf):
+                exit_code = main([
+                    str(assessment_path),
+                    "--diff-baseline", str(assessment_path),
+                    "--stdout",
+                ])
+            self.assertEqual(exit_code, 1)
+            self.assertIn("Review Provenance Validation Failed", stderr_buf.getvalue())
+            self.assertIn("--allow-unverified-provenance", stderr_buf.getvalue())
+
+            # 2. Succeed with --allow-unverified-provenance and render UNVERIFIED warning
+            stdout_buf = io.StringIO()
+            with redirect_stdout(stdout_buf):
+                exit_code = main([
+                    str(assessment_path),
+                    "--diff-baseline", str(assessment_path),
+                    "--stdout",
+                    "--allow-unverified-provenance",
+                ])
+            self.assertEqual(exit_code, 0)
+            output = stdout_buf.getvalue()
+            self.assertIn("# Assessment Comparison Diff", output)
+            self.assertIn("Provenance Verification: UNVERIFIED", output)
+            self.assertIn("--allow-unverified-provenance", output)
+
     def test_cli_diff_baseline_stdout_markdown(self) -> None:
-        """CLI --diff-baseline prints diff report to stdout."""
+        """CLI --diff-baseline prints diff report to stdout when unverified provenance is allowed."""
         import io
         from contextlib import redirect_stdout
         from tempfile import TemporaryDirectory
@@ -371,6 +553,7 @@ class TestAssessmentDiff(unittest.TestCase):
                     str(assessment_path),
                     "--diff-baseline", str(assessment_path),
                     "--stdout",
+                    "--allow-unverified-provenance",
                 ])
 
             self.assertEqual(exit_code, 0)
@@ -396,6 +579,7 @@ class TestAssessmentDiff(unittest.TestCase):
                 "--diff-baseline", str(assessment_path),
                 "--out-dir", str(out_dir),
                 "--format", "both",
+                "--allow-unverified-provenance",
             ])
 
             self.assertEqual(exit_code, 0)
@@ -410,6 +594,7 @@ class TestAssessmentDiff(unittest.TestCase):
             self.assertIn("# Assessment Comparison Diff", md_content)
             json_data = json.loads(json_files[0].read_text(encoding="utf-8"))
             self.assertEqual(json_data["summary"]["unchanged"], 7)
+            self.assertFalse(json_data["provenance_verified"])
 
     def test_cli_diff_missing_baseline_fails_closed(self) -> None:
         """CLI --diff-baseline fails closed when baseline file does not exist."""
@@ -429,10 +614,11 @@ class TestAssessmentDiff(unittest.TestCase):
                 exit_code = main([
                     str(assessment_path),
                     "--diff-baseline", "non_existent_baseline.yaml",
+                    "--allow-unverified-provenance",
                 ])
 
             self.assertEqual(exit_code, 1)
-            self.assertIn("Baseline assessment file not found", stderr_buf.getvalue())
+            self.assertIn("Assessment file not found: non_existent_baseline.yaml", stderr_buf.getvalue())
 
 
 if __name__ == "__main__":

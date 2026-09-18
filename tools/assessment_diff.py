@@ -16,6 +16,7 @@ from tools.corpus_assessment_engine import (
     CorpusAssessmentBasis,
     CorpusAssessmentReport,
     CorpusTaskFinding,
+    IdentifiedEvidence,
 )
 
 BASIS_PRIORITY: dict[str, int] = {
@@ -39,6 +40,17 @@ def canonical_basis_tuple(
         ),
     )
     return tuple(b.to_dict() for b in sorted_bases)
+
+
+def canonical_evidence_tuple(
+    evidences: list[IdentifiedEvidence] | tuple[IdentifiedEvidence, ...],
+) -> tuple[dict[str, Any], ...]:
+    """Sorts identified evidence deterministically by type and source_ref."""
+    sorted_ev = sorted(
+        evidences,
+        key=lambda e: (e.type, e.source_ref),
+    )
+    return tuple(e.to_dict() for e in sorted_ev)
 
 
 class DiffKind(str, Enum):
@@ -101,11 +113,13 @@ class AssessmentDiffRecord:
     modified_count: int
     unchanged_count: int
     claim_boundary: tuple[str, ...]
+    provenance_verified: bool = True
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "baseline_id": self.baseline_id,
             "target_id": self.target_id,
+            "provenance_verified": self.provenance_verified,
             "target_metadata_diff": [f.to_dict() for f in self.target_metadata_diff],
             "task_diffs": [td.to_dict() for td in self.task_diffs],
             "summary": {
@@ -126,6 +140,7 @@ class IAssessmentDiffEngine(Protocol):
         self,
         baseline: CorpusAssessmentReport,
         target: CorpusAssessmentReport,
+        provenance_verified: bool = True,
     ) -> AssessmentDiffRecord:
         """Determines differences between two assessment reports deterministically."""
         ...
@@ -138,6 +153,7 @@ class AssessmentDiffEngine:
         self,
         baseline: CorpusAssessmentReport,
         target: CorpusAssessmentReport,
+        provenance_verified: bool = True,
     ) -> AssessmentDiffRecord:
         # 1. Compare target metadata
         metadata_diffs: list[FieldDiff] = []
@@ -234,6 +250,28 @@ class AssessmentDiffEngine:
                         )
                     )
 
+                # Assessment rationale comparison
+                if b_finding.assessment_rationale != t_finding.assessment_rationale:
+                    field_diffs.append(
+                        FieldDiff(
+                            field_name="assessment_rationale",
+                            baseline_value=list(b_finding.assessment_rationale),
+                            target_value=list(t_finding.assessment_rationale),
+                        )
+                    )
+
+                # Identified evidence comparison with canonical sorting
+                b_ev = canonical_evidence_tuple(b_finding.identified_evidence)
+                t_ev = canonical_evidence_tuple(t_finding.identified_evidence)
+                if b_ev != t_ev:
+                    field_diffs.append(
+                        FieldDiff(
+                            field_name="identified_evidence",
+                            baseline_value=b_ev,
+                            target_value=t_ev,
+                        )
+                    )
+
                 # Basis comparison with canonical ordering to avoid serialization-order false positives
                 b_bases = canonical_basis_tuple(b_finding.basis)
                 t_bases = canonical_basis_tuple(t_finding.basis)
@@ -289,6 +327,7 @@ class AssessmentDiffEngine:
             modified_count=modified_count,
             unchanged_count=unchanged_count,
             claim_boundary=tuple(merged_cb),
+            provenance_verified=provenance_verified,
         )
 
 
@@ -302,6 +341,17 @@ class DeterministicDiffRenderer:
         lines: list[str] = []
         lines.append(f"# Assessment Comparison Diff: `{record.baseline_id}` vs `{record.target_id}`")
         lines.append("")
+
+        if not record.provenance_verified:
+            lines.append("> [!WARNING]")
+            lines.append("> **Provenance Verification: UNVERIFIED**")
+            lines.append(
+                "> This diff was generated without repository provenance verification (`--allow-unverified-provenance`)."
+            )
+            lines.append(
+                "> Target repository commits, manifests, and corpus digests were NOT verified against real repositories."
+            )
+            lines.append("")
 
         # Claim boundary warning
         lines.append("> [!IMPORTANT]")
