@@ -13,9 +13,32 @@ from enum import Enum
 from typing import Any, Protocol
 
 from tools.corpus_assessment_engine import (
+    CorpusAssessmentBasis,
     CorpusAssessmentReport,
     CorpusTaskFinding,
 )
+
+BASIS_PRIORITY: dict[str, int] = {
+    "nist_normative": 1,
+    "local_derived_guidance": 2,
+    "reviewer_inference": 3,
+}
+
+
+def canonical_basis_tuple(
+    bases: list[CorpusAssessmentBasis] | tuple[CorpusAssessmentBasis, ...],
+) -> tuple[dict[str, Any], ...]:
+    """Sorts basis entries deterministically by priority, rationale, task_id, and source."""
+    sorted_bases = sorted(
+        bases,
+        key=lambda b: (
+            BASIS_PRIORITY.get(b.type, 99),
+            b.rationale,
+            b.task_id or "",
+            b.source or "",
+        ),
+    )
+    return tuple(b.to_dict() for b in sorted_bases)
 
 
 class DiffKind(str, Enum):
@@ -211,9 +234,9 @@ class AssessmentDiffEngine:
                         )
                     )
 
-                # Basis comparison
-                b_bases = tuple(b.to_dict() for b in b_finding.basis)
-                t_bases = tuple(b.to_dict() for b in t_finding.basis)
+                # Basis comparison with canonical ordering to avoid serialization-order false positives
+                b_bases = canonical_basis_tuple(b_finding.basis)
+                t_bases = canonical_basis_tuple(t_finding.basis)
                 if b_bases != t_bases:
                     field_diffs.append(
                         FieldDiff(
@@ -223,8 +246,10 @@ class AssessmentDiffEngine:
                         )
                     )
 
-                # Cannot claim comparison
-                if b_finding.cannot_claim != t_finding.cannot_claim:
+                # Cannot claim comparison with canonical sorting
+                b_cc = tuple(sorted(b_finding.cannot_claim))
+                t_cc = tuple(sorted(t_finding.cannot_claim))
+                if b_cc != t_cc:
                     field_diffs.append(
                         FieldDiff(
                             field_name="cannot_claim",

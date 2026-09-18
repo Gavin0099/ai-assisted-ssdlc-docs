@@ -298,6 +298,60 @@ class TestAssessmentDiff(unittest.TestCase):
         self.assertEqual(data["summary"]["unchanged"], 7)
         self.assertEqual(data["summary"]["total_tasks"], 7)
 
+    def test_basis_reordering_produces_unchanged_status(self) -> None:
+        """Codex finding test: Canonical basis ordering prevents false-positive MODIFIED on permutation."""
+        basis_1 = CorpusAssessmentBasis(
+            type="nist_normative",
+            task_id="PO.1.2",
+            source="NIST_SP_800_218_v1.1",
+            rationale="Normative rationale.",
+        )
+        basis_2 = CorpusAssessmentBasis(
+            type="reviewer_inference",
+            rationale="Inference rationale.",
+        )
+
+        findings_a = [
+            CorpusTaskFinding(
+                finding_id="F-PO12-01",
+                task_id="PO.1.2",
+                company_source_ref="policy/sec.md",
+                company_statement="Statement",
+                coverage_verdict="COVERED",
+                basis=[basis_1, basis_2],
+                assessment_rationale=["Rationale."],
+                identified_evidence=[],
+                evidence_strength="strong",
+                review_queue_recommendation="accepted",
+                cannot_claim=[],
+            )
+        ]
+        # In findings_b, reverse the basis order: [basis_2, basis_1]
+        findings_b = [
+            CorpusTaskFinding(
+                finding_id="F-PO12-01",
+                task_id="PO.1.2",
+                company_source_ref="policy/sec.md",
+                company_statement="Statement",
+                coverage_verdict="COVERED",
+                basis=[basis_2, basis_1],
+                assessment_rationale=["Rationale."],
+                identified_evidence=[],
+                evidence_strength="strong",
+                review_queue_recommendation="accepted",
+                cannot_claim=[],
+            )
+        ]
+
+        report_a = self._create_report("REPORT-A", findings=findings_a)
+        report_b = self._create_report("REPORT-B", findings=findings_b)
+
+        record = self.engine.compare(report_a, report_b)
+        self.assertEqual(record.unchanged_count, 1)
+        self.assertEqual(record.modified_count, 0)
+        self.assertEqual(record.task_diffs[0].diff_kind, DiffKind.UNCHANGED)
+
+
     def test_cli_diff_baseline_stdout_markdown(self) -> None:
         """CLI --diff-baseline prints diff report to stdout."""
         import io
