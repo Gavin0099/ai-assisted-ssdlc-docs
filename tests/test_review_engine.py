@@ -401,6 +401,28 @@ class TestReviewEngine(unittest.TestCase):
         self.assertEqual(len(cells), 6)
         self.assertEqual(cells[-1], "`policy.md#phase\\|review`")
 
+    def test_multiline_claim_boundary_rendering(self) -> None:
+        multiline_cb = "This does not prove compliance.\n\nThis also does not prove implementation."
+        report = CorpusAssessmentReport(
+            id="MULTILINE-CB-TEST",
+            baseline="NIST_SP_800_218_v1.1",
+            target=self.target,
+            scope_tasks=["PO.1.2"],
+            claim_boundary=[multiline_cb],
+            findings=[self.finding_po12],
+        )
+        record = self.projector.project(report)
+        md = self.renderer.render_markdown(record)
+
+        expected_block = (
+            "> [!IMPORTANT]\n"
+            "> This does not prove compliance.\n"
+            ">\n"
+            "> This also does not prove implementation."
+        )
+        self.assertIn(expected_block, md)
+
 
 if __name__ == "__main__":
     unittest.main()
+

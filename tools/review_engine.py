@@ -285,7 +285,12 @@ class DeterministicReviewReportRenderer:
         ]
 
         for cb in record.claim_boundary:
-            lines.append(f"> [!IMPORTANT]\n> {cb}")
+            cb_clean = cb.strip()
+            if not cb_clean:
+                continue
+            lines.append("> [!IMPORTANT]")
+            for line in cb_clean.splitlines():
+                lines.append(f"> {line}" if line else ">")
             lines.append("")
 
         lines.extend([
