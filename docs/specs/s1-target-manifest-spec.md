@@ -75,3 +75,53 @@ When 執行 validate_target_manifest 驗證
 Then 驗證必須失敗 (exit code 1)
 And 錯誤訊息必須明確指出 version 必須為字串型別，禁止數值型別
 ```
+
+---
+
+## S1-B 物化演算法與合約 (S1-B Materialization Algorithm & Contract)
+
+Repo Corpus Resolver 在指定 commit SHA 下物化權威文件時，必須保證以下演算法之確定性與安全性：
+
+1. **Commit SHA 凍結確認 (Commit Verification)**:
+   - 驗證目標儲存庫是否存在該 40 字元 commit SHA，若 commit 不存在或儲存庫無效立即 Fail-Closed。
+2. **零工作目錄污染讀取 (Zero Working-Tree Checkout)**:
+   - 透過 Git 底層物件讀取（如 `git ls-tree` 與 `git cat-file`）提取歷史樹，嚴禁修改或 checkout 工作目錄，確保即使有 dirty working tree 亦不影響物化結果。
+3. **過濾非檔案物件 (Regular Files Only)**:
+   - 僅接受常規 `blob`，排除目錄樹與符號連結（Git mode `120000`），防止符號連結引發任意檔案讀取或路徑逃逸。
+4. **權威表面篩選 (Authority Surface Filtering)**:
+   - 候選路徑必須符合 `authority_surface.include` 之 glob 模式。
+   - 若定義 `authority_surface.exclude`，凡符合 exclude 模式之候選路徑一律予以排除（Exclude Always Wins）。
+5. **UTF-8 編碼保證 (UTF-8 Encoding Enforcement)**:
+   - 讀取之位元組流一律採 UTF-8 解碼；若包含非 UTF-8 字元或二進位檔案，立即拋出異常中斷物化（Fail-Closed）。
+6. **確定性排序與整體指紋 (Deterministic Sorting & Corpus Digest)**:
+   - 物化後之檔案集合一律依 `relative_path`（正斜線路徑字串）升序排序。
+   - 全體數位指紋計算公式：
+     `corpus_digest = SHA256(sum_i(f"{file_i.relative_path}\t{file_i.content_hash}\n"))`
+   - 確保相同 commit 與 manifest 產出的指紋具備嚴格數學可重現性。
+
+### 場景 5: 成功於指定 Commit SHA 物化 CorpusSnapshot
+```gherkin
+Given 一份合法的 Target Manifest 指向 repo 且 commit 為特定 40 字元 SHA
+And authority_surface 定義 include: ["policy/**", "process/**"] 與 exclude: ["archive/**"]
+When 執行 RepoCorpusResolver.resolve() 物化儲存庫
+Then 回傳不可變的 CorpusSnapshot
+And 其 target_commit 嚴格等於指定 commit SHA
+And 所有包含的檔案皆符合 include 且不包含任何 exclude 路徑
+And snapshot.corpus_digest 必須不為空且可穩定重現
+```
+
+### 場景 6: Exclude 規則優先於 Include (Exclude Always Wins)
+```gherkin
+Given authority_surface 定義 include: ["docs/**"] 與 exclude: ["docs/drafts/**"]
+And repo 在 docs/drafts/ 有檔案 "docs/drafts/draft.md"
+When 執行物化解析
+Then 物化後的 snapshot 檔案清單中絕對不得包含 "docs/drafts/draft.md"
+```
+
+### 場景 7: 符號連結 (Symlinks) 略過不物化
+```gherkin
+Given repo 在指定 commit 下包含指向儲存庫外部或敏感檔案之 symlink "policy/link.md"
+When 執行物化解析
+Then 物化後的 snapshot 檔案清單中必須排除 "policy/link.md"
+And 不得拋出異常亦不得讀取符號連結指向之實體檔案
+```

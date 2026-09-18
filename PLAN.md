@@ -16,7 +16,7 @@
 - [x] Phase B: Add example packs for file upload, dependency upgrade, and incident follow-up
 - [x] Phase C: Expand schema-aware validation and reviewer-ready reporting
 - [x] Phase D: Harden Security Decision claim-boundary and control-mapping validation
-- [x] Phase S0: NIST SSDF Direct Assessment (S0-A Contract, S0-B Golden, S0-C Linter, S0-D Blind Eval - 3 P1 review findings resolved; delivery pending PR merge)
+- [x] Phase S0: NIST SSDF Direct Assessment (S0-A Contract, S0-B Golden, S0-C Linter, S0-D Blind Eval - PR #10 merged to main; delivery complete)
 - [ ] Phase S1: Real Repo Document Coverage Assessment Pilot (Target Manifest, Corpus Resolver, Multi-file SSDF Assessment, Read-Only Review Engine)
 
 ## Active Sprint
@@ -26,10 +26,11 @@
 - [x] S0-A: Assessment Contract definition and source-type bounding.
 - [x] S0-B: Hand-crafted Golden Fixture for 7 NIST SSDF tasks.
 - [x] S0-C: Deterministic assessment YAML linter and CI wiring.
-- [x] S0 Review Closure: Resolved 3 P1 linter findings (scoped tasks full 1:1 coverage, nist_normative source baseline match, clause-aware negation scanning).
-- [x] S1-A-r2: Target Manifest Schema Authority & Repo Identity Closure (Zero-fallback executable schema validation, source_type syntax binding, and glob semantics layering).
+- [x] S0 Review Closure: Resolved 3 P1 linter findings (scoped tasks full 1:1 coverage, nist_normative source baseline match, clause-aware negation scanning; delivered in PR #10).
+- [x] S1-A-r2: Target Manifest Schema Authority & Repo Identity Closure (Zero-fallback executable schema validation, source_type syntax binding, and glob semantics layering; delivered in PR #10).
 - [x] S1-A Review Closure: Hardened local_git repo URL scheme exclusion and malformed schema fail-closed checks.
-- [ ] S1-B: Repo Corpus Resolver (Materialize authoritative repository files into an immutable corpus based on Target Manifest include/exclude surface).
+- [x] S1-B: Repo Corpus Resolver (Materialize authoritative repository files into an immutable corpus based on Target Manifest include/exclude surface).
+- [ ] S1-C: Multi-File Corpus SSDF Assessment Engine & Contract (Extend assessment logic from single-file fixture to multi-file repository corpus with exact source file tracking).
 
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
@@ -68,6 +69,7 @@
 - 2026-09-17: Phase S1-A-r2 Schema Authority & Repo Identity Closure: eliminated all silent Python fallbacks from validator (schema fails closed if rules missing), syntax-bound target.repo to source_type (github strictly owner/repo, local_git strictly local path), and clarified S1-A pattern boundaries vs S1-B materialization obligations.
 - 2026-09-17: Phase S1 Architecture Decision: Treat target SSDLC documentation as a Git repository corpus pinned to a fixed commit SHA with explicit Target Manifest (include/exclude authority surface). Decouple Layer 1 (Document Coverage Assessment on policy repo) from Layer 2 (Implementation Evidence Assessment on product repos).
 - 2026-09-18: Hardened S0 linter to require full 1:1 coverage of scope_tasks, baseline match for normative sources, and clause-aware negation to prevent boundary bypass; hardened S1-A target manifest schema against URL schemes in local_git and enforced fail-closed regex/type compilation.
+- 2026-09-18: Phase S1-B Repo Corpus Resolver Architecture: Implemented zero-working-tree Git materialization via `git ls-tree` and `git cat-file`, enforced Exclude Always Wins, filtered symlinks (`120000`), enforced UTF-8, and established deterministic `corpus_digest` calculation across all authoritative documents.
 
 ## Known Risks
 
