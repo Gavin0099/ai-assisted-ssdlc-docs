@@ -31,6 +31,10 @@ from tools.validate_ssdf_assessment import (
     DEFAULT_TASKS_REF,
     validate_ssdf_assessment,
 )
+from tools.assessment_diff import (
+    AssessmentDiffEngine,
+    DeterministicDiffRenderer as DiffRenderer,
+)
 from tools.validate_target_manifest import parse_target_manifest, validate_target_manifest_file
 
 BASIS_PRIORITY: dict[str, int] = {
@@ -610,6 +614,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Print rendered report to standard output stream",
     )
     parser.add_argument(
+        "--diff-baseline",
+        type=Path,
+        default=None,
+        help="Path to baseline assessment YAML file to compare against target assessment",
+    )
+    parser.add_argument(
         "--reference",
         "--tasks-ref",
         dest="tasks_ref",
@@ -645,6 +655,95 @@ def main(argv: list[str] | None = None) -> int:
     selected_format = args.format
     if selected_format is None:
         selected_format = "both" if args.out_dir else "markdown"
+
+    # Branch for assessment comparison / diffing mode
+    if args.diff_baseline:
+        diff_engine = AssessmentDiffEngine()
+        diff_renderer = DiffRenderer()
+
+        # Load & validate baseline
+        baseline_path = Path(args.diff_baseline)
+        if not baseline_path.is_file():
+            sys.stderr.write(f"Baseline assessment file not found: {baseline_path}\n")
+            return 1
+        b_errors = validate_ssdf_assessment(
+            baseline_path,
+            tasks_ref=args.tasks_ref,
+            evidence_schema=args.evidence_schema,
+            review_queue_schema=args.review_queue_schema,
+        )
+        if b_errors:
+            sys.stderr.write("Baseline Review Validation Failed:\n")
+            for err in b_errors:
+                sys.stderr.write(f"  - {err}\n")
+            return 1
+        try:
+            with open(baseline_path, "r", encoding="utf-8") as f:
+                b_data = yaml.safe_load(f)
+            baseline_report = parse_corpus_assessment_dict(b_data)
+        except Exception as e:
+            sys.stderr.write(f"Failed to parse baseline assessment: {e}\n")
+            return 1
+
+        # Load & validate target
+        target_path = Path(args.target)
+        if not target_path.is_file():
+            sys.stderr.write(f"Target assessment file not found: {target_path}\n")
+            return 1
+        t_errors = validate_ssdf_assessment(
+            target_path,
+            tasks_ref=args.tasks_ref,
+            evidence_schema=args.evidence_schema,
+            review_queue_schema=args.review_queue_schema,
+        )
+        if t_errors:
+            sys.stderr.write("Target Review Validation Failed:\n")
+            for err in t_errors:
+                sys.stderr.write(f"  - {err}\n")
+            return 1
+        try:
+            with open(target_path, "r", encoding="utf-8") as f:
+                t_data = yaml.safe_load(f)
+            target_report = parse_corpus_assessment_dict(t_data)
+        except Exception as e:
+            sys.stderr.write(f"Failed to parse target assessment: {e}\n")
+            return 1
+
+        diff_record = diff_engine.compare(baseline=baseline_report, target=target_report)
+
+        if args.stdout:
+            if selected_format == "json":
+                sys.stdout.write(diff_renderer.render_json(diff_record) + "\n")
+            else:
+                sys.stdout.write(diff_renderer.render_markdown(diff_record))
+
+        if args.out_dir:
+            try:
+                _validate_safe_output_name(baseline_report.id)
+                _validate_safe_output_name(target_report.id)
+            except ReviewOrchestrationError as exc:
+                sys.stderr.write(f"Output path validation failed: {exc}\n")
+                return 1
+
+            out_dir = args.out_dir.resolve()
+            out_dir.mkdir(parents=True, exist_ok=True)
+            diff_name = f"{baseline_report.id}_vs_{target_report.id}"
+
+            if selected_format in ("markdown", "both"):
+                md_path = (out_dir / f"{diff_name}.diff.md").resolve()
+                if not md_path.is_relative_to(out_dir):
+                    sys.stderr.write(f"Output path validation failed: {md_path} escapes output directory {out_dir}\n")
+                    return 1
+                md_path.write_text(diff_renderer.render_markdown(diff_record), encoding="utf-8")
+
+            if selected_format in ("json", "both"):
+                json_path = (out_dir / f"{diff_name}.diff.json").resolve()
+                if not json_path.is_relative_to(out_dir):
+                    sys.stderr.write(f"Output path validation failed: {json_path} escapes output directory {out_dir}\n")
+                    return 1
+                json_path.write_text(diff_renderer.render_json(diff_record) + "\n", encoding="utf-8")
+
+        return 0
 
     orchestrator = ReviewReportOrchestrator()
     try:
