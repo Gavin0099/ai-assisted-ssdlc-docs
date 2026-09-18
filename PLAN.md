@@ -17,7 +17,7 @@
 - [x] Phase C: Expand schema-aware validation and reviewer-ready reporting
 - [x] Phase D: Harden Security Decision claim-boundary and control-mapping validation
 - [x] Phase S0: NIST SSDF Direct Assessment (S0-A Contract, S0-B Golden, S0-C Linter, S0-D Blind Eval - PR #10 merged to main; delivery complete)
-- [ ] Phase S1: Real Repo Document Coverage Assessment Pilot (Target Manifest, Corpus Resolver, Multi-file SSDF Assessment, Read-Only Review Engine)
+- [x] Phase S1: Real Repo Document Coverage Assessment Pilot (Target Manifest, Corpus Resolver, Multi-file SSDF Assessment, Read-Only Review Engine — delivered and formally closed at 79e33ae)
 
 ## Active Sprint
 
@@ -49,7 +49,6 @@
 
 <!-- Required: prioritized items not yet started -->
 
-- P1: Phase S1 - Real Repo Document Coverage Assessment Pilot (Target Manifest, Corpus Resolver, Multi-file SSDF Assessment, Read-Only Review Engine).
 - P2: Phase S2 - Implementation Evidence Verification Pilot (Product Repo CI / Artifact Evidence vs Company SSDLC Policy).
 - P2: Apply a shared strict date parser to due-review generation.
 - P2: Add a status-only Review Receipt schema and validator.
@@ -78,6 +77,7 @@
 - 2026-09-18: Phase S1-C Multi-File Corpus SSDF Assessment Engine & Contract: Extended SSDF assessment to multi-file repository corpora pinned by Target Manifest and Corpus Snapshot (`corpus_digest`). Enforced exact source file tracking requiring `company_source_ref` paths to strictly exist within the materialized corpus snapshot, and expanded SSDF linter to validate `repository_corpus` provenance envelope while preserving all claim ceiling boundaries.
 - 2026-09-18: Phase S1-D Review Engine & Projection Complete: Delivered S1-D1 (Deterministic Read-Only Projection & Domain Contract), S1-D2 (Safe Orchestration CLI with format/output controls), S1-D3 (Objective Sentiment-Free Diffing with Cross-Commit Provenance Verification), and S1-D4 (Read-Only Review Queue Action Projection preserving human-authority boundaries).
 - 2026-09-18: Phase S1-D4 Review Closure: Projected non-normative observations as distinct action items (source_kind="non_normative_observation") without forging task fields, enforced fail-closed on unmapped recommendation statuses (raising ReviewQueueProjectionError / CLI Exit 1), preserved multiline claim boundary lines within IMPORTANT admonition blocks, and reinforced priority orthogonality strictly mapped from review_queue_recommendation independent of coverage_verdict.
+- 2026-09-18: Phase S1 formally closed at main 79e33ae. Delivered fixed Target Manifest scope, deterministic repository corpus materialization, source-bound multi-file assessment contracts, fail-closed provenance validation, deterministic read-only reviewer reporting, cross-commit assessment diffing, and read-only review queue action projection. S1 does not claim exact quote/span provenance, automated end-to-end semantic assessment execution, NIST SSDF conformance, organizational compliance, implementation effectiveness, or product security.
 
 ## Known Risks
 
