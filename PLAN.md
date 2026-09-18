@@ -32,8 +32,8 @@
 - [x] S1-B: Repo Corpus Resolver (Materialize authoritative repository files into an immutable corpus based on Target Manifest include/exclude surface).
 - [x] S1-D1: Review Contract & Deterministic Projection Layer (Defined non-collapsible 6 dimensions, deterministic ordering with full tie-breakers, fixed output shape, ReadOnlyReviewRecord domain models, and pure renderer library; 145/145 tests pass).
 - [x] S1-D2: CLI Wiring & Reporting Orchestration (Implemented ReviewReportOrchestrator, fail-closed validation orchestration, CLI options with stdout/file artifact outputs; 158/158 tests pass).
-- [x] S1-D3: Assessment Comparison & Diffing Engine (Deterministic, evaluative-free comparison between assessment versions; added tools/assessment_diff.py, CLI --diff-baseline flag, 172/172 tests pass).
-- [ ] S1-D4: Review Queue Action Projection (Project assessment recommendations into reviewer action view).
+- [x] S1-D3: Assessment Comparison & Diffing Engine (Deterministic, evaluative-free comparison between assessment versions; added tools/assessment_diff.py, CLI --diff-baseline flag, 183/183 tests pass).
+- [x] S1-D4: Review Queue Action Projection (Project assessment recommendations into deterministic read-only reviewer action view; added tools/review_queue_projection.py, CLI --project-queue flag, 192/192 tests pass).
 
 - [x] Adopt AI Governance baseline with a framework checkout.
 - [x] Create SSDLC Decision + Evidence + Review Queue skeleton.
@@ -75,6 +75,7 @@
 - 2026-09-18: Phase S1-B Repo Corpus Resolver Architecture: Implemented zero-working-tree Git materialization via `git ls-tree` and `git cat-file`, enforced Exclude Always Wins, filtered symlinks (`120000`), enforced UTF-8, and established deterministic `corpus_digest` calculation across all authoritative documents.
 - [x] S1-B Review Closure: Resolved NUL-delimited git ls-tree parsing (supporting non-ASCII/spaces), enforced github remote origin verification, fail-closed on empty corpus, and rejected binary/NUL/C0 control characters.
 - 2026-09-18: Phase S1-C Multi-File Corpus SSDF Assessment Engine & Contract: Extended SSDF assessment to multi-file repository corpora pinned by Target Manifest and Corpus Snapshot (`corpus_digest`). Enforced exact source file tracking requiring `company_source_ref` paths to strictly exist within the materialized corpus snapshot, and expanded SSDF linter to validate `repository_corpus` provenance envelope while preserving all claim ceiling boundaries.
+- 2026-09-18: Phase S1-D Review Engine & Projection Complete: Delivered S1-D1 (Deterministic Read-Only Projection & Domain Contract), S1-D2 (Safe Orchestration CLI with format/output controls), S1-D3 (Objective Sentiment-Free Diffing with Cross-Commit Provenance Verification), and S1-D4 (Read-Only Review Queue Action Projection preserving human-authority boundaries).
 
 ## Known Risks
 
