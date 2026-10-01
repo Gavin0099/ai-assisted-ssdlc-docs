@@ -24,7 +24,7 @@
 
 <!-- Required: list current sprint tasks -->
 
-- [ ] S2-A: Implementation Evidence Verification Specification & Acceptance Criteria (Freeze candidate, pending line-by-line review).
+- [x] S2-A: Implementation Evidence Verification Specification & Acceptance Criteria (FROZEN at dece98a).
 - [ ] S2-B: Implementation Contracts, Manifest, Corpus Resolver, Matchers & Evaluator Core (WIP isolated on branch wip/s2-b-implementation-candidates).
 - [ ] S2-C: Dual Provenance Orchestrator, CLI, Deterministic Projection & E2E Validation.
 
