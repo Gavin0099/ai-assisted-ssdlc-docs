@@ -2,7 +2,7 @@
 <!-- governance-baseline: overridable -->
 <!-- baseline_version: 1.0.0 -->
 
-> **最後更新**: 2026-09-18
+> **最後更新**: 2026-10-01
 > **Owner**: TODO
 > **Freshness**: Sprint (7d)
 
@@ -18,10 +18,15 @@
 - [x] Phase D: Harden Security Decision claim-boundary and control-mapping validation
 - [x] Phase S0: NIST SSDF Direct Assessment (S0-A Contract, S0-B Golden, S0-C Linter, S0-D Blind Eval - PR #10 merged to main; delivery complete)
 - [x] Phase S1: Real Repo Document Coverage Assessment Pilot (Target Manifest, Corpus Resolver, Multi-file SSDF Assessment, Read-Only Review Engine — delivered and formally closed at 79e33ae)
+- [ ] Phase S2: Implementation Evidence Verification Pilot (S2-A Spec Freeze -> S2-B Static Evidence Engine -> S2-C Orchestrator & Golden E2E)
 
 ## Active Sprint
 
 <!-- Required: list current sprint tasks -->
+
+- [ ] S2-A: Implementation Evidence Verification Specification & Acceptance Criteria (Freeze candidate, pending line-by-line review).
+- [ ] S2-B: Implementation Contracts, Manifest, Corpus Resolver, Matchers & Evaluator Core (WIP isolated on branch wip/s2-b-implementation-candidates).
+- [ ] S2-C: Dual Provenance Orchestrator, CLI, Deterministic Projection & E2E Validation.
 
 - [x] S0-A: Assessment Contract definition and source-type bounding.
 - [x] S0-B: Hand-crafted Golden Fixture for 7 NIST SSDF tasks.
