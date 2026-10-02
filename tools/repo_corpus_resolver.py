@@ -50,6 +50,13 @@ class CorpusResolverError(RuntimeError):
     """Raised when repository corpus resolution fails closed."""
 
 
+class GitCapabilityError(CorpusResolverError):
+    """Fixed actionable prerequisite diagnostic, never subprocess stderr."""
+
+    def __init__(self) -> None:
+        super().__init__("Git with --no-lazy-fetch support is required (Git 2.48+ baseline).")
+
+
 class CorpusTarget(Protocol):
     source_type: str
     repo: str
@@ -197,7 +204,7 @@ class GitCliClient:
 
     def __init__(self, git_binary: str = "git") -> None:
         self.git_binary = git_binary
-        # Probe outside any repository before trusting a static reader. Older Git
+        # Probe before any repository command. Older Git
         # must not silently fall back to fetching or misreport a missing commit.
         try:
             capability = subprocess.run(
@@ -205,9 +212,9 @@ class GitCliClient:
                 check=False, text=True, encoding="utf-8", errors="replace",
             )
         except OSError:
-            raise CorpusResolverError("Git with --no-lazy-fetch support is required (Git 2.48+ baseline).") from None
+            raise GitCapabilityError() from None
         if capability.returncode != 0:
-            raise CorpusResolverError("Git with --no-lazy-fetch support is required (Git 2.48+ baseline).")
+            raise GitCapabilityError()
 
     def _run(self, args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
         try:

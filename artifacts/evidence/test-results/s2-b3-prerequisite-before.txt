@@ -1,0 +1,19 @@
+test_custom_client_preserves_fixed_git_prerequisite_error (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_custom_client_preserves_fixed_git_prerequisite_error) ... FAIL
+
+======================================================================
+FAIL: test_custom_client_preserves_fixed_git_prerequisite_error (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_custom_client_preserves_fixed_git_prerequisite_error)
+----------------------------------------------------------------------
+tools.repo_corpus_resolver.CorpusResolverError: Product corpus admission failed closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 482, in test_custom_client_preserves_fixed_git_prerequisite_error
+    with self.assertRaisesRegex(CorpusResolverError, "Git.*--no-lazy-fetch.*required") as caught:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "Git.*--no-lazy-fetch.*required" does not match "Product corpus admission failed closed."
+
+----------------------------------------------------------------------
+Ran 1 test in 0.504s
+
+FAILED (failures=1)

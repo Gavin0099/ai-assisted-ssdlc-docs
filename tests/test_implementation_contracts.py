@@ -272,6 +272,16 @@ mode:
 
 
 class ImplementationContractTests(unittest.TestCase):
+    def test_policy_admission_preserves_fixed_git_prerequisite_error(self) -> None:
+        from unittest.mock import patch
+        import traceback
+        repo = self.assessment_path.parent / "policy-repo"
+        unsupported = subprocess.CompletedProcess(["git"], 129, "", "SYNTHETIC_PRIVATE_STDERR")
+        with patch("tools.repo_corpus_resolver.subprocess.run", return_value=unsupported):
+            with self.assertRaisesRegex(ContractInputError, "Git.*--no-lazy-fetch.*required") as caught:
+                admit_policy_assessment(self.assessment_path, repo / "target-manifest.yaml", repo)
+        self.assertNotIn("SYNTHETIC_PRIVATE_STDERR", "".join(traceback.format_exception(caught.exception)))
+
     def setUp(self) -> None:
         self.temp_dir = TemporaryDirectory()
         self.policy_admission, self.assessment_path = make_policy_admission(

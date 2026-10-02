@@ -472,6 +472,18 @@ class ProductCorpusResolverTests(unittest.TestCase):
                 self.assertEqual(object_store(), before)
                 self.assertEqual(dict(os.environ), environment_before)
 
+    def test_custom_client_preserves_fixed_git_prerequisite_error(self) -> None:
+        from unittest.mock import patch
+        commit = self._commit_files({"src/app.yml": "value: one\n"}, "source")
+        resolver = ProductCorpusResolver(RepoCorpusResolver(git_client=StaticGitClient()))
+        manifest = self._manifest(commit, ["src/**"])
+        unsupported = subprocess.CompletedProcess(["git"], 129, "", "SYNTHETIC_PRIVATE_STDERR")
+        with patch("tools.repo_corpus_resolver.subprocess.run", return_value=unsupported):
+            with self.assertRaisesRegex(CorpusResolverError, "Git.*--no-lazy-fetch.*required") as caught:
+                resolver.resolve(manifest, self.repo_dir)
+        import traceback
+        self.assertNotIn("SYNTHETIC_PRIVATE_STDERR", "".join(traceback.format_exception(caught.exception)))
+
 
 if __name__ == "__main__":
     unittest.main()

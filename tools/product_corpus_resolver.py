@@ -11,7 +11,7 @@ from typing import Any
 
 from tools.implementation_contracts import RepositoryIdentityStatus, _verify_repository_identity
 from tools.repo_corpus_resolver import (
-    CorpusFile, CorpusResolverError, DISALLOWED_C0_BYTES, RepoCorpusResolver, glob_to_regex,
+    CorpusFile, CorpusResolverError, GitCapabilityError, DISALLOWED_C0_BYTES, RepoCorpusResolver, glob_to_regex,
 )
 from tools.validate_product_target_manifest import (
     ProductTargetManifest, parse_product_target_manifest_file, verify_admitted_product_manifest,
@@ -195,6 +195,8 @@ class ProductCorpusResolver:
             object.__setattr__(admitted, "_identity_status", RepositoryIdentityStatus.VERIFIED)
             object.__setattr__(admitted, "_integrity_verified", True)
             return admitted
+        except GitCapabilityError:
+            raise GitCapabilityError() from None
         except Exception:
             raise CorpusResolverError("Product corpus admission failed closed.") from None
 

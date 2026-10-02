@@ -937,7 +937,7 @@ def admit_policy_assessment(
 ) -> PolicyAssessmentAdmission:
     """Admit actual S1 validation and materialization, never a provenance flag."""
     from tools.corpus_assessment_engine import parse_corpus_assessment_dict
-    from tools.repo_corpus_resolver import RepoCorpusResolver
+    from tools.repo_corpus_resolver import GitCapabilityError, GitCliClient, RepoCorpusResolver
     from tools.review_engine import ReviewReportOrchestrator
     from tools.validate_target_manifest import parse_target_manifest
 
@@ -946,7 +946,7 @@ def admit_policy_assessment(
 
         def resolve(self, manifest: Any, repo_path: Path) -> Any:
             _verify_repository_identity(manifest.target.source_type, manifest.target.repo, repo_path)
-            self.snapshot = RepoCorpusResolver().resolve(manifest, repo_path)
+            self.snapshot = RepoCorpusResolver(git_client=git_client).resolve(manifest, repo_path)
             return self.snapshot
 
     try:
@@ -957,6 +957,7 @@ def admit_policy_assessment(
         manifest_bytes = manifest_file.read_bytes()
         parsed_report = parse_corpus_assessment_dict(_load_policy_yaml(assessment_bytes))
         manifest = parse_target_manifest(_load_policy_yaml(manifest_bytes))
+        git_client = GitCliClient()  # Preserve prerequisite errors outside S1's broad wrapper.
         resolver = CapturingResolver()
         # The S1 linter and parser read the same captured assessment bytes.
         # Repeated reads of a concurrently edited source cannot validate a
@@ -1015,6 +1016,8 @@ def admit_policy_assessment(
             assessment_sha256=hashlib.sha256(assessment_bytes).hexdigest(),
             manifest_sha256=hashlib.sha256(manifest_bytes).hexdigest(),
         )
+    except GitCapabilityError:
+        raise ContractInputError(str(GitCapabilityError())) from None
     except ContractInputError:
         raise
     except Exception:
