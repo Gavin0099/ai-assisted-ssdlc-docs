@@ -1,0 +1,108 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "slice": "REPORT-4E committed-tree remediation",
+  "command": "python -X utf8 -m unittest discover -s tests -p test_*.py -q (git archive pinned commit)",
+  "started_at": "2026-10-02T10:39:28.896393+00:00",
+  "finished_at": "2026-10-02T10:40:18.146057+00:00",
+  "runner": "Windows native filesystem, immutable Git archive",
+  "exit_code": 0,
+  "linked_commit": "e7317205c322a1b201a3a015a278cce673ff2eb0",
+  "hash_domain": "committed Git blob bytes; validated against git show and exported bytes",
+  "source_file_sha256": {
+    ".agents/skills/ssdlc-assessment-report/SKILL.md": "fd61f82bd7e9f061fcb1d3d65dcd41aeb2390584e945b3849e1edbc2cecc1e67",
+    ".agents/skills/ssdlc-assessment-report/agents/openai.yaml": "6a2dac1134a35f8ab4e35242a95f736e769597ccc3492814ddafc3cc0fbf7f4b",
+    ".agents/skills/ssdlc-assessment-report/references/human-report-writing.md": "e1b9a1d0365541e324ef4ac09ed1e2927b660089f0b953ab69d8ef40d12bd4b2",
+    ".agents/skills/ssdlc-assessment-report/references/web-presentation.md": "08c34b7397581fa2752e72221c91923090326482edc0d7164f368001e86984dc",
+    ".agents/skills/ssdlc-assessment-report/references/workflow.md": "5f2f7305e3ecb07f1a3587f083bf8d379efd5af9fd9df5609b3251f8fdbc3d36",
+    ".agents/skills/ssdlc-assessment-report/scripts/workflow.py": "3c7b1d7e001baa3fb31ee59e5a48a15872c9c2a8c30bf25b76fff92aea8b4c09",
+    ".github/workflows/governance-drift.yml": "8b527601044a405ffe9671c8ae4362256f4d7eb38ae02523050e9c2b1b8c4893",
+    ".gitignore": "b7a412733907ac80f5a002d758d3182e2f4be19bf7e4c3b07e8323bff43fe9e3",
+    "AGENTS.md": "ed831de6493762ab2eca5364485846d6b37e92638933d65d52217762e6ba5dd1",
+    "README.md": "02a218dbffe4b56baf04e7f93a27579e824cfd7186d8709fdd31e340ab14ccbe",
+    "docs/specs/s1-assessment-reporting-rubric.md": "081f276d397446e9f8f689a9f2866476db002c884fb1ed18cd8677cf8edfe57a",
+    "docs/specs/s1-html-projection.md": "9a529f91b23a2c435ab472a9eb68693af071f45aeb07b0826700c3a1ef3b27f5",
+    "docs/specs/s1-markdown-projection.md": "d866341b088f439eb1df60c4f1251c0c007a4c6127a873254c9afaf1e65b0863",
+    "docs/specs/s1-report-presentation-contract.md": "4c8a2bdbcdbc3111b90e4c79c2395c95a21722cb67774bee0316093929e99416",
+    "docs/specs/s1-reporting-workflow-integration.md": "7bcc4536fc057e7d8c0c442702072ea9cd8e67a854688320383b2eea0c21e048",
+    "templates/s1-assessment-actions.md": "0ecc9471e9963070bbb1d3c4d1fb538aa2cb61cc0539ffac7d024d0257d39c2d",
+    "templates/s1-assessment-summary.md": "fb7364c4a21b9a1f41e23cafe938e9556a66f339894e4a5d82a8b3a22a301e5d",
+    "templates/s1-assessment-technical-review.md": "4edc5b0eb53b0487c7e8fba3598d92f314f303683987d03c4d823d21b32c87da",
+    "templates/s1-assessment-web.html": "5fef20c14a7b384d9d39075461bc2916eefbadcc72c6cf1aabdcf2faacb3ef73",
+    "tests/reporting_fixtures.py": "1a610934b95a2b77a7fab0cc44625f95bfba5723fb02364fdda0cbd4bc397efb",
+    "tests/test_assessment_html_projection.py": "71e128c7ff16a7f8eb3603efd055dd3ddef0c7426dab49eedff36b7291712452",
+    "tests/test_assessment_markdown.py": "b35e94793f0ba7ac996feaf1dede3bdfce6564156d22b7d76f548b827d2371e6",
+    "tests/test_assessment_web.py": "860a09d36fc4e397e9f24f0033607396015815ca6be198bc3bcb93b71165d0d9",
+    "tests/test_reporting_skill_workflow.py": "f15c58f6906274fe653dae9d50703302cf862d89ccdb16ea39775549edc2b913",
+    "tools/assessment_markdown.py": "341421b153c463aa6dc2610c4b09ff02d2193c8ef8cf86117861ebaea55eb33e",
+    "tools/generate_assessment_html.py": "c976d9e2137b1927fcf231d69eb018714341e65eed23f7017f357568d738801a",
+    "tools/generate_assessment_markdown.py": "b911bbdcd3e5c3de1e0db2a62771a468878d399913952096ee376726ee12a22d",
+    "tools/generate_assessment_web.py": "cc6ca3cd965f4b9ac4057fa9ed56ff2c6cd307db0a423686083d3e2e6c0214a4"
+  },
+  "output_artifacts": [
+    "artifacts/reporting/report-4e-noreplace-validation.json"
+  ],
+  "stdout": "",
+  "stderr": "----------------------------------------------------------------------\nRan 316 tests in 48.401s\n\nOK (skipped=3)\n",
+  "cannot_claim": [
+    "No UI visual or interaction QA.",
+    "No semantic assessment, product implementation, human acceptance, sync or private company-data publication approval.",
+    "Receipt metadata alone does not prove execution; stdout and subprocess exit capture the performed test run.",
+    "This receipt verifies e731720 inputs and does not qualify later legacy provenance code changes."
+  ],
+  "baseline_regression": {
+    "reviewed_commit": "5a973d6a3f4d5d088d2e32bbbb3afc2425fc68e5",
+    "exit_code": 1,
+    "stderr": "======================================================================\nERROR: test_legacy_publication_race_cannot_replace_existing_output (test_assessment_web.WebReaderContractTests.test_legacy_publication_race_cannot_replace_existing_output)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-regression-shjfbgy6\\tests\\test_assessment_web.py\", line 255, in test_legacy_publication_race_cannot_replace_existing_output\n    application.publish_page(self.output, self.render())\n    ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'tools.generate_assessment_web' has no attribute 'publish_page'\n\n======================================================================\nFAIL: test_supported_legacy_priorities_are_preserved (test_assessment_web.WebReaderContractTests.test_supported_legacy_priorities_are_preserved) (priority='P0')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-regression-shjfbgy6\\tests\\test_assessment_web.py\", line 229, in test_supported_legacy_priorities_are_preserved\n    self.assertEqual(self.data(page)['actions'][0]['priority'], priority)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: '' != 'P0'\n+ P0\n\n\n======================================================================\nFAIL: test_supported_legacy_priorities_are_preserved (test_assessment_web.WebReaderContractTests.test_supported_legacy_priorities_are_preserved) (priority='P2')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-regression-shjfbgy6\\tests\\test_assessment_web.py\", line 229, in test_supported_legacy_priorities_are_preserved\n    self.assertEqual(self.data(page)['actions'][0]['priority'], priority)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: '' != 'P2'\n+ P2\n\n\n======================================================================\nFAIL: test_supported_legacy_priorities_are_preserved (test_assessment_web.WebReaderContractTests.test_supported_legacy_priorities_are_preserved) (priority='P3')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-regression-shjfbgy6\\tests\\test_assessment_web.py\", line 229, in test_supported_legacy_priorities_are_preserved\n    self.assertEqual(self.data(page)['actions'][0]['priority'], priority)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: '' != 'P3'\n+ P3\n\n\n======================================================================\nFAIL: test_valid_changed_legacy_report_preserves_existing_html (test_assessment_web.WebReaderContractTests.test_valid_changed_legacy_report_preserves_existing_html)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-regression-shjfbgy6\\tests\\test_assessment_web.py\", line 240, in test_valid_changed_legacy_report_preserves_existing_html\n    self.assertEqual(result.returncode, 2)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 0 != 2\n\n----------------------------------------------------------------------\nRan 18 tests in 1.129s\n\nFAILED (failures=4, errors=1)\n",
+    "three_new_tests_detect_reviewed_defects": true
+  },
+  "windows_crlf_export_run": {
+    "core_autocrlf": true,
+    "started_at": "2026-10-02T10:44:37.492790+00:00",
+    "finished_at": "2026-10-02T10:45:19.751196+00:00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "----------------------------------------------------------------------\nRan 316 tests in 41.358s\n\nOK (skipped=3)\n",
+    "template_crlf_verified": true
+  },
+  "independent_review": {
+    "reviewer": "authorized read-only sub-agent report_4b_review",
+    "reviewed_commit": "e7317205c322a1b201a3a015a278cce673ff2eb0",
+    "reviewed_files": [
+      "tools/generate_assessment_markdown.py",
+      "tests/test_assessment_markdown.py"
+    ],
+    "result": "NO_BLOCKING_FINDINGS / APPROVED technical delta only",
+    "ubuntu_native_tmp": {
+      "lf_git_blob_archive": {
+        "run": 316,
+        "pass": 315,
+        "skip": 1,
+        "exit_code": 0
+      },
+      "crlf_archive": {
+        "run": 316,
+        "pass": 315,
+        "skip": 1,
+        "exit_code": 0
+      }
+    },
+    "baseline_race_regression": {
+      "reviewed_commit": "733f0213e79deb974e70f28ffdd652f1f71024e7",
+      "exit_code": 1,
+      "failure": "AssertionError: OSError not raised",
+      "failures": 1,
+      "errors": 0,
+      "observation": "Old os.rename replaced the race-created empty destination inode 288 with stage inode 284 and published three report files."
+    },
+    "claim_boundary": "Review accepts only the two code/test files; it does not approve receipt edits, NIST reasoning, visual QA, private data publication or merge."
+  },
+  "closed_findings": [
+    "P1 current committed receipt: all 28 implementation/contract hashes match Git blobs at tested e731720.",
+    "P1 legacy overwrite: equal-byte no-op; different and concurrently created output preserved.",
+    "P2 legacy priorities: retain P0-P3.",
+    "CRLF template text: universal newline handling after exact raw hashing.",
+    "Linux no-replace contract: atomic renameat2 RENAME_NOREPLACE rejects concurrent empty destinations; no replacing fallback."
+  ],
+  "binding_scope": "All 28 source_file_sha256 values are tested committed Git blob bytes at e731720. A later evidence/PLAN/canonical-memory-only commit changes none of these inputs.",
+  "evidence_scope": "Historical e731720 Linux no-replace validation; later legacy provenance remediation is verified by report-4e-provenance-validation.json."
+}

@@ -1,0 +1,109 @@
+{
+  "slice": "REPORT-4E public workflow integration",
+  "base_commit": "99644c3d2546df31db9f92e8f8f5e106bc55987b",
+  "expected_behavior": [
+    "docs/specs/s1-minimal-report-data-contract.md",
+    "docs/specs/s1-report-presentation-contract.md",
+    "docs/specs/s1-markdown-projection.md",
+    "docs/specs/s1-html-projection.md"
+  ],
+  "validation": {
+    "command": "python -X utf8 -m unittest discover -s tests -p test_*.py -q",
+    "windows": {
+      "run": 311,
+      "pass": 309,
+      "skip": 2,
+      "exit_code": 0
+    },
+    "ubuntu_native_tmp": {
+      "run": 311,
+      "pass": 310,
+      "skip": 1,
+      "exit_code": 0
+    },
+    "private_free_source_export": true,
+    "managed_public_worktree_windows": true,
+    "skill_quick_validate": "PASS",
+    "diff_check": "PASS"
+  },
+  "independent_review": {
+    "reviewer": "authorized read-only sub-agent report_4b_review",
+    "result": "NO_BLOCKING_FINDINGS",
+    "closed_findings": [
+      "P2: inserted literal template markers were recursively substituted; one-pass original-template expansion and two actual rendering regressions added.",
+      "P1: public Markdown suite still required private corpus; private class retained locally and public synthetic replacement runs on clean source."
+    ]
+  },
+  "blind_forward_execution": {
+    "reviewer": "authorized independent sub-agent report_4e_forward",
+    "helper_exit_code": 0,
+    "status": "report_only",
+    "stage": "complete",
+    "document_pairs_byte_identical": 3,
+    "task_fields": 15,
+    "action_detail_fields": 24,
+    "markdown_links_checked": 28,
+    "selected_sources_unchanged": 58,
+    "content_check": "PASS after synthetic E-04/E-13 authoring correction",
+    "accepted_record": false,
+    "sync_state": "not_synced",
+    "published": false
+  },
+  "limitations": [
+    "No browser visual or interactive qualification.",
+    "Legacy shared breadcrumb still labels the reader Company SSDLC Pilot; actual report title, corpus, IDs and verdicts are preserved.",
+    "Technical review and tests do not establish semantic assessment correctness, implementation, human acceptance, synchronization or publication authority.",
+    "Private company inputs, reports, fidelity tests and their receipts are excluded from this delivery."
+  ],
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "runner": "Windows isolated managed public worktree",
+  "command": "python -X utf8 -m unittest discover -s tests -p test_*.py -q",
+  "exit_code": 0,
+  "started_at": "2026-10-02T10:12:03.279443+00:00",
+  "finished_at": "2026-10-02T10:12:45.325321+00:00",
+  "linked_commit": "99644c3d2546df31db9f92e8f8f5e106bc55987b",
+  "output_artifacts": [
+    "artifacts/reporting/report-4e-validation.json"
+  ],
+  "stdout": "",
+  "stderr": "----------------------------------------------------------------------\nRan 311 tests in 41.590s\n\nOK (skipped=2)\n",
+  "cannot_claim": [
+    "No browser visual or interactive qualification.",
+    "Legacy shared breadcrumb still labels the reader Company SSDLC Pilot; actual report title, corpus, IDs and verdicts are preserved.",
+    "Technical review and tests do not establish semantic assessment correctness, implementation, human acceptance, synchronization or publication authority.",
+    "Private company inputs, reports, fidelity tests and their receipts are excluded from this delivery.",
+    "This historical precommit receipt cannot bind or verify the final committed implementation."
+  ],
+  "evidence_scope": "Historical precommit Windows worktree execution; delivery verification is report-4e-committed-validation.json.",
+  "precommit_source_file_sha256": {
+    ".agents/skills/ssdlc-assessment-report/SKILL.md": "c9ecccdec5120b7b5fa4aec7afc8f6518c0651e764063ccc52c07c49d0b8c263",
+    ".agents/skills/ssdlc-assessment-report/agents/openai.yaml": "0d323791af2254978a9b618302ead096161e6a4619241b4ed6b42ffbc4999d2d",
+    ".agents/skills/ssdlc-assessment-report/references/human-report-writing.md": "e1b9a1d0365541e324ef4ac09ed1e2927b660089f0b953ab69d8ef40d12bd4b2",
+    ".agents/skills/ssdlc-assessment-report/references/web-presentation.md": "08c34b7397581fa2752e72221c91923090326482edc0d7164f368001e86984dc",
+    ".agents/skills/ssdlc-assessment-report/references/workflow.md": "5f2f7305e3ecb07f1a3587f083bf8d379efd5af9fd9df5609b3251f8fdbc3d36",
+    ".agents/skills/ssdlc-assessment-report/scripts/workflow.py": "3c7b1d7e001baa3fb31ee59e5a48a15872c9c2a8c30bf25b76fff92aea8b4c09",
+    ".github/workflows/governance-drift.yml": "87fd60138b9bb8cf8b3d72d078ed66532a08f1e1dfb36636832444a7461d344d",
+    ".gitignore": "37010f4f756ab6c920f0586ab32db61df2967775364f2761571c8367028aa9c1",
+    "AGENTS.md": "a41fa91809159f8ab4c28a86f2594ec041fc12f2cce679d7f2d373ec3f1a163f",
+    "README.md": "e72f3ad625a30bb9f73422f0517d9a45637e54accd13fa906f9d8fd01b87b983",
+    "docs/specs/s1-assessment-reporting-rubric.md": "081f276d397446e9f8f689a9f2866476db002c884fb1ed18cd8677cf8edfe57a",
+    "docs/specs/s1-html-projection.md": "9a529f91b23a2c435ab472a9eb68693af071f45aeb07b0826700c3a1ef3b27f5",
+    "docs/specs/s1-markdown-projection.md": "d866341b088f439eb1df60c4f1251c0c007a4c6127a873254c9afaf1e65b0863",
+    "docs/specs/s1-report-presentation-contract.md": "b8b6e3d8de0ffb12a8e874c034e27dee926c9ecbc0da6125555fe54bdc97a0d7",
+    "docs/specs/s1-reporting-workflow-integration.md": "7bcc4536fc057e7d8c0c442702072ea9cd8e67a854688320383b2eea0c21e048",
+    "templates/s1-assessment-actions.md": "0ecc9471e9963070bbb1d3c4d1fb538aa2cb61cc0539ffac7d024d0257d39c2d",
+    "templates/s1-assessment-summary.md": "fb7364c4a21b9a1f41e23cafe938e9556a66f339894e4a5d82a8b3a22a301e5d",
+    "templates/s1-assessment-technical-review.md": "4edc5b0eb53b0487c7e8fba3598d92f314f303683987d03c4d823d21b32c87da",
+    "templates/s1-assessment-web.html": "5fef20c14a7b384d9d39075461bc2916eefbadcc72c6cf1aabdcf2faacb3ef73",
+    "tests/reporting_fixtures.py": "3173743d5a55337054bf43879100b775920bce69ef0c070f421ae2072c5f623d",
+    "tests/test_assessment_html_projection.py": "71e128c7ff16a7f8eb3603efd055dd3ddef0c7426dab49eedff36b7291712452",
+    "tests/test_assessment_markdown.py": "d9de94a74b18e96b67fab4ea2cfe9f71b271b3bed70b5934e2edf788a8d6ce24",
+    "tests/test_assessment_web.py": "32fd656ee7c5b91f6e83e3134904ea2714fb972d0a7558566efbadf4af65d2ad",
+    "tests/test_reporting_skill_workflow.py": "f15c58f6906274fe653dae9d50703302cf862d89ccdb16ea39775549edc2b913",
+    "tools/assessment_markdown.py": "341421b153c463aa6dc2610c4b09ff02d2193c8ef8cf86117861ebaea55eb33e",
+    "tools/generate_assessment_html.py": "c976d9e2137b1927fcf231d69eb018714341e65eed23f7017f357568d738801a",
+    "tools/generate_assessment_markdown.py": "697bd390d07cdcac012c33ba358b90846009b73c238d104eac4c5d2bdd2540a4",
+    "tools/generate_assessment_web.py": "2fe31284282b36798585a12c3dd60172bb84516f38a355c14992586a92460c79"
+  },
+  "hash_domain": "Original uncommitted filesystem bytes, including Windows line endings; not committed Git blob hashes."
+}

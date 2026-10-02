@@ -36,3 +36,58 @@
 - Validation boundary: PASS: artifacts/reporting/report-4a-pr-fix-regression.json -> exit_code=0,251 run249 pass2 Windows symlink privilege skips,linked implementation8f0efdf. PASS: artifacts/reporting/report-4a-review-regression-replay.json,three assertion failures on old465e435 prove sensitivity; first replay import/patch error is retained as attempt1 and not counted. Latest contract run54: Windows52/Linux53 pass,each platform only skips inapplicable/privilege cases. NOT CLAIMED: semantic correctness, private data/provenance/authenticity, actual product execution or updated-head remote approval.
 - Next action: Push fixes and companion, request Codex re-review for the latest exact PR19 head, verify CI and resolve review threads before conditional merge. No real migration/rendering/S2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:7916a2fa3a90388c5f4551d0d6a94af5ecd9b516d399e3867071ba382960dfa2 -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `7916a2fa3a90388c5f4551d0d6a94af5ecd9b516d399e3867071ba382960dfa2`
+- Commit binding: `99644c3` (bound)
+- Record: REPORT-4E public tooling: wired the repository skill to validated structured data, fixed three Markdown layers and shared offline HTML. Kept legacy render and independent lifecycle state. Public tests are synthetic and private-free; no private input migration or publication included.
+- Validation boundary: artifacts/reporting/report-4e-validation.json: independent technical review NO_BLOCKING_FINDINGS; Windows 311/309 pass/2 skips, Ubuntu 311/310 pass/1 skip; blind skill project exit 0 with four outputs and preserved draft/not_synced state; skill validator and diff check PASS.
+- Next action: Open the authorized public tooling PR, obtain current-head Codex review and green checks, then conditionally merge. Browser visual and interaction QA remains not verified.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:562e37784224243014a8392bdc623ac0a2cd93611cceb3f14b28643507f2cd4b -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E-Codex-remediation
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `562e37784224243014a8392bdc623ac0a2cd93611cceb3f14b28643507f2cd4b`
+- Commit binding: `191a5c4db24531184e644a898dba94aa4cb09801` (bound)
+- Record: Codex review remediation: preserve different existing legacy HTML, allow exact no-op and atomic no-replace publication, retain P0-P3 priorities. Replace delivery evidence with a pinned committed-tree run; historical precommit filesystem evidence is explicitly separate.
+- Validation boundary: artifacts/reporting/report-4e-committed-validation.json: actual committed-tree Windows run 314/312 pass/2 skips; all 28 displayed hashes equal Git blobs; 3 new regression tests detect defects at reviewed 5a973d6 baseline (nonzero replay).
+- Next action: Push remediation and obtain updated-head Codex review and CI before conditional engineering merge. UI QA remains not verified.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:23cfaff49e3ff6817eda59a1fb537485029be63059eaccf908549fa60db19ef6 -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E-final-remediation
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `23cfaff49e3ff6817eda59a1fb537485029be63059eaccf908549fa60db19ef6`
+- Commit binding: `39b76c6ee2b33c69c5a00fc443003ea7ce984451` (bound)
+- Record: Finished REPORT-4E remediation including Windows CRLF template admission. Template text uses universal newlines while raw fingerprints remain exact. Final delivery evidence is pinned to implemented commit 39b76c6; earlier precommit and 191a5c4 executions are explicit historical receipts.
+- Validation boundary: artifacts/reporting/report-4e-final-validation.json: actual Windows LF and CRLF each 315/313 pass/2 skips; independent Ubuntu LF and CRLF each 315/314 pass/1 skip. Four regression cases detect old implementation defects; all 28 displayed scope hashes match Git blobs. Independent delta review APPROVED.
+- Next action: Obtain latest-head remote Codex review and green CI, then apply the already authorized engineering merge. UI qualification remains not verified.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:caeb4e617d6e1aff1b85f03f687ff9796f30aabd4e7b732365001b558fe93874 -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E-noreplace-remediation
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `caeb4e617d6e1aff1b85f03f687ff9796f30aabd4e7b732365001b558fe93874`
+- Commit binding: `e7317205c322a1b201a3a015a278cce673ff2eb0` (bound)
+- Record: Closed Linux concurrent-empty-destination replacement with atomic renameat2 RENAME_NOREPLACE and no replacing fallback. Previous receipts remain historical; current evidence binds the implemented e731720 Git blobs.
+- Validation boundary: artifacts/reporting/report-4e-noreplace-validation.json: actual Windows LF/CRLF each 316 run/313 pass/3 platform skips; independent native Ubuntu LF/CRLF each 316 run/315 pass/1 skip. Race regression fails on reviewed 733f021 with observed inode replacement and passes fixed code. Two-file independent technical review has no blocking findings; all 28 scope hashes match pinned Git blobs.
+- Next action: Push evidence and fix, request latest-head Codex review and require green CI before authorized engineering merge. UI qualification remains not verified.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:da88cf86379e426079e0aaada60d162a97672abb57cddb7afddb3ce757222635 -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E-provenance-remediation
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `da88cf86379e426079e0aaada60d162a97672abb57cddb7afddb3ce757222635`
+- Commit binding: `4a3e6e32c6202aa769919f844563ff781a656bc3` (bound)
+- Record: Closed legacy provenance attribution from incidental history/file hashes. Only unique labeled current scope binds metadata; missing, duplicate or mismatched fields fail closed. Structured admission/exact-byte authority remains. Current receipt pins implemented 4a3e6e3; prior executions remain historical.
+- Validation boundary: artifacts/reporting/report-4e-provenance-validation.json: actual Windows LF/CRLF each 319 run/316 pass/3 platform skips; independent native Ubuntu LF/CRLF each 319 run/318 pass/1 skip. New tests replay against reviewed 5c6eb14 with 9 assertion failures and zero errors; actual old CLI probes confirm wrong source attribution. Three-file independent delta review has no blocking findings. All 28 scope hashes match committed Git blobs.
+- Next action: Push remediation, obtain current-head Codex review and green CI, then merge under the already authorized engineering gate. UI qualification remains not verified.
+- PLAN reconciliation: `updated`

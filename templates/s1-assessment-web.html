@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-@@SCRIPT_HASH@@'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>@@TITLE@@</title>
+<style>
+:root{color-scheme:light;--ink:#15243a;--muted:#5e6d81;--blue:#225dcc;--line:#d9e1eb;--paper:#fff;--canvas:#f2f5f9;--amber:#a24910;--amber-bg:#fff2e6;font-family:"Segoe UI","Microsoft JhengHei",sans-serif;font-size:16px}
+*{box-sizing:border-box}body{margin:0;background:var(--canvas);color:var(--ink);line-height:1.7}button,input,select{font:inherit}button,a,input,select{touch-action:manipulation}button{cursor:pointer}button:disabled{cursor:default}a{color:var(--blue);text-underline-offset:3px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #f59b43;outline-offset:3px}h1,h2,h3,p{margin-top:0}h1{font-size:1.9rem;line-height:1.35;letter-spacing:-.025em;margin-bottom:.6rem}h2{font-size:1.25rem;margin:1.7rem 0 .7rem}h3{font-size:1.05rem}code{font-family:Consolas,monospace;font-size:.88em;overflow-wrap:anywhere;background:#edf1f7;padding:.1em .3em;border-radius:3px}pre{white-space:pre-wrap;background:#edf1f7;border:1px solid var(--line);border-radius:8px;padding:1rem}pre code{background:transparent;padding:0}li{margin-bottom:.55rem}strong{font-weight:650}[hidden]{display:none!important}
+.skip-link{position:fixed;left:1rem;top:1rem;z-index:20;background:white;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.skip-link:focus{width:auto;height:auto;clip-path:none;padding:.6rem 1rem}.layout{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}.sidebar{background:#122238;color:#f5f8ff;padding:2rem 1.25rem;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:2rem}.brand{font-size:1.5rem;font-weight:700;letter-spacing:.06em}.brand small{display:block;font-size:.9rem;font-weight:400;color:#becde0;letter-spacing:0;margin-top:.25rem}.sidebar-label{font-size:.8rem;color:#a8bed9;letter-spacing:.12em;margin-bottom:.5rem}.report-id{font-family:Consolas,monospace;font-size:.95rem;color:#e2edff;overflow-wrap:anywhere}.nav{display:grid;gap:.4rem}.nav a{color:#c8d6e7;text-decoration:none;padding:.7rem .8rem;border-radius:6px;font-size:.98rem;display:flex;justify-content:space-between;gap:.5rem}.nav a:hover{background:#1d3656}.nav a[aria-current="page"]{background:#244a78;color:#fff;box-shadow:inset 3px 0 #73b7ff}.nav-count{font-size:.875rem;opacity:.8}.sidebar-bottom{margin-top:auto;border-top:1px solid #38506b;padding-top:1rem}.frameworks{display:grid;gap:.55rem;font-size:.875rem;color:#b5c8df}.frameworks span{display:flex;justify-content:space-between;gap:.5rem}.frameworks b{font-weight:500;color:#e2ecf9}
+.main{min-width:0;padding:2rem clamp(1.2rem,3.5vw,3.5rem) 3rem;max-width:1600px}.topline{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;margin-bottom:1.6rem}.breadcrumb{font-size:.9rem;color:var(--muted)}.top-actions{display:flex;align-items:center;gap:.75rem}.draft{font-size:.875rem;color:#864113;background:#fff0df;border:1px solid #e8c49f;border-radius:5px;padding:.25rem .65rem}.button{border:1px solid var(--line);border-radius:6px;padding:.5rem .9rem;background:white;color:var(--ink);font-size:.9rem}.button:hover{border-color:#8fa6c4;background:#f7faff}.button.primary{background:var(--blue);border-color:var(--blue);color:white}.subline{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem}.subline code{background:transparent;padding:0}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin:1.5rem 0}.metric{background:white;border:1px solid var(--line);border-top:3px solid #9db8dc;border-radius:7px;padding:1rem 1.15rem;min-width:0}.metric-label{font-size:.9rem;color:var(--muted)}.metric-value{font-size:1.75rem;font-weight:650;line-height:1.3;margin:.2rem 0}.metric-note{font-size:.85rem;color:var(--muted);overflow-wrap:anywhere}.metric.evidence{border-top-color:#cd986b}.boundary{font-size:.93rem;color:#69472b;background:#fff8f0;border-left:3px solid #c88951;padding:.75rem 1rem;margin-bottom:1.4rem}.sheet{background:white;border:1px solid var(--line);border-radius:8px;padding:1.5rem 1.75rem}.prose{overflow-wrap:anywhere}.prose>p{margin-bottom:1rem}.prose>p:first-child{font-size:.9rem;color:var(--muted)}.prose table{font-size:.94rem}.summary-footer{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin:1.25rem 0}.source-links{display:flex;gap:1rem;flex-wrap:wrap;font-size:.9rem}.source-links a{color:var(--muted)}.panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem}.panel-header h2{margin:0}.panel-description{font-size:.94rem;color:var(--muted);margin:.4rem 0 0}.filters{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;padding:1rem;background:white;border:1px solid var(--line);border-radius:8px;margin:1rem 0}.search-field{flex:1 1 260px}.search-field label,.scope-field label{display:block;font-size:.875rem;margin-bottom:.25rem;color:var(--muted)}input[type="search"],select{width:100%;padding:.6rem .7rem;border:1px solid #b9c7d8;border-radius:5px;background:white;color:var(--ink);min-height:44px}input[type="search"]::placeholder{color:#748399}.scope-field{flex:0 1 170px}.category-chips{display:flex;gap:.4rem;flex-wrap:wrap;align-self:flex-end;padding-bottom:.1rem}.chip{border:1px solid #c9d5e4;background:#fff;padding:.5rem .7rem;border-radius:5px;font-size:.875rem;min-height:42px}.chip[aria-pressed="true"]{background:#e7effc;border-color:#6a94d7;color:#194997}.result-line{display:flex;justify-content:space-between;gap:1rem;margin:1rem 0;font-size:.9rem;color:var(--muted)}.reset{border:0;background:none;padding:0;color:var(--blue);font-size:.9rem}.action-group{margin-bottom:1.65rem}.action-group h3{display:flex;gap:.6rem;align-items:center;margin-bottom:.7rem}.group-count{font-size:.85rem;font-weight:400;padding:0 .5rem;background:#e4eaf3;border-radius:4px}.table-wrap{max-width:100%;overflow:auto;border:1px solid var(--line);border-radius:7px;background:#fff}table{border-collapse:collapse;width:100%;font-size:.93rem;line-height:1.65}th{text-align:left;font-size:.875rem;background:#edf2f8;color:#405672;font-weight:600}th,td{padding:.85rem .9rem;vertical-align:top;border-bottom:1px solid var(--line)}tbody tr:last-child td{border-bottom:0}.action-table th:first-child{width:7%}.action-table th:nth-child(2){width:10%}.action-table th:nth-child(3){width:14%}.action-table th:nth-child(4){width:22%}.action-table th:nth-child(5){width:25%}.action-table th:nth-child(6){width:22%}.action-table td:first-child{white-space:nowrap}.action-id{border:0;background:none;color:var(--blue);padding:0;font-weight:650;font-family:Consolas,monospace;font-size:.96rem;text-decoration:underline;text-underline-offset:4px}.priority{display:block;width:max-content;background:#fff0e5;color:#9d4516;border:1px solid #efc4a4;border-radius:3px;padding:0 .35rem;font-size:.8rem;margin-top:.35rem}.group-empty{padding:1rem;background:#fff;border:1px dashed #c7d3e2;border-radius:6px;color:var(--muted)}.empty-search{text-align:center;padding:2rem;background:white;border:1px solid var(--line);border-radius:7px;color:var(--muted)}.empty-search strong{display:block;color:var(--ink);margin-bottom:.35rem}.verdict{font-size:.82rem;background:#e8effa;color:#285794;border-radius:4px;padding:.2rem .4rem;white-space:nowrap}.task-overview{margin-bottom:1.5rem}.technical-section{background:#fff;border:1px solid var(--line);border-radius:7px;margin-bottom:.7rem}.technical-section>summary{cursor:pointer;padding:1rem 1.25rem;font-weight:600}.technical-section[open]>summary{border-bottom:1px solid var(--line);background:#f7faff}.technical-body{padding:1.2rem 1.5rem}.technical-body .table-wrap{margin:1rem 0}.technical-body h3{margin-top:1.5rem;border-top:1px solid var(--line);padding-top:1rem}.source-anchor{scroll-margin-top:20px}.provenance{margin-top:2rem;color:var(--muted);font-size:.85rem}.provenance summary{cursor:pointer}.provenance dl>div{margin:.7rem 0}.provenance dd{margin:0}.provenance dt{font-weight:600}.provenance code{font-size:.85rem;background:transparent}.page-footer{font-size:.875rem;color:var(--muted);margin-top:1.7rem}
+dialog{padding:0;border:1px solid #b7c5d7;border-radius:10px;width:min(880px,calc(100vw - 32px));max-height:90vh;color:var(--ink);background:white;box-shadow:0 24px 80px #12223840}dialog::backdrop{background:#12223888}.dialog-header{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1rem 1.4rem;background:#f0f5fc;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}.dialog-header h2{margin:0;font-size:1.2rem}.dialog-body{padding:1.3rem 1.5rem}.dialog-footer{position:sticky;bottom:0;background:white;z-index:1;padding:1rem 1.5rem;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:.8rem}.detail-fields{margin:0;display:grid;gap:1rem}.detail-field dt{font-size:.875rem;font-weight:650;color:#325477;margin-bottom:.3rem}.detail-field dd{margin:0;overflow-wrap:anywhere}.detail-field code{font-size:.87rem}.dialog-close{min-width:44px}.noscript{border:1px solid #dba771;padding:.8rem;background:#fff4e6}
+@media(max-width:1150px){.layout{grid-template-columns:195px minmax(0,1fr)}.sidebar{padding:1.5rem 1rem}.main{padding:1.5rem}.metrics{gap:.6rem}.metric{padding:.9rem}.action-table{font-size:.9rem}.action-table table{min-width:850px}.sheet{padding:1.3rem}}
+@media(max-width:760px){.layout{display:block}.sidebar{position:static;height:auto;padding:1rem;gap:.9rem}.brand{font-size:1.15rem}.brand small,.sidebar-label,.sidebar-bottom{display:none}.report-id{font-size:.85rem}.nav{display:flex;gap:.4rem;flex-wrap:wrap}.nav a{font-size:.9rem;padding:.5rem .65rem}.main{padding:1rem}.topline{margin-bottom:1rem}.top-actions{gap:.4rem}.breadcrumb{font-size:.85rem}h1{font-size:1.55rem}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));margin:1rem 0}.metric-value{font-size:1.5rem}.metric-note{font-size:.875rem}.sheet{padding:1rem}.panel-header{display:block}.filters{padding:.8rem;gap:.6rem}.search-field{flex-basis:100%}.scope-field{flex:1 1 140px}.category-chips{flex:1 1 100%}.action-table{border:0;overflow:visible;background:transparent}.action-table table{min-width:0;display:block}.action-table thead{display:none}.action-table tbody{display:block}.action-table tr{display:block;border:1px solid var(--line);border-radius:7px;background:white;padding:.8rem;margin-bottom:.75rem}.action-table td{display:block;border:0;padding:.35rem 0;white-space:normal!important}.action-table td::before{content:attr(data-label);display:block;font-size:.875rem;font-weight:600;color:var(--muted);margin-bottom:.15rem}.action-table td:first-child{display:flex;gap:.6rem;align-items:center;border-bottom:1px solid var(--line);padding-bottom:.6rem;margin-bottom:.4rem}.action-table td:first-child::before{display:none}.priority{margin:0}.technical-body{padding:1rem}.technical-body .table-wrap{font-size:.875rem}.task-overview table{min-width:500px}dialog{width:calc(100vw - 16px);max-height:94vh}.dialog-header,.dialog-body,.dialog-footer{padding:1rem}.dialog-footer{flex-wrap:wrap}}
+@media print{body{background:white}.layout{display:block}.skip-link,.sidebar,.top-actions,.filters,.reset,dialog,.source-links,.summary-footer,.provenance{display:none!important}.main{padding:0;max-width:none}.panel[hidden],.action-group[hidden]{display:block!important}.action-table table{min-width:0;display:table}.action-table thead{display:table-header-group}.action-table tbody{display:table-row-group}.action-table tr,.action-table tr[hidden]{display:table-row!important}.action-table td,.action-table td:first-child{display:table-cell}.action-table td::before{display:none}.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}.metric,.sheet{box-shadow:none}.table-wrap{overflow:visible}.technical-section{break-inside:avoid}.technical-body{display:block!important}.priority,.verdict{color:black;background:white}h2,h3{break-after:avoid}.page-footer{margin-top:1rem}}
+@media(prefers-reduced-motion:no-preference){button,a,input,select{transition:background-color .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">跳到報告內容</a>
+<div class="layout">
+<aside class="sidebar" aria-label="報告導覽">
+ <div class="brand">SSDLC<small>文件審閱報告</small></div>
+ <div><div class="sidebar-label">REPORT</div><div class="report-id">@@REPORT_ID@@</div></div>
+ <nav class="nav">
+  <a href="#summary" data-panel="summary" aria-current="page">主管摘要<span class="nav-count">01</span></a>
+  <a href="#actions" data-panel="actions">工程師修正單<span class="nav-count">@@TOTAL_ACTIONS@@</span></a>
+  <a href="#technical" data-panel="technical">完整技術附錄<span class="nav-count">03</span></a>
+ </nav>
+ <div class="sidebar-bottom"><div class="sidebar-label">參考基準分工</div><div class="frameworks"><span><b>NIST SSDF</b>要做什麼</span><span><b>OWASP SAMM</b>成熟到哪</span><span><b>ISO／IEC</b>管理／標準化</span></div></div>
+</aside>
+<main class="main" id="main">
+ <div class="topline"><div class="breadcrumb">公司 SSDLC Pilot / @@REPORT_ID@@</div><div class="top-actions"><span class="draft">@@STATUS_LABEL@@</span><button class="button" id="print-report" type="button">列印報告</button></div></div>
+ <h1>SSDLC 文件審閱</h1>
+ <div class="subline">來源版本 <code>@@COMMIT@@</code> · <span>@@TOTAL_FILES@@ 份文件</span> · <span>@@STATUS@@</span></div>
+ <div class="metrics" aria-label="本次範圍及結果">
+  <div class="metric"><div class="metric-label">審閱範圍</div><div class="metric-value">@@TOTAL_FILES@@ <span class="metric-label">份</span></div><div class="metric-note">限本次固定來源</div></div>
+  <div class="metric"><div class="metric-label">文件覆蓋</div><div class="metric-value">@@TOTAL_TASKS@@ <span class="metric-label">個 Task</span></div><div class="metric-note">@@VERDICT_SUMMARY@@</div></div>
+  <div class="metric evidence"><div class="metric-label">實際執行證據</div><div class="metric-value" id="strength-value">@@STRENGTH_SUMMARY@@</div><div class="metric-note">依人工報告原判定</div></div>
+  <div class="metric"><div class="metric-label">工程師處理項目</div><div class="metric-value">@@TOTAL_ACTIONS@@ <span class="metric-label">項</span></div><div class="metric-note">改文件 @@GROUP_A@@ · 補證據 @@GROUP_B@@ · 改善 @@GROUP_C@@</div></div>
+ </div>
+ <div class="boundary">文件有涵蓋，不代表產品已照做或文件已核准。詳細核准狀態、閱讀方式與限制保留在報告中。</div>
+ <noscript><p class="noscript">目前未啟用 JavaScript，三層內容仍可閱讀；搜尋與問題視窗需啟用 JavaScript。</p></noscript>
+ <section class="panel" id="summary" aria-label="主管摘要">
+  <div class="sheet prose">@@SUMMARY_HTML@@</div>
+  <div class="summary-footer"><button class="button primary" type="button" data-panel="actions">查看工程師修正單</button><span class="panel-description">檔案位置、改法與完成條件集中在六欄表。</span></div>
+ </section>
+ <section class="panel" id="actions" aria-label="工程師修正單">
+ <div class="panel-header"><div><h2>工程師六欄修正單</h2><p class="panel-description">點選問題 ID 查看規則依據、完整文件路徑與適用條件。</p></div></div>
+  <div class="sheet prose">@@ACTIONS_INTRO@@</div>
+  <div class="filters">
+   <div class="search-field"><label for="action-search">搜尋問題</label><input type="search" id="action-search" placeholder="搜尋 E-05、文件編號、SBOM、簽章…" autocomplete="off"></div>
+   <div class="scope-field"><label for="product-filter">產品／範圍</label><select id="product-filter"><option value="">所有範圍</option>@@PRODUCT_OPTIONS@@</select></div>
+   <div class="category-chips" role="group" aria-label="問題分類"><button class="chip" type="button" data-category="" aria-pressed="true">全部</button><button class="chip" type="button" data-category="A" aria-pressed="false">A 改文件</button><button class="chip" type="button" data-category="B" aria-pressed="false">B 補證據</button><button class="chip" type="button" data-category="C" aria-pressed="false">C 改善</button></div>
+  </div>
+  <div class="result-line"><span id="result-count" role="status" aria-live="polite">共 @@TOTAL_ACTIONS@@ 項</span><button class="reset" id="reset-filters" type="button">清除篩選</button></div>
+  <div id="action-groups">@@ACTIONS_HTML@@</div>
+  <div class="empty-search" id="empty-search" hidden><strong>沒有符合篩選條件的項目</strong><span>可清除篩選，查看本次全部問題。</span></div>
+ </section>
+ <section class="panel" id="technical" aria-label="完整技術附錄">
+  <div class="panel-header"><div><h2>完整技術附錄</h2><p class="panel-description">逐題判定、修正理由、來源與指紋均沿用原報告。</p></div><button class="button" id="expand-technical" type="button">展開全部</button></div>
+  <div class="table-wrap task-overview"><table><thead><tr><th scope="col">NIST Task</th><th scope="col">白話問題</th><th scope="col">文件覆蓋</th><th scope="col">執行證據</th></tr></thead><tbody>@@TASK_ROWS@@</tbody></table></div>
+  <div id="technical-content">@@TECHNICAL_HTML@@</div>
+ </section>
+ <footer class="page-footer"><div>原始三層報告</div><div class="source-links">@@SOURCE_LINKS@@</div><details class="provenance"><summary>網頁來源指紋</summary><p>此頁是固定報告的離線閱讀版。內容更新後須重新產生；檔案指紋不證明語意判定或實際執行。</p><dl>@@PROVENANCE@@</dl></details></footer>
+</main>
+</div>
+<dialog id="action-dialog" aria-labelledby="dialog-title"><div class="dialog-header"><h2 id="dialog-title"></h2><button class="button dialog-close" type="button" id="close-dialog">關閉</button></div><div class="dialog-body" id="dialog-content"></div><div class="dialog-footer"><button class="button" type="button" id="view-in-technical">在完整附錄查看</button><button class="button primary" type="button" id="return-to-actions">返回修正單</button></div></dialog>
+@@DETAIL_TEMPLATES@@
+<script type="application/json" id="report-data">@@REPORT_DATA@@</script>
+<script id="reader-script">
+(() => {
+ 'use strict';
+ const data = JSON.parse(document.getElementById('report-data').textContent);
+ const panels = ['summary','actions','technical'];
+ const search = document.getElementById('action-search');
+ const product = document.getElementById('product-filter');
+ const dialog = document.getElementById('action-dialog');
+ let category = '', selected = '', opener = null;
+ const byId = new Map(data.actions.map(action => [action.id.toLowerCase(),action]));
+ const showPanel = (name, update = true) => {
+  if (!panels.includes(name)) return;
+  panels.forEach(id => {document.getElementById(id).hidden = id !== name;});
+  document.querySelectorAll('.nav a').forEach(link => {
+   if (link.dataset.panel === name) link.setAttribute('aria-current','page');
+   else link.removeAttribute('aria-current');
+  });
+  if (update) history.replaceState(null,'','#'+name);
+ };
+ const filter = () => {
+  const query = search.value.trim().toLocaleLowerCase();
+  let count = 0;
+  data.actions.forEach(action => {
+   const match = (!category || action.group === category) && (!product.value || action.products.includes(product.value)) && (!query || action.search.toLocaleLowerCase().includes(query));
+   document.querySelector('tr[data-id="'+action.id+'"]').hidden = !match;
+   if(match) count++;
+  });
+  document.querySelectorAll('.action-group').forEach(group => {group.hidden = !!category && group.dataset.group !== category;});
+  const noCategoryItems = category && !data.actions.some(a => a.group === category);
+  document.getElementById('empty-search').hidden = count > 0 || noCategoryItems;
+  document.getElementById('result-count').textContent = '顯示 '+count+' / '+data.actions.length+' 項';
+  document.getElementById('reset-filters').disabled = !query && !product.value && !category;
+ };
+ const openAction = (id, update = true) => {
+  const action = byId.get(id);
+  if(!action) return;
+  opener = document.activeElement;
+  selected = id;
+  showPanel('actions',false);
+  document.getElementById('dialog-title').textContent = action.id+' · '+action.cells[1];
+  document.getElementById('dialog-content').replaceChildren(document.getElementById('detail-'+id).content.cloneNode(true));
+  if(!dialog.open) dialog.showModal();
+  if(update) history.replaceState(null,'','#'+id);
+  document.getElementById('close-dialog').focus();
+ };
+ const closeAction = () => { if(dialog.open) dialog.close(); };
+ dialog.addEventListener('close',() => {
+  if(byId.has(location.hash.slice(1))) history.replaceState(null,'','#actions');
+  if(!document.getElementById('actions').hidden && opener && opener.isConnected) opener.focus();
+ });
+ document.getElementById('close-dialog').addEventListener('click',closeAction);
+ document.getElementById('return-to-actions').addEventListener('click',closeAction);
+ document.getElementById('view-in-technical').addEventListener('click',() => {
+  closeAction(); showPanel('technical');
+  const target = document.getElementById(selected);
+  if(target){for(let p=target.parentElement;p;p=p.parentElement) if(p.tagName === 'DETAILS') p.open = true; target.scrollIntoView({block:'start'});}
+ });
+ document.addEventListener('click',event => {
+  const actionButton = event.target.closest('[data-action]');
+  if(actionButton){event.preventDefault();openAction(actionButton.dataset.action);return;}
+  const panelButton = event.target.closest('[data-panel]');
+  if(panelButton){event.preventDefault();showPanel(panelButton.dataset.panel);document.getElementById('main').scrollIntoView({block:'start'});}
+ });
+ search.addEventListener('input',filter); product.addEventListener('change',filter);
+ document.querySelectorAll('[data-category]').forEach(button => button.addEventListener('click',() => {
+  category = button.dataset.category;
+  document.querySelectorAll('[data-category]').forEach(b => b.setAttribute('aria-pressed',String(b === button)));
+  filter();
+ }));
+ document.getElementById('reset-filters').addEventListener('click',() => {
+  search.value='';product.value='';category='';
+  document.querySelectorAll('[data-category]').forEach(b => b.setAttribute('aria-pressed',String(b.dataset.category === '')));
+  filter(); search.focus();
+ });
+ document.getElementById('expand-technical').addEventListener('click',event => {
+  const sections = [...document.querySelectorAll('.technical-section')];
+  const expand = sections.some(d => !d.open);
+  sections.forEach(d => {d.open=expand;}); event.currentTarget.textContent=expand?'收合全部':'展開全部';
+ });
+ const fromHash = () => {const id=location.hash.slice(1);if(byId.has(id)) openAction(id,false);else if(panels.includes(id)) showPanel(id,false);else showPanel('summary',false);};
+ window.addEventListener('hashchange',fromHash);
+ let printState=[];
+ window.addEventListener('beforeprint',() => {printState=[...document.querySelectorAll('details')].map(d => [d,d.open]);printState.forEach(([d]) => {d.open=true;});});
+ window.addEventListener('afterprint',() => {printState.forEach(([d,open]) => {d.open=open;});});
+ document.getElementById('print-report').addEventListener('click',() => window.print());
+ fromHash(); filter();
+})();
+</script>
+</body>
+</html>

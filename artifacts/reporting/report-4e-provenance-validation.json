@@ -1,0 +1,146 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "slice": "REPORT-4E legacy provenance remediation",
+  "command": "C:\\Users\\reiko\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -X utf8 -m unittest discover -s tests -p test_*.py -q",
+  "started_at": "2026-10-02T10:56:17.335110+00:00",
+  "finished_at": "2026-10-02T10:57:42.036108+00:00",
+  "runner": "Windows native filesystem, immutable Git archives, LF and CRLF",
+  "exit_code": 0,
+  "linked_commit": "4a3e6e32c6202aa769919f844563ff781a656bc3",
+  "hash_domain": "committed Git blob bytes; independently compared with git cat-file blob and LF archive bytes",
+  "source_file_sha256": {
+    ".agents/skills/ssdlc-assessment-report/SKILL.md": "fd61f82bd7e9f061fcb1d3d65dcd41aeb2390584e945b3849e1edbc2cecc1e67",
+    ".agents/skills/ssdlc-assessment-report/agents/openai.yaml": "6a2dac1134a35f8ab4e35242a95f736e769597ccc3492814ddafc3cc0fbf7f4b",
+    ".agents/skills/ssdlc-assessment-report/references/human-report-writing.md": "e1b9a1d0365541e324ef4ac09ed1e2927b660089f0b953ab69d8ef40d12bd4b2",
+    ".agents/skills/ssdlc-assessment-report/references/web-presentation.md": "08c34b7397581fa2752e72221c91923090326482edc0d7164f368001e86984dc",
+    ".agents/skills/ssdlc-assessment-report/references/workflow.md": "4549fd5eeb24e4ad22d16c26f9974fdea6a70339eccb7dd3558667264b36f2a2",
+    ".agents/skills/ssdlc-assessment-report/scripts/workflow.py": "3c7b1d7e001baa3fb31ee59e5a48a15872c9c2a8c30bf25b76fff92aea8b4c09",
+    ".github/workflows/governance-drift.yml": "8b527601044a405ffe9671c8ae4362256f4d7eb38ae02523050e9c2b1b8c4893",
+    ".gitignore": "b7a412733907ac80f5a002d758d3182e2f4be19bf7e4c3b07e8323bff43fe9e3",
+    "AGENTS.md": "ed831de6493762ab2eca5364485846d6b37e92638933d65d52217762e6ba5dd1",
+    "README.md": "02a218dbffe4b56baf04e7f93a27579e824cfd7186d8709fdd31e340ab14ccbe",
+    "docs/specs/s1-assessment-reporting-rubric.md": "081f276d397446e9f8f689a9f2866476db002c884fb1ed18cd8677cf8edfe57a",
+    "docs/specs/s1-html-projection.md": "9a529f91b23a2c435ab472a9eb68693af071f45aeb07b0826700c3a1ef3b27f5",
+    "docs/specs/s1-markdown-projection.md": "d866341b088f439eb1df60c4f1251c0c007a4c6127a873254c9afaf1e65b0863",
+    "docs/specs/s1-report-presentation-contract.md": "4c8a2bdbcdbc3111b90e4c79c2395c95a21722cb67774bee0316093929e99416",
+    "docs/specs/s1-reporting-workflow-integration.md": "7bcc4536fc057e7d8c0c442702072ea9cd8e67a854688320383b2eea0c21e048",
+    "templates/s1-assessment-actions.md": "0ecc9471e9963070bbb1d3c4d1fb538aa2cb61cc0539ffac7d024d0257d39c2d",
+    "templates/s1-assessment-summary.md": "fb7364c4a21b9a1f41e23cafe938e9556a66f339894e4a5d82a8b3a22a301e5d",
+    "templates/s1-assessment-technical-review.md": "4edc5b0eb53b0487c7e8fba3598d92f314f303683987d03c4d823d21b32c87da",
+    "templates/s1-assessment-web.html": "5fef20c14a7b384d9d39075461bc2916eefbadcc72c6cf1aabdcf2faacb3ef73",
+    "tests/reporting_fixtures.py": "1a610934b95a2b77a7fab0cc44625f95bfba5723fb02364fdda0cbd4bc397efb",
+    "tests/test_assessment_html_projection.py": "71e128c7ff16a7f8eb3603efd055dd3ddef0c7426dab49eedff36b7291712452",
+    "tests/test_assessment_markdown.py": "b35e94793f0ba7ac996feaf1dede3bdfce6564156d22b7d76f548b827d2371e6",
+    "tests/test_assessment_web.py": "74e382ce132ea3202764252e46f83d7aa3d7f6dee26236fa4fadc2495a9e6a46",
+    "tests/test_reporting_skill_workflow.py": "f15c58f6906274fe653dae9d50703302cf862d89ccdb16ea39775549edc2b913",
+    "tools/assessment_markdown.py": "341421b153c463aa6dc2610c4b09ff02d2193c8ef8cf86117861ebaea55eb33e",
+    "tools/generate_assessment_html.py": "c976d9e2137b1927fcf231d69eb018714341e65eed23f7017f357568d738801a",
+    "tools/generate_assessment_markdown.py": "b911bbdcd3e5c3de1e0db2a62771a468878d399913952096ee376726ee12a22d",
+    "tools/generate_assessment_web.py": "eaa524c70172fe2c45c8bc9f171691bafa523dcbe022432b4b1a364dcc427157"
+  },
+  "output_artifacts": [
+    "artifacts/reporting/report-4e-provenance-validation.json"
+  ],
+  "stdout": "",
+  "stderr": "----------------------------------------------------------------------\nRan 319 tests in 39.745s\n\nOK (skipped=3)\n",
+  "windows_crlf_export_run": {
+    "command": [
+      "C:\\Users\\reiko\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "-X",
+      "utf8",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_*.py",
+      "-q"
+    ],
+    "started_at": "2026-10-02T10:56:58.019635+00:00",
+    "finished_at": "2026-10-02T10:57:42.036108+00:00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "----------------------------------------------------------------------\nRan 319 tests in 43.305s\n\nOK (skipped=3)\n"
+  },
+  "baseline_regression": {
+    "reviewed_commit": "5c6eb143e91139d0e1208713955a534247489558",
+    "command": [
+      "C:\\Users\\reiko\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "-X",
+      "utf8",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_assessment_web.py",
+      "-q"
+    ],
+    "started_at": "2026-10-02T10:57:42.341803+00:00",
+    "finished_at": "2026-10-02T10:57:43.957591+00:00",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "======================================================================\nFAIL: test_legacy_provenance_requires_unique_labeled_scope_values (test_assessment_web.WebReaderContractTests.test_legacy_provenance_requires_unique_labeled_scope_values) (scope='# Fixture 附錄\\n\\n**STATUS: HUMAN REVIEW DRAFT** · Report ID: `fixture`\\n\\n## 2. 其他範圍\\n\\n- 固定 commit：`1111111111111111111111111111111111111111`；來源版本已固定。\\nCorpus digest：`2222222222222222222222222222222222222222')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-provenance-u5ohfsjr\\tests\\test_assessment_web.py\", line 196, in test_legacy_provenance_requires_unique_labeled_scope_values\n    with self.assertRaises(ReportError):\n         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nAssertionError: ReportError not raised\n\n======================================================================\nFAIL: test_legacy_provenance_requires_unique_labeled_scope_values (test_assessment_web.WebReaderContractTests.test_legacy_provenance_requires_unique_labeled_scope_values) (scope='# Fixture 附錄\\n\\n**STATUS: HUMAN REVIEW DRAFT** · Report ID: `fixture`\\n\\n## 2. 固定範圍與閱讀方法\\n\\n- 固定 commit：`1111111111111111111111111111111111111111`；來源版本已固定。\\nCorpus digest：`22222222222222222222222222222222222')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-provenance-u5ohfsjr\\tests\\test_assessment_web.py\", line 196, in test_legacy_provenance_requires_unique_labeled_scope_values\n    with self.assertRaises(ReportError):\n         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nAssertionError: ReportError not raised\n\n======================================================================\nFAIL: test_legacy_provenance_requires_unique_labeled_scope_values (test_assessment_web.WebReaderContractTests.test_legacy_provenance_requires_unique_labeled_scope_values) (scope='# Fixture 附錄\\n\\n**STATUS: HUMAN REVIEW DRAFT** · Report ID: `fixture`\\n\\n## 2. 固定範圍與閱讀方法\\n\\n1111111111111111111111111111111111111111\\nCorpus digest：`2222222222222222222222222222222222222222222222222222222222')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-provenance-u5ohfsjr\\tests\\test_assessment_web.py\", line 196, in test_legacy_provenance_requires_unique_labeled_scope_values\n    with self.assertRaises(ReportError):\n         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nAssertionError: ReportError not raised\n\n======================================================================\nFAIL: test_legacy_provenance_requires_unique_labeled_scope_values (test_assessment_web.WebReaderContractTests.test_legacy_provenance_requires_unique_labeled_scope_values) (scope='# Fixture 附錄\\n\\n**STATUS: HUMAN REVIEW DRAFT** · Report ID: `fixture`\\n\\n## 2. 固定範圍與閱讀方法\\n\\n- 固定 commit：`1111111111111111111111111111111111111111`；來源版本已固定。\\n22222222222222222222222222222222222222222222222222')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-provenance-u5ohfsjr\\tests\\test_assessment_web.py\", line 196, in test_legacy_provenance_requires_unique_labeled_scope_values\n    with self.assertRaises(ReportError):\n         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nAssertionError: ReportError not raised\n\n======================================================================\nFAIL: test_legacy_provenance_requires_unique_labeled_scope_values (test_assessment_web.WebReaderContractTests.test_legacy_provenance_requires_unique_labeled_scope_values) (scope='# Fixture 附錄\\n\\n**STATUS: HUMAN REVIEW DRAFT** · Report ID: `fixture`\\n\\n## 2. 固定範圍與閱讀方法\\n\\n- 固定 commit：`1111111111111111111111111111111111111111`；來源版本已固定。\\n- 固定 commit：`1111111111111111111111111111111111111')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-provenance-u5ohfsjr\\tests\\test_assessment_web.py\", line 196, in test_legacy_provenance_requires_unique_labeled_scope_values\n    with self.assertRaises(ReportError):\n         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nAssertionError: ReportError not raised\n\n======================================================================\nFAIL: test_legacy_provenance_requires_unique_labeled_scope_values (test_assessment_web.WebReaderContractTests.test_legacy_provenance_requires_unique_labeled_scope_values) (scope='# Fixture 附錄\\n\\n**STATUS: HUMAN REVIEW DRAFT** · Report ID: `fixture`\\n\\n## 2. 固定範圍與閱讀方法\\n\\n- 固定 commit：`1111111111111111111111111111111111111111`；來源版本已固定。\\nCorpus digest：`22222222222222222222222222222222222')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-provenance-u5ohfsjr\\tests\\test_assessment_web.py\", line 196, in test_legacy_provenance_requires_unique_labeled_scope_values\n    with self.assertRaises(ReportError):\n         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nAssertionError: ReportError not raised\n\n======================================================================\nFAIL: test_legacy_provenance_requires_unique_labeled_scope_values (test_assessment_web.WebReaderContractTests.test_legacy_provenance_requires_unique_labeled_scope_values) (scope='# Fixture 附錄\\n\\n**STATUS: HUMAN REVIEW DRAFT** · Report ID: `fixture`\\n\\n## 2. 固定範圍與閱讀方法\\n\\n```\\n- 固定 commit：`1111111111111111111111111111111111111111`；來源版本已固定。\\n```\\nCorpus digest：`222222222222222222222222222')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-provenance-u5ohfsjr\\tests\\test_assessment_web.py\", line 196, in test_legacy_provenance_requires_unique_labeled_scope_values\n    with self.assertRaises(ReportError):\n         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nAssertionError: ReportError not raised\n\n======================================================================\nFAIL: test_unrelated_history_hashes_cannot_satisfy_metadata_binding (test_assessment_web.WebReaderContractTests.test_unrelated_history_hashes_cannot_satisfy_metadata_binding) (key='target_commit')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-provenance-u5ohfsjr\\tests\\test_assessment_web.py\", line 173, in test_unrelated_history_hashes_cannot_satisfy_metadata_binding\n    with self.assertRaisesRegex(ReportError, '與 metadata 不相符'):\n         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ReportError not raised\n\n======================================================================\nFAIL: test_unrelated_history_hashes_cannot_satisfy_metadata_binding (test_assessment_web.WebReaderContractTests.test_unrelated_history_hashes_cannot_satisfy_metadata_binding) (key='corpus_digest')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\reiko\\AppData\\Local\\Temp\\report4e-provenance-u5ohfsjr\\tests\\test_assessment_web.py\", line 173, in test_unrelated_history_hashes_cannot_satisfy_metadata_binding\n    with self.assertRaisesRegex(ReportError, '與 metadata 不相符'):\n         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ReportError not raised\n\n----------------------------------------------------------------------\nRan 21 tests in 1.307s\n\nFAILED (failures=9)\n"
+  },
+  "cannot_claim": [
+    "No UI visual or interaction QA.",
+    "No NIST semantic or product implementation verification, human acceptance, sync or private company-data publication approval.",
+    "Earlier receipts remain historical evidence at their own pinned commits."
+  ],
+  "binding_scope": "All 28 scope hashes match the tested committed inputs. Later evidence/PLAN/canonical-memory-only commits change none of these inputs.",
+  "command_argv": [
+    "C:\\Users\\reiko\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_*.py",
+    "-q"
+  ],
+  "independent_review": {
+    "reviewer": "authorized read-only sub-agent report_4b_review",
+    "reviewed_commit": "4a3e6e32c6202aa769919f844563ff781a656bc3",
+    "result": "NO_BLOCKING_FINDINGS / APPROVED technical three-file delta only",
+    "reviewed_files": [
+      "tools/generate_assessment_web.py",
+      "tests/test_assessment_web.py",
+      ".agents/skills/ssdlc-assessment-report/references/workflow.md"
+    ],
+    "ubuntu_native_tmp": {
+      "lf_git_blob_archive": {
+        "run": 319,
+        "pass": 318,
+        "skip": 1,
+        "exit_code": 0
+      },
+      "crlf_archive": {
+        "run": 319,
+        "pass": 318,
+        "skip": 1,
+        "exit_code": 0
+      }
+    },
+    "baseline_cli_probes": {
+      "reviewed_commit": "5c6eb143e91139d0e1208713955a534247489558",
+      "cases": [
+        "metadata points to historical commit",
+        "metadata points to historical/document digest"
+      ],
+      "old_cli_exit_code": 0,
+      "observation": "Both probes produced HTML displaying the unrelated fingerprint; inputs were preserved. New code rejects the two mismatches.",
+      "test_replay": "21 run / 9 assertion failures / 0 errors; each failure is ReportError not raised."
+    },
+    "claim_boundary": "Review does not approve receipt edits, NIST semantic reasoning, UI QA, private publication or merge."
+  },
+  "closed_findings": [
+    "Legacy source identity now comes from unique labeled current scope; historical/file/fenced hashes cannot substitute.",
+    "Missing, duplicate or mismatched declarations fail closed without changing input or existing output.",
+    "Structured rendering retains admitted projection and verified exact-byte input authority."
+  ]
+}
