@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 import traceback
+import sys
 from unittest import mock
 
 from tools.implementation_matchers import (
@@ -290,6 +291,29 @@ class ImplementationMatcherTests(unittest.TestCase):
         content = 'value: &text "safe"\naliases: [' + ', '.join(['*text'] * 1000) + ']'
         self.assertTrue(evaluate_assertion(
             EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, "aliases"), content).passed)
+
+    def test_valid_large_json_integer_has_no_interpreter_digit_cap(self) -> None:
+        original_limit = sys.get_int_max_str_digits()
+        digits = "1" * 5000
+        expected = (10 ** 5000 - 1) // 9  # Arithmetic oracle, independent of parser.
+        for sign, integer in (("", expected), ("-", -expected)):
+            with self.subTest(sign=sign):
+                source = sign + digits
+                self.assertTrue(evaluate_assertion(
+                    EvidenceAssertion(MatcherKind.JSON_POINTER_EXISTS, ""), source).passed)
+                self.assertTrue(evaluate_assertion(self._equals(
+                    MatcherKind.JSON_POINTER_EQUALS, "", ExpectedScalarKind.INTEGER, integer
+                ), source).passed)
+        self.assertEqual(sys.get_int_max_str_digits(), original_limit)
+
+    def test_valid_large_yaml_integer_has_no_interpreter_digit_cap(self) -> None:
+        digits = "1" * 5000
+        expected = (10 ** 5000 - 1) // 9
+        for sign, integer in (("", expected), ("+", expected), ("-", -expected)):
+            with self.subTest(sign=sign):
+                self.assertTrue(evaluate_assertion(self._equals(
+                    MatcherKind.YAML_PATH_EQUALS, "value", ExpectedScalarKind.INTEGER, integer
+                ), "value: " + sign + digits).passed)
 
     def test_typed_values_do_not_coerce_in_yaml_or_json(self) -> None:
         cases = (("true", ExpectedScalarKind.INTEGER, 1),

@@ -223,6 +223,17 @@ _UniqueKeyYaml12CoreLoader.add_constructor(
 )
 
 
+def _parse_decimal_integer(source: str) -> int:
+    """Parse decimal digits locally without changing the process digit limit."""
+    negative = source.startswith("-")
+    digits = source[1:] if source.startswith(("-", "+")) else source
+    value = 0
+    for offset in range(0, len(digits), 18):
+        chunk = digits[offset:offset + 18]
+        value = value * 10 ** len(chunk) + int(chunk, 10)
+    return -value if negative else value
+
+
 def _construct_yaml_12_integer(
     loader: _UniqueKeyYaml12CoreLoader, node: yaml.ScalarNode
 ) -> int:
@@ -233,7 +244,7 @@ def _construct_yaml_12_integer(
         return int(source[2:], 8)
     if source.startswith("0x"):
         return int(source[2:], 16)
-    return int(source, 10)
+    return _parse_decimal_integer(source)
 
 
 _UniqueKeyYaml12CoreLoader.add_constructor(
@@ -384,6 +395,7 @@ def _parse_json_document(content: str) -> Any:
             content,
             object_pairs_hook=unique_object,
             parse_constant=reject_constant,
+            parse_int=_parse_decimal_integer,
         )
     except InvalidEvidenceInputError:
         raise
