@@ -135,3 +135,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-review-committed-focused.json; PASS: artifacts/evidence/test-results/s2-b1-review-fixed-full.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-review-regression-before.json
 - Next action: Review latest PR #22 head and CI, conditionally merge B1, then start B2 from updated main; real P1 still requires human product baseline and rules.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:c3dd09f7aaff1a8718202d70bee253b0fcfa6eeb2dba28b19b122b4449f88a33 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-schema-fix
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `c3dd09f7aaff1a8718202d70bee253b0fcfa6eeb2dba28b19b122b4449f88a33`
+- Commit binding: `217440ae1e08e83edc4c4297ca7aca706b439cd6` (bound)
+- Record: Fixed second Codex B1 review: restrict YAML constructors to frozen Core plus timestamp and reject escaped surrogate keys/values. Two regression methods reject 45636f5 with eight failed subcases. Focused 34 pass and full Windows regression 353 run/350 pass/3 inherited skips. PR #22 requires new exact-head review and CI.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-schema-committed-focused.json; PASS: artifacts/evidence/test-results/s2-b1-schema-fixed-full.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-schema-regression-before.json
+- Next action: Independent/Codex review current B1 head and CI; merge only after gate passes, then B2.
+- PLAN reconciliation: `updated`
