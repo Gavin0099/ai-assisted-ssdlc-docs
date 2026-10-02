@@ -300,3 +300,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-lazy-fetch-committed.json; 62 run,61 pass,one Windows skip. Before receipt reproduces two failed paths. Latest-head PR review/CI pending.
 - Next action: Review and merge latest B3 head, then serial B4.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:52e758d47d278bb8f939d1def7aead8d5b4083eda1a0b8fdfef5edaae2645a8f -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-git-capability
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `52e758d47d278bb8f939d1def7aead8d5b4083eda1a0b8fdfef5edaae2645a8f`
+- Commit binding: `7f3facb7558ea40142e530486abe4a23182864f1` (bound)
+- Record: B3 static readers explicitly require no-lazy-fetch capability (Git 2.48+ supported baseline); README and CI declare/enforce it. Unsupported binaries fail before any repository read; no unsafe compatibility fallback.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-git-capability-committed.json; 63 run62 pass1 Windows skip; prior capability test fails on874fdb9. Latest-head independent/Codex/CI pending.
+- Next action: Finish latest B3 review gate then B4.
+- PLAN reconciliation: `updated`
