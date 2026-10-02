@@ -102,3 +102,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b0-drift.json and artifacts/evidence/test-results/s2-b0-readiness.json; candidate runs and independent probes are documented in docs/specs/s2-b0-candidate-audit.md, not S2 qualification.
 - Next action: Review latest B0 PR head, pass CI, merge conditionally; then start B1 from updated main. Await user inputs before real P1.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:bef0a1494d9e18f18c02ea397f54109d381f58b005e1d1f6f866ff0d6200bd00 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B0-durable
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `bef0a1494d9e18f18c02ea397f54109d381f58b005e1d1f6f866ff0d6200bd00`
+- Commit binding: `6ebc927` (bound)
+- Record: PR21 Codex P2 identified that the local WIP commit would not exist in fresh clones. Saved exactly 12 selected candidate Git blobs in an inert ZIP plus per-file Git IDs/SHA256 and public replay baseline; archive bytes were verified against original objects. Replayed the archive on public main baseline: implementation 43/43, product 22 run/21 pass/one Windows skip. Candidate defects remain documented; archive is not a production port or WIP acceptance. Latest-head remote re-review and merge are pending.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b0-durable-implementation.json and artifacts/evidence/test-results/s2-b0-durable-product.json; receipts retain execution-time e3a65e4 and describe archived candidate replay, not current S2 production acceptance.
+- Next action: Review final B0 archive fix, require current-head Codex/CI, merge and begin B1 from refreshed main.
+- PLAN reconciliation: `updated`
