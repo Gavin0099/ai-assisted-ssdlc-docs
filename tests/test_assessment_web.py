@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from tools.generate_assessment_web import ReportError, render_bundle
 
@@ -218,6 +219,42 @@ class WebReaderContractTests(unittest.TestCase):
         self.assertIn('&lt;script&gt;', page)
         self.assertIn('\\u003c/script\\u003e', page)
         self.assertEqual(self.data(page)['actions'][0]['cells'][3], hostile)
+
+
+    def test_supported_legacy_priorities_are_preserved(self):
+        for priority in ('P0', 'P1', 'P2', 'P3'):
+            with self.subTest(priority=priority):
+                self.write(2, TECHNICAL.replace('E-01；A；P1；', 'E-01；A；' + priority + '；'))
+                page = self.render()
+                self.assertEqual(self.data(page)['actions'][0]['priority'], priority)
+                self.assertIn('<span class="priority">' + priority + '</span>', page)
+
+    def test_valid_changed_legacy_report_preserves_existing_html(self):
+        self.assertEqual(self.cli().returncode, 0)
+        first = self.output.read_bytes()
+        self.assertEqual(self.cli().returncode, 0)
+        self.assertEqual(self.output.read_bytes(), first)
+        self.write(0, SUMMARY + '\n合法的新說明。\n')
+        sources = [p.read_bytes() for p in self.paths]
+        result = self.cli()
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('既有 HTML 內容不同', result.stderr)
+        self.assertEqual(self.output.read_bytes(), first)
+        self.assertEqual([p.read_bytes() for p in self.paths], sources)
+        self.assertEqual(list(self.base.glob('*.tmp')), [])
+
+    def test_legacy_publication_race_cannot_replace_existing_output(self):
+        from tools import generate_assessment_web as application
+        import os
+        original = os.link
+        def concurrent_winner(source, destination):
+            Path(destination).write_bytes(b'CONCURRENT VERSION')
+            return original(source, destination)
+        with patch.object(application.os, 'link', concurrent_winner):
+            with self.assertRaisesRegex(ReportError, '既有 HTML 內容不同'):
+                application.publish_page(self.output, self.render())
+        self.assertEqual(self.output.read_bytes(), b'CONCURRENT VERSION')
+        self.assertEqual(list(self.base.glob('*.tmp')), [])
 
     def test_invalid_bundle_cli_keeps_existing_output_and_sources(self):
         self.write(1, ACTIONS.replace('HUMAN REVIEW DRAFT', 'ACCEPTED'))

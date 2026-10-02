@@ -233,7 +233,8 @@ def parse_actions(text: str, technical: str, technical_name: str = '') -> list[d
                 raise ReportError('Action 完整依據須保留八欄：' + identifier)
             if len(re.findall(r'<a id="' + re.escape(identifier.lower()) + r'"></a>', technical)) != 1:
                 raise ReportError('Action 附錄必須有唯一且相符的錨點：' + identifier)
-            priority = 'P1' if re.search(r'\bP1\b', plain(fields['問題編號與性質'])) else ''
+            priority_match = re.search(r'\bP[0-3]\b', plain(fields['問題編號與性質']))
+            priority = priority_match.group(0) if priority_match else ''
             result.append({'id': identifier, 'group': group, 'cells': row, 'fields': fields, 'priority': priority, 'products': product_scope(plain(row[2])), 'search': plain(' '.join(row + list(fields.values())))})
     if set(details) != seen:
         raise ReportError('修正單與附錄的 Action ID 清單不一致。')
@@ -389,6 +390,34 @@ def render_bundle(summary_path: Path, actions_path: Path, technical_path: Path, 
     return re.sub(r'@@([A-Z_]+)@@', slot, page)
 
 
+
+def publish_page(output: Path, page: str) -> str:
+    """Publish without replacing any existing version, including a raced file."""
+    raw = page.encode('utf-8')
+    output.parent.mkdir(parents=True, exist_ok=True)
+    def existing():
+        if output.is_symlink() or not output.is_file():
+            raise ReportError('既有 HTML 必須是一般檔案；不跟隨 symbolic link。')
+        if output.read_bytes() != raw:
+            raise ReportError('既有 HTML 內容不同；請保留原版並使用新的報告版本目錄。')
+        return 'unchanged'
+    if output.exists() or output.is_symlink():
+        return existing()
+    with tempfile.NamedTemporaryFile(mode='wb', dir=output.parent, suffix='.tmp', delete=False) as f:
+        temp = Path(f.name)
+        f.write(raw)
+    try:
+        # A hard link publishes atomically without replacement on Windows/Linux.
+        # If another writer wins the name, only an exact-byte no-op is allowed.
+        try:
+            os.link(temp, output)
+        except FileExistsError:
+            return existing()
+        return 'created'
+    finally:
+        temp.unlink(missing_ok=True)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['summary', 'actions', 'technical', 'metadata', 'output']:
@@ -396,14 +425,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         page = render_bundle(args.summary, args.actions, args.technical, args.metadata, args.output)
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', newline='\n', dir=args.output.parent, suffix='.tmp', delete=False) as f:
-            temp = Path(f.name)
-            f.write(page)
-        try:
-            temp.replace(args.output)
-        finally:
-            temp.unlink(missing_ok=True)
+        publish_page(args.output, page)
     except (ReportError, OSError, ValueError) as exc:
         parser.exit(2, '無法產出網頁：' + str(exc) + '\n')
     print('網頁閱讀版：' + str(args.output))
