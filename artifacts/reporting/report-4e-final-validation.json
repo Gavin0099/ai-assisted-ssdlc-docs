@@ -46,7 +46,8 @@
   "cannot_claim": [
     "No UI visual or interaction QA.",
     "No semantic assessment, product implementation, human acceptance, sync or private company-data publication approval.",
-    "Receipt metadata alone does not prove execution; stdout and subprocess exit capture the performed test run."
+    "Receipt metadata alone does not prove execution; stdout and subprocess exit capture the performed test run.",
+    "This receipt verifies its pinned 39b76c6 inputs; it is not evidence for later Linux publication code changes."
   ],
   "baseline_regression": {
     "reviewed_commit": "5a973d6a3f4d5d088d2e32bbbb3afc2425fc68e5",
@@ -93,5 +94,6 @@
     "P2 legacy priority: preserve P0-P3.",
     "Cold Windows CRLF template admission: normalize only template text after retaining raw bytes/hash."
   ],
-  "binding_scope": "All 28 displayed implementation/contract files match their committed blobs at the tested revision. Later receipt/PLAN/canonical-memory commits do not change those files."
+  "binding_scope": "All 28 displayed implementation/contract files match their committed blobs at the tested revision. Later receipt/PLAN/canonical-memory commits do not change those files.",
+  "evidence_scope": "Historical complete LF/CRLF validation at 39b76c6; later Linux no-replace remediation is verified by report-4e-noreplace-validation.json."
 }

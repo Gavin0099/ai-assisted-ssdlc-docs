@@ -69,3 +69,14 @@
 - Validation boundary: artifacts/reporting/report-4e-final-validation.json: actual Windows LF and CRLF each 315/313 pass/2 skips; independent Ubuntu LF and CRLF each 315/314 pass/1 skip. Four regression cases detect old implementation defects; all 28 displayed scope hashes match Git blobs. Independent delta review APPROVED.
 - Next action: Obtain latest-head remote Codex review and green CI, then apply the already authorized engineering merge. UI qualification remains not verified.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:caeb4e617d6e1aff1b85f03f687ff9796f30aabd4e7b732365001b558fe93874 -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E-noreplace-remediation
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `caeb4e617d6e1aff1b85f03f687ff9796f30aabd4e7b732365001b558fe93874`
+- Commit binding: `e7317205c322a1b201a3a015a278cce673ff2eb0` (bound)
+- Record: Closed Linux concurrent-empty-destination replacement with atomic renameat2 RENAME_NOREPLACE and no replacing fallback. Previous receipts remain historical; current evidence binds the implemented e731720 Git blobs.
+- Validation boundary: artifacts/reporting/report-4e-noreplace-validation.json: actual Windows LF/CRLF each 316 run/313 pass/3 platform skips; independent native Ubuntu LF/CRLF each 316 run/315 pass/1 skip. Race regression fails on reviewed 733f021 with observed inode replacement and passes fixed code. Two-file independent technical review has no blocking findings; all 28 scope hashes match pinned Git blobs.
+- Next action: Push evidence and fix, request latest-head Codex review and require green CI before authorized engineering merge. UI qualification remains not verified.
+- PLAN reconciliation: `updated`
