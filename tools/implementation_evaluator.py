@@ -31,7 +31,7 @@ from tools.product_corpus_resolver import (
     verify_admitted_product_snapshot,
     _relative_path,
 )
-from tools.repo_corpus_resolver import glob_to_regex
+from tools.repo_corpus_resolver import CorpusFile, glob_to_regex
 
 _DISCREPANCY_CODES = {code.value for code in DiscrepancyCode}
 
@@ -234,6 +234,7 @@ def _evaluate_rule(
     expectation: PolicyImplementationExpectation,
     rule: ImplementationEvidenceRule,
     snapshot: ProductCorpusSnapshot,
+    files_by_path: dict[str, CorpusFile],
 ) -> ImplementationVerificationItem:
     """Internal evaluation; the only public entry validates the complete bound context."""
     if rule.applicability.status.value == "NOT_APPLICABLE":
@@ -264,7 +265,7 @@ def _evaluate_rule(
     failing: list[EvidenceRef] = []
     discrepancy_codes: list[tuple[str, DiscrepancyCode]] = []
     for path in candidate_paths:
-        corpus_file = snapshot.get_file(path)
+        corpus_file = files_by_path.get(path)
         if corpus_file is None:
             raise EvaluatorInputError("Resolved candidate is missing from the admitted snapshot.")
         try:
@@ -329,11 +330,13 @@ def evaluate_expectation_set(
         raise EvaluatorInputError("Expectation set or ruleset failed integrity verification.") from None
 
     rules_by_id = {rule.rule_id: rule for rule in ruleset.rules}
+    files_by_path = {file.relative_path: file for file in snapshot.files}
     results = [
         _evaluate_rule(
             expectation,
             rules_by_id[rule_id],
             snapshot,
+            files_by_path,
         )
         for expectation in expectation_set.expectations
         for rule_id in expectation.verification_rule_ids

@@ -4,6 +4,7 @@ import copy
 import json
 import traceback
 import unittest
+from unittest.mock import patch
 from dataclasses import replace
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -659,6 +660,19 @@ class ImplementationEvaluatorTests(EvaluatorTestBase):
             with self.subTest(verdict=verdict, reason=reason), self.assertRaises(ValueError):
                 ImplementationVerificationItem("E", "a" * 64, "PW.4.4", "R", "b" * 64,
                     ImplementationEvidenceVerdict(verdict), refs, discrepancy, reason)
+
+    def test_file_lookup_uses_one_admitted_index_not_repeated_linear_scans(self) -> None:
+        files = {f"src/{i:02d}.lock": f"locked {i}\n" for i in range(48)}
+        snapshot = self._snapshot(files)
+        exps, rules = self._admitted(make_rule())
+        with patch.object(type(snapshot), "get_file", side_effect=snapshot.get_file) as lookup:
+            item = evaluate_expectation_set(exps, rules, snapshot)[0]
+        self.assertEqual(item.verdict.value, "EVIDENCE_FOUND")
+        self.assertEqual(tuple(ref.repo_path for ref in item.evidence_refs),
+                         tuple(f"src/{i:02d}.lock" for i in range(48)))
+        self.assertEqual(tuple(ref.content_digest for ref in item.evidence_refs),
+                         tuple(file.content_hash for file in snapshot.files))
+        self.assertEqual(lookup.call_count, 0, "Repeated linear scans reintroduce quadratic candidate lookup")
 
 
 if __name__ == "__main__":

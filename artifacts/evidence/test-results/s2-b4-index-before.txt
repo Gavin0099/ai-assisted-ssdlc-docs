@@ -1,0 +1,15 @@
+test_file_lookup_uses_one_admitted_index_not_repeated_linear_scans (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_file_lookup_uses_one_admitted_index_not_repeated_linear_scans) ... FAIL
+
+======================================================================
+FAIL: test_file_lookup_uses_one_admitted_index_not_repeated_linear_scans (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_file_lookup_uses_one_admitted_index_not_repeated_linear_scans)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 675, in test_file_lookup_uses_one_admitted_index_not_repeated_linear_scans
+    self.assertEqual(lookup.call_count, 0, "Repeated linear scans reintroduce quadratic candidate lookup")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 48 != 0 : Repeated linear scans reintroduce quadratic candidate lookup
+
+----------------------------------------------------------------------
+Ran 1 test in 3.687s
+
+FAILED (failures=1)
