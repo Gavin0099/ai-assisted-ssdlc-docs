@@ -278,3 +278,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-portable-committed.json; focused41 run40 pass1skip; Python3.11 latest CI pending.
 - Next action: Review final PR24 head and rerun required CI; conditional merge then B4; P1 inputs pending.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:cc5f301490ee24eb3d5d4d05ab2c065e6b4032c1a37f18da024361bcc41f3504 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-tag
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `cc5f301490ee24eb3d5d4d05ab2c065e6b4032c1a37f18da024361bcc41f3504`
+- Commit binding: `61fab83b1ef56da4be7eb4be9a0cda4365dc8cac` (bound)
+- Record: B3 Codex tag-as-commit identity defect fixed; shared Git verifier requires the exact object to be commit.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-tag-committed.json;61run60pass1WindowsOSskip; two before-fix Product/Policy regressions reject dc557dd.
+- Next action: Final PR24 independent/Codex/CI gate, conditional merge then B4; P1 inputs pending.
+- PLAN reconciliation: `updated`
