@@ -15,6 +15,8 @@
 
 `report_root` 與 auxiliary allowlist 由呼叫端依已授權範圍提供；sidecar 清單不能自行授權新增來源。所有 ArtifactRef 相對於引用檔所在目錄解析，先檢查 root containment，再開啟 descriptor 並核對實際 handle 的 regular-file 與所在位置，最後讀 bytes 與核對 SHA-256。Windows 使用 GetFinalPathNameByHandleW，Linux 使用 `/proc/self/fd`；無法取得 handle metadata 時在讀內容前拒絕。這防止檢查後、開啟前被 symlink／junction 替換；後續讀取仍使用同一個 handle。來源 locator 只在 corpus／auxiliary 清單中查找，不直接拿去開公司工作目錄檔案。
 
+Handle adapter 位於既有 ArtifactStore infrastructure。Windows 分支先確認 OS；WinDLL 明列 stdcall，HANDLE／LPWSTR／DWORD 參數與 DWORD 回傳採系統 ABI。W API 寫入 Python 配置的 UTF-16 buffer，呼叫期間借用 file handle 與 buffer，不轉移所有權或保留 pointer。Python context manager 負責成功／拒絕時關閉 descriptor；原生 API 失敗轉為 OSError，再由既有 admission error boundary 拒絕。純模型不接收 native pointer，也不配置或釋放 native 記憶體。這是既有 containment contract 的 adapter 修正，未引入新的資料格式或權限來源。
+
 既有 `CorpusSnapshot.to_dict()` 不含 repo。新 adapter 讀 assessment 的 `target.manifest_path` 所指固定 manifest，核對既有 canonical manifest digest、commit 與 authority surface，取得 repo 後再與 assessment／metadata 對照；manifest 也必須在允許的 report root 內。metadata 成員指紋、數量與 bytes 總數須一致，不能把 manifest 排除的 auxiliary 檔案冒充 corpus 成員。沒有改舊 metadata exporter 或 assessment contract。
 
 幾個未完全定名的文字容器採最小 shape：Action `tracking` 用 `statement`／`evidence_refs`；lifecycle `review_recommendation` 用 `opinion`／`reason`。D3 `status_source_ref` 可引用 corpus 文件位置，或使用 ArtifactRef 指向固定審閱紀錄。這些文字不會被推論成結案、接受或核准。
