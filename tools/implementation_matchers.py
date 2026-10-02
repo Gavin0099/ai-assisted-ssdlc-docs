@@ -143,6 +143,16 @@ class _YamlTimestamp:
 
 class _UniqueKeyYaml12CoreLoader(yaml.SafeLoader):
     yaml_implicit_resolvers: dict[Any, Any] = {}
+    # Core tags plus the frozen application's uncomparable timestamp tag.
+    # Keep the undefined constructor so every other tag fails closed.
+    yaml_constructors = {
+        tag: constructor
+        for tag, constructor in yaml.SafeLoader.yaml_constructors.items()
+        if tag is None or tag in {
+            f"tag:yaml.org,2002:{name}"
+            for name in ("str", "bool", "int", "float", "null", "map", "seq", "timestamp")
+        }
+    }
 
 
 # YAML 1.2 Core resolution, https://yaml.org/spec/1.2.2/#1032-tag-resolution.
@@ -313,6 +323,8 @@ def _ensure_acyclic_yaml(value: Any) -> None:
     completed: set[int] = set()
 
     def visit(node: Any) -> None:
+        if isinstance(node, str) and any(0xD800 <= ord(char) <= 0xDFFF for char in node):
+            raise InvalidEvidenceInputError("YAML evidence contains a non-scalar Unicode string.")
         if not isinstance(node, (dict, list, tuple)):
             return
         identity = id(node)

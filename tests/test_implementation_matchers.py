@@ -251,6 +251,29 @@ class ImplementationMatcherTests(unittest.TestCase):
         self.assertTrue(result.passed)
         self.assertEqual(result.resolved_node_paths, ("/on/push",))
 
+    def test_yaml_rejects_non_core_tags_and_accepts_frozen_tags(self) -> None:
+        rejected = ("!!binary Zm9v", "!!set {a: null}", "!!omap [{a: 1}]",
+                    "!!pairs [{a: 1}]", "!private value")
+        assertion = EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, "value")
+        for source in rejected:
+            with self.subTest(source=source), self.assertRaises(InvalidEvidenceInputError):
+                evaluate_assertion(assertion, f"value: {source}")
+        for source in ('!!str "yes"', "!!bool true", "!!int 012", "!!float 1.5",
+                       "!!null null", "!!map {a: 1}", "!!seq [1]",
+                       "!!timestamp 2001-12-15"):
+            with self.subTest(source=source):
+                self.assertTrue(evaluate_assertion(assertion, f"value: {source}").passed)
+
+    def test_yaml_rejects_escaped_surrogates_in_keys_and_values(self) -> None:
+        for content in ('value: "\\uD800"', 'value: "\\uDFFF"',
+                        '"\\uD800": valid', 'value: "\\uD83D\\uDE00"'):
+            with self.subTest(content=content), self.assertRaises(InvalidEvidenceInputError):
+                evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, ""), content)
+        result = evaluate_assertion(self._equals(
+            MatcherKind.YAML_PATH_EQUALS, "value", ExpectedScalarKind.STRING, "😀"
+        ), 'value: "\\U0001F600"')
+        self.assertTrue(result.passed)
+
     def test_typed_values_do_not_coerce_in_yaml_or_json(self) -> None:
         cases = (("true", ExpectedScalarKind.INTEGER, 1),
                  ("1", ExpectedScalarKind.BOOLEAN, True),
