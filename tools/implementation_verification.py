@@ -105,6 +105,10 @@ class ImplementationVerificationRecord:
                 object.__setattr__(self, key, value)
             object.__setattr__(self, "_context", context)
             _validate_record(self)
+            # Public construction accepts items only after mechanical verification.
+            # Shape/ref metadata alone cannot establish verdicts or concrete nodes.
+            if self.verified_items != evaluate_expectation_set(expectations, rules, product):
+                raise VerificationInputError("Record items differ from actual mechanical evaluation.")
             object.__setattr__(self, "_seal", _record_seal(self))
             object.__setattr__(self, "_token", _RECORD_TOKEN)
         except Exception:

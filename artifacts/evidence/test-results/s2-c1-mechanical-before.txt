@@ -1,0 +1,15 @@
+test_record_rejects_mechanically_false_but_well_formed_items (tests.test_implementation_verification.VerificationTests.test_record_rejects_mechanically_false_but_well_formed_items) ... FAIL
+
+======================================================================
+FAIL: test_record_rejects_mechanically_false_but_well_formed_items (tests.test_implementation_verification.VerificationTests.test_record_rejects_mechanically_false_but_well_formed_items)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 242, in test_record_rejects_mechanically_false_but_well_formed_items
+    with self.assertRaises(VerificationInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: VerificationInputError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 1.938s
+
+FAILED (failures=1)

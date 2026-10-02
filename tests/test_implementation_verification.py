@@ -234,6 +234,33 @@ class VerificationTests(unittest.TestCase):
             with self.subTest(items=repr(items)), self.assertRaises(VerificationInputError):
                 self.record(items=items)
 
+    def test_record_rejects_mechanically_false_but_well_formed_items(self):
+        from tools.implementation_evaluator import ImplementationEvidenceVerdict
+        item = evaluate_expectation_set(self.exps, self.rules, self.product)[0]
+        false_missing = replace(item, verdict=ImplementationEvidenceVerdict.EVIDENCE_MISSING,
+                                evidence_refs=())
+        with self.subTest(case="false_missing"), self.assertRaises(VerificationInputError):
+            self.record(items=(false_missing,))
+        # Concrete addresses must be evaluator results, not just valid RFC6901 syntax.
+        path = self.product_repo / "src/file.lock"
+        path.write_bytes(b'{"flag":true}\n')
+        run_git(self.product_repo, "add", "src/file.lock")
+        run_git(self.product_repo, "commit", "-m", "synthetic structured evidence")
+        payload = self.manifest._payload()
+        payload["target"]["commit"] = run_git(self.product_repo, "rev-parse", "HEAD")
+        product = ProductCorpusResolver().resolve(parse_product_target_manifest(payload), self.product_repo)
+        data = ruleset_data()
+        data["rules"][0]["assertion"] = {"matcher": "JSON_POINTER_EXISTS",
+            "target_path_expression": "/flag", "expected_value": None}
+        rehash_rules(data)
+        rules = load_ruleset(data)
+        exps = load_expectation_set(expectation_set_data(), policy_admission=self.policy, ruleset=rules)
+        item = evaluate_expectation_set(exps, rules, product)[0]
+        false_found = replace(item, evidence_refs=(replace(item.evidence_refs[0],
+                                                          resolved_node_paths=("/invented",)),))
+        with self.subTest(case="invented_node"), self.assertRaises(VerificationInputError):
+            self.record(product=product, rules=rules, exps=exps, items=(false_found,))
+
     def test_record_claim_boundary_is_not_renderer_repairable(self):
         for claims in ((), CANONICAL_CLAIM_BOUNDARY[:-1], CANONICAL_CLAIM_BOUNDARY + ("extra",),
                        (CANONICAL_CLAIM_BOUNDARY[0],) * 5, tuple("changed" for _ in range(5)),
