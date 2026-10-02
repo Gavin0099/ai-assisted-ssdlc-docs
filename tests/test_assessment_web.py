@@ -74,7 +74,8 @@ TASK = '''## Task 判定
 **執行證據（evidence_strength）：** `medium`；另有待補項。
 **不能宣稱：** 不代表已核准或已落實。
 '''
-TECHNICAL = '# Fixture 附錄\n\n' + HEADER + '\n' + '1' * 40 + '\n' + '2' * 64 + '\n## 修正依據\n' + DETAIL_ONE + DETAIL_TWO + TASK
+PROVENANCE = '## 2. 固定範圍與閱讀方法\n\n- 固定 commit：`' + '1' * 40 + '`；來源版本已固定。\nCorpus digest：`' + '2' * 64 + '`  \n'
+TECHNICAL = '# Fixture 附錄\n\n' + HEADER + '\n' + PROVENANCE + '\n## 修正依據\n' + DETAIL_ONE + DETAIL_TWO + TASK
 
 
 class WebReaderContractTests(unittest.TestCase):
@@ -138,7 +139,7 @@ class WebReaderContractTests(unittest.TestCase):
 
     def test_zero_actions_is_allowed_without_inventing_findings(self):
         self.write(1, '# 修正單\n' + HEADER + '\n## A. 文件要修改\n本次未列。\n## B. 證據要補\n本次未列。\n## C. 改善建議\n本次未列。\n')
-        self.write(2, '# 附錄\n' + HEADER + '\n' + '1' * 40 + '\n' + '2' * 64 + '\n' + TASK)
+        self.write(2, '# 附錄\n' + HEADER + '\n' + PROVENANCE + '\n' + TASK)
         page = self.render()
         self.assertEqual(self.data(page)['actions'], [])
         self.assertNotIn('class="action-row"', page)
@@ -159,6 +160,49 @@ class WebReaderContractTests(unittest.TestCase):
                 self.write(3, json.dumps(mutation))
                 with self.assertRaises(ReportError):
                     self.render()
+
+    def test_unrelated_history_hashes_cannot_satisfy_metadata_binding(self):
+        self.assertEqual(self.cli().returncode, 0)
+        original_output = self.output.read_bytes()
+        original_metadata = json.loads(self.paths[3].read_text(encoding='utf-8'))
+        self.write(2, TECHNICAL + '\n## 3. 歷史來源\n固定 commit：`' + '4' * 40 + '`\nCorpus digest：`' + '5' * 64 + '`\n## 7. 來源指紋\n| history.md | `' + '5' * 64 + '` |\n')
+        for key, value in [('target_commit', '4' * 40), ('corpus_digest', '5' * 64)]:
+            with self.subTest(key=key):
+                self.write(3, json.dumps(dict(original_metadata, **{key: value})))
+                sources = [p.read_bytes() for p in self.paths]
+                with self.assertRaisesRegex(ReportError, '與 metadata 不相符'):
+                    self.render()
+                result = self.cli()
+                self.assertEqual(result.returncode, 2)
+                self.assertIn('與 metadata 不相符', result.stderr)
+                self.assertEqual(self.output.read_bytes(), original_output)
+                self.assertEqual([p.read_bytes() for p in self.paths], sources)
+
+    def test_legacy_provenance_requires_unique_labeled_scope_values(self):
+        scope_line = '- 固定 commit：`' + '1' * 40 + '`；來源版本已固定。\n'
+        digest_line = 'Corpus digest：`' + '2' * 64 + '`  \n'
+        invalid = [
+            TECHNICAL.replace('## 2. 固定範圍與閱讀方法', '## 2. 其他範圍'),
+            TECHNICAL + '\n' + PROVENANCE,
+            TECHNICAL.replace(scope_line, '1' * 40 + '\n'),
+            TECHNICAL.replace(digest_line, '2' * 64 + '\n'),
+            TECHNICAL.replace(scope_line, scope_line * 2),
+            TECHNICAL.replace(digest_line, digest_line + 'Corpus digest：`bad`\n'),
+            TECHNICAL.replace(scope_line, '```\n' + scope_line + '```\n'),
+        ]
+        for changed in invalid:
+            with self.subTest(scope=changed[:200]):
+                self.write(2, changed)
+                with self.assertRaises(ReportError):
+                    self.render()
+
+    def test_labeled_scope_is_authoritative_over_history_and_fingerprints(self):
+        self.write(2, TECHNICAL + '\n## 3. 歷史來源\n固定 commit：`' + '4' * 40 + '`\nCorpus digest：`' + '5' * 64 + '`\n## 7. 來源指紋\n| history.md | `' + '5' * 64 + '` |\n')
+        page = self.render()
+        self.assertEqual(self.data(page)['targetCommit'], '1' * 40)
+        self.assertEqual(self.data(page)['corpusDigest'], '2' * 64)
+        self.assertIn('4' * 40, page)
+        self.assertIn('5' * 64, page)
 
     def test_duplicate_action_or_detail_rejected(self):
         row = next(line for line in ACTIONS.splitlines() if line.startswith('| [E-01]'))

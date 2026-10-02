@@ -273,6 +273,31 @@ def technical_sections(value: str, filename: str, report_names: dict[str, str]) 
     return ''.join(out)
 
 
+def legacy_provenance(technical: str) -> dict[str, str]:
+    """Read only the human report's declared scope, never incidental hashes."""
+    visible, fenced = [], False
+    for line in technical.splitlines():
+        if line.startswith('```'):
+            fenced = not fenced
+        elif not fenced:
+            visible.append(line)
+    scopes = re.findall(r'^## 2\. 固定範圍與閱讀方法[ \t]*\n(.*?)(?=^## |\Z)',
+                        '\n'.join(visible), re.M | re.S)
+    if len(scopes) != 1:
+        raise ReportError('技術附錄須有唯一的固定範圍與閱讀方法。')
+    result = {}
+    for label, key, width in [('固定 commit', 'target_commit', 40), ('Corpus digest', 'corpus_digest', 64)]:
+        prefix = r'[ \t]*(?:- )?' + re.escape(label) + r'[ \t]*[:：]'
+        lines = [line for line in scopes[0].splitlines() if re.match('^' + prefix, line)]
+        if len(lines) != 1:
+            raise ReportError('固定範圍須有唯一且明確標示的 ' + label + '。')
+        match = re.fullmatch(prefix + r'[ \t]*`([0-9a-f]{' + str(width) + r'})`(?:[；;。].*)?[ \t]*', lines[0])
+        if not match:
+            raise ReportError('固定範圍的 ' + label + ' 格式不合法。')
+        result[key] = match.group(1)
+    return result
+
+
 def render_bundle(summary_path: Path, actions_path: Path, technical_path: Path, metadata_path: Path, output: Path, *, projection=None, verified_documents: list[str] | None = None) -> str:
     paths = [p.resolve() for p in [summary_path, actions_path, technical_path, metadata_path]]
     if output.resolve() in paths or output.suffix.lower() != '.html':
@@ -297,7 +322,8 @@ def render_bundle(summary_path: Path, actions_path: Path, technical_path: Path, 
         raise ReportError('metadata 缺少固定 commit／corpus digest。')
     if type(metadata.get('total_files')) is not int or metadata['total_files'] < 1 or not isinstance(metadata.get('files'), list) or len(metadata['files']) != metadata['total_files']:
         raise ReportError('metadata 文件份數與成員清單不一致。')
-    if metadata['target_commit'] not in documents[2] or metadata['corpus_digest'] not in documents[2]:
+    if projection is None and legacy_provenance(documents[2]) != {
+            key: metadata[key] for key in ('target_commit', 'corpus_digest')}:
         raise ReportError('技術附錄的固定 commit／corpus digest 與 metadata 不相符。')
     actions = parse_actions(documents[1], documents[2], paths[2].name)
     tasks = parse_tasks(documents[2])

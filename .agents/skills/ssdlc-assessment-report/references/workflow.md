@@ -77,6 +77,8 @@ python -X utf8 <skill目錄>/scripts/workflow.py --reporting-repo <reporting-rep
 
 三份 Markdown、metadata 放在同一版本目錄，report-id 與 STATUS 相同。技術附錄保留 metadata 的完整 commit／corpus digest；Action 用 `[E-01](<實際附錄檔名>#e-01)`，附錄有唯一 `<a id="e-01"></a>` 和 `### E-01 — ...`。這些標記是固定格式，保留它們的標點。
 
+舊人工附錄在 `## 2. 固定範圍與閱讀方法` 各保留唯一 `固定 commit：` 與 `Corpus digest：` 標籤，完整指紋用 inline code 包住。轉換器只比對這兩個已標示的本次來源；歷史章節、文件 SHA-256 或程式碼範例中的指紋不能代替它們。缺漏、重複或不符 metadata 時停止，不自行猜測來源。
+
 新檔案依 contract 命名，既有技術附錄可保留歷史名稱。Task 標題與 15 欄依共用模板，不另發明機器欄位。產出工具會拒絕不支援／不一致的輸入；它沒有自動分析功能。
 
 ```powershell
