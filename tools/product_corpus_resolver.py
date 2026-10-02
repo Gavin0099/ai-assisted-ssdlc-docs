@@ -152,14 +152,11 @@ class _GuardedProductGitClient:
         for mode, object_type, _, path in entries:
             if object_type != "blob" or mode == "120000":
                 continue
-            # Mirror the shared selection first, then require an exact match.
-            # An anchored regex may otherwise match before a terminal newline.
-            if (not any(pattern.match(path) for pattern in self.include)
-                    or any(pattern.match(path) for pattern in self.exclude)):
+            # Selection is exact on both sides of the shared materializer.
+            if (not any(pattern.fullmatch(path) for pattern in self.include)
+                    or any(pattern.fullmatch(path) for pattern in self.exclude)):
                 continue
             _relative_path(path)
-            if not any(pattern.fullmatch(path) for pattern in self.include):
-                raise CorpusResolverError("Selected path does not exactly match Product authority.")
             if mode not in {"100644", "100755"}:
                 raise CorpusResolverError("Selected Git blob is not a regular file.")
         return entries

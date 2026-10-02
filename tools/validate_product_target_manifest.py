@@ -12,7 +12,7 @@ from typing import Any
 
 import yaml
 from yaml.constructor import ConstructorError
-from yaml.nodes import MappingNode
+from yaml.nodes import MappingNode, ScalarNode
 
 DEFAULT_SCHEMA_PATH = (
     Path(__file__).resolve().parents[1]
@@ -111,7 +111,10 @@ class ProductTargetManifest:
 
 
 class _UniqueKeySafeLoader(yaml.SafeLoader):
-    pass
+    def construct_scalar(self, node):
+        if not isinstance(node, ScalarNode):
+            raise ConstructorError(None, None, "scalar tag requires a scalar node", node.start_mark)
+        return super().construct_scalar(node)
 
 
 def _construct_unique_mapping(
@@ -388,6 +391,9 @@ def _validate_glob_pattern(
     if not isinstance(pattern, str) or not pattern.strip():
         return [f"'{label}' must be a non-blank glob pattern string."]
 
+    if not _valid_text(pattern):
+        return [f"'{label}' must contain valid Unicode without NUL."]
+
     stripped = pattern.strip()
     errors: list[str] = []
     if stripped != pattern:
@@ -401,6 +407,14 @@ def _validate_glob_pattern(
     if any(char in stripped for char in authority_schema["unsupported_glob_characters"]):
         errors.append(f"'{label}' uses glob syntax outside Supported Glob Subset v1.")
     return errors
+
+
+def _valid_text(text: str) -> bool:
+    try:
+        text.encode("utf-8", errors="strict")
+        return "\x00" not in text
+    except UnicodeError:
+        return False
 
 
 def _validate_product_target_manifest_dict(
@@ -428,7 +442,7 @@ def _validate_product_target_manifest_dict(
             ]:
                 errors.append("target.source_type is not supported.")
             repo = target.get("repo")
-            if not isinstance(repo, str) or not repo or repo != repo.strip():
+            if not isinstance(repo, str) or not repo or repo != repo.strip() or not _valid_text(repo):
                 errors.append("target.repo must be a non-empty string without surrounding whitespace.")
             elif isinstance(source_type, str) and source_type in target_rules[
                 "repo_formats"

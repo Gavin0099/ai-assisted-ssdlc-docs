@@ -221,6 +221,31 @@ class ProductTargetManifestTests(unittest.TestCase):
             with self.assertRaises(ProductTargetManifestValidationError):
                 load_product_target_manifest_schema(path)
 
+    def test_scalar_tags_cannot_use_legacy_mapping_as_scalar_bypass(self) -> None:
+        template = ('manifest_version: VERSION\ntarget:\n  source_type: local_git\n'
+                    '  repo: E:/repo\n  commit: "' + 'a' * 40 + '"\n'
+                    'authority_surface:\n  include: [src/**]\nmode:\n  read_only: MODE\n')
+        for version, mode in (( '!!str {=: !custom "1.0"}', 'true'),
+                              ('"1.0"', '!!bool {=: true}')):
+            with self.subTest(version=version, mode=mode), TemporaryDirectory() as root:
+                path = Path(root) / "tagged.yaml"
+                path.write_text(template.replace("VERSION", version).replace("MODE", mode), encoding="utf-8")
+                with self.assertRaises(ProductTargetManifestValidationError):
+                    parse_product_target_manifest_file(path)
+
+    def test_dict_validator_rejects_invalid_unicode_and_nul_like_parser(self) -> None:
+        for field, value in (("include", "src/\x00file"), ("include", "src/\ud800file"),
+                             ("repo", "C:/synthetic\x00root"), ("repo", "C:/synthetic\ud800root")):
+            with self.subTest(field=field, value=repr(value)):
+                data = copy.deepcopy(GOLDEN_MANIFEST)
+                if field == "include":
+                    data["authority_surface"]["include"] = [value]
+                else:
+                    data["target"]["repo"] = value
+                self.assertTrue(validate_product_target_manifest_dict(data))
+                with self.assertRaises(ProductTargetManifestValidationError):
+                    parse_product_target_manifest(data)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -468,5 +468,40 @@ mode:
         self.assertIn("unsupported glob syntax", str(ctx.exception).lower())
 
 
+    def test_policy_materialization_ignores_git_replacement_refs(self) -> None:
+        old = self._commit_files({"policy/a.md": b"original\n"}, "original")
+        new = self._commit_files({"policy/a.md": b"substitute\n"}, "substitute")
+        run_git(["replace", old, new], self.repo_dir)
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=old),
+            authority_surface=AuthoritySurfaceSpec(include=("policy/**",), exclude=()),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+        snapshot = RepoCorpusResolver().resolve(manifest, self.repo_dir)
+        self.assertEqual(snapshot.get_file("policy/a.md").content, "original\n")
+        self.assertEqual(snapshot.target_commit, old)
+
+    def test_policy_authority_uses_complete_path_matching(self) -> None:
+        commit = self._commit_files({"policy/keep.md": b"keep\n"})
+
+        class NewlineClient(GitCliClient):
+            def list_tree_entries(self, repo_path, target_commit):
+                return [("100644", "blob", "a" * 40, path) for path in
+                        ("policy/keep.md", "policy/secret.md", "policy/secret.md\n")]
+
+            def read_blob_bytes(self, repo_path, target_commit, rel_path):
+                return b"fixture\n"
+
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=commit),
+            authority_surface=AuthoritySurfaceSpec(include=("policy/*",), exclude=("policy/secret.md",)),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+        snapshot = RepoCorpusResolver(git_client=NewlineClient()).resolve(manifest, self.repo_dir)
+        self.assertEqual(snapshot.paths(), ("policy/keep.md", "policy/secret.md\n"))
+
+
 if __name__ == "__main__":
     unittest.main()

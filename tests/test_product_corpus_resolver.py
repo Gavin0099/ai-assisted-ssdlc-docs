@@ -133,6 +133,48 @@ class ProductCorpusResolverTests(unittest.TestCase):
 
         self.assertEqual(snapshot.paths(), ("src/app.yml",))
 
+    def test_replace_refs_cannot_substitute_pinned_commit_or_blob(self) -> None:
+        old_commit = self._commit_files({"src/app.yml": b"value: old\n"}, "original")
+        old_blob = run_git(["rev-parse", f"{old_commit}:src/app.yml"], self.repo_dir).stdout.strip()
+        new_commit = self._commit_files({"src/app.yml": b"value: new\n"}, "replacement")
+        new_blob = run_git(["rev-parse", f"{new_commit}:src/app.yml"], self.repo_dir).stdout.strip()
+        for old, new in ((old_commit, new_commit), (old_blob, new_blob)):
+            with self.subTest(object=old):
+                run_git(["replace", old, new], self.repo_dir)
+                try:
+                    oracle = subprocess.run(
+                        ["git", "--no-replace-objects", "cat-file", "-p", f"{old_commit}:src/app.yml"],
+                        cwd=self.repo_dir, capture_output=True, check=True,
+                    ).stdout
+                    snapshot = ProductCorpusResolver().resolve(self._manifest(old_commit, ["src/**"]), self.repo_dir)
+                    self.assertEqual(oracle, b"value: old\n")
+                    self.assertEqual(snapshot.get_file("src/app.yml").content.encode("utf-8"), oracle)
+                    self.assertEqual(snapshot.get_file("src/app.yml").content_hash, hashlib.sha256(oracle).hexdigest())
+                finally:
+                    run_git(["replace", "-d", old], self.repo_dir)
+
+    def test_terminal_newline_path_is_not_silently_excluded(self) -> None:
+        # Build actual Git objects: Windows cannot create this filename, but
+        # such a pinned tree must still materialize precisely on all hosts.
+        def write_object(kind, content):
+            return subprocess.run(
+                ["git", "hash-object", "-t", kind, "-w", "--stdin"],
+                input=content, cwd=self.repo_dir, capture_output=True, check=True,
+            ).stdout.decode("ascii").strip()
+
+        blob = bytes.fromhex(write_object("blob", b"fixture\n"))
+        subtree = write_object("tree", b"".join(
+            b"100644 " + path + b"\0" + blob
+            for path in (b"keep.yml", b"secret.yml", b"secret.yml\n")
+        ))
+        tree = write_object("tree", b"40000 src\0" + bytes.fromhex(subtree))
+        commit = run_git(["commit-tree", tree, "-m", "raw path fixture"], self.repo_dir).stdout.strip()
+        resolver = ProductCorpusResolver()
+        snapshot = resolver.resolve(self._manifest(commit, ["src/*"], ["src/secret.yml"]), self.repo_dir)
+        self.assertEqual(snapshot.paths(), ("src/keep.yml", "src/secret.yml\n"))
+        exact = resolver.resolve(self._manifest(commit, ["src/secret.yml"]), self.repo_dir)
+        self.assertEqual(exact.paths(), ("src/secret.yml",))
+
     def test_symlink_is_skipped_from_product_evidence_snapshot(self) -> None:
         self._commit_files({"src/real.yml": "value: real\n"}, "regular file")
         link = self.repo_dir / "src" / "linked.yml"
