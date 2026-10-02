@@ -256,3 +256,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-committed.json; 37 run/36 pass/one Windows OS symlink skip; full 435 run/431 pass/four platform skips; B2 focused34 pass.
 - Next action: Review exact latest PR head, merge after Engineering gate, then B4; P1 human baseline/rules pending.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:8b655b765525ad8954d040efa7d3014ccc9dadbc47b7a2162a3873276b15bc13 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-review
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `8b655b765525ad8954d040efa7d3014ccc9dadbc47b7a2162a3873276b15bc13`
+- Commit binding: `cd5c826a410deedd660a5075fef9fb0af5e5ae76` (bound)
+- Record: B3 independent review fixed replacement-object substitution, complete authority selection, scalar-tag bypass and dict/parser text disagreement.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-review-committed.json; focused41 run40 pass1skip; full441 run437 pass4skip; failed-before five subcases at f05d3d4.
+- Next action: Exact-head independent/Codex review and CI, conditional merge then B4; P1 human baseline/rules pending.
+- PLAN reconciliation: `updated`

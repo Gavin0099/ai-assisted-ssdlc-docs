@@ -55,3 +55,5 @@
 - B0/PR21 and B1/PR22 merged. B2 code680d71b:34focusedPASS; strict policy snapshot/identity/source/digest admission. PR reviews/CI/merge pending; B3-C2 serial next. P1 human baseline/rules pending. <!-- memory_record_projection:active-task-summary:d7e4175c5a71b449ce483b518fa69527da4da30d5efc3cc198cfe3c11a767131 -->
 
 - B0-B2 merged. B3 codef8e6e3c:37 focused/36 pass/1skip, full435/431/4skip; pinned Git corpus and strict admission. Latest-head independent/Codex/CI/merge pending. B4-C2 serial next; P1 human baseline/rules pending. <!-- memory_record_projection:active-task-summary:5f5e939ca1ab69c84a9f9bff0b5fa9b1d8834d5fd3efc844d8e23612566263da -->
+
+- B0-B2 merged. B3 four independent findings fixed cd5c826;41focused40pass1skip/full441437pass4skip. Latest-head reviews/CI/merge pending; shared pinned Git/complete-path runtime fixes bounded. B4-C2 serial next;P1 inputs pending. <!-- memory_record_projection:active-task-summary:8b655b765525ad8954d040efa7d3014ccc9dadbc47b7a2162a3873276b15bc13 -->
