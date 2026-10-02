@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -136,7 +137,8 @@ class _PathStep:
 
 @dataclass(frozen=True)
 class _YamlTimestamp:
-    source: str
+    utc_second: datetime
+    fraction: str
 
 
 class _UniqueKeyYaml12CoreLoader(yaml.SafeLoader):
@@ -189,7 +191,21 @@ for _first_character, _resolvers in yaml.SafeLoader.yaml_implicit_resolvers.item
 def _construct_yaml_timestamp(
     loader: _UniqueKeyYaml12CoreLoader, node: yaml.ScalarNode
 ) -> _YamlTimestamp:
-    return _YamlTimestamp(loader.construct_scalar(node))
+    source = loader.construct_scalar(node)
+    fields = loader.timestamp_regexp.fullmatch(source)
+    if fields is None:
+        raise InvalidEvidenceInputError("YAML timestamp syntax is invalid.")
+    parsed = loader.construct_yaml_timestamp(node)
+    if not isinstance(parsed, datetime):
+        parsed = datetime(parsed.year, parsed.month, parsed.day, tzinfo=timezone.utc)
+    elif parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    # Key equality uses UTC and the entire fraction, avoiding datetime's
+    # microsecond truncation. Timestamp values remain uncomparable by S2-A.
+    return _YamlTimestamp(
+        parsed.astimezone(timezone.utc).replace(microsecond=0),
+        (fields.group("fraction") or "").rstrip("0"),
+    )
 
 
 _UniqueKeyYaml12CoreLoader.add_constructor(
@@ -294,6 +310,7 @@ _UniqueKeyYaml12CoreLoader.add_constructor(
 
 def _ensure_acyclic_yaml(value: Any) -> None:
     active: set[int] = set()
+    completed: set[int] = set()
 
     def visit(node: Any) -> None:
         if not isinstance(node, (dict, list, tuple)):
@@ -301,6 +318,8 @@ def _ensure_acyclic_yaml(value: Any) -> None:
         identity = id(node)
         if identity in active:
             raise InvalidEvidenceInputError("YAML evidence contains a recursive alias.")
+        if identity in completed:
+            return
         active.add(identity)
         values = node.items() if isinstance(node, dict) else enumerate(node)
         for key, child in values:
@@ -308,6 +327,7 @@ def _ensure_acyclic_yaml(value: Any) -> None:
                 visit(key)
             visit(child)
         active.remove(identity)
+        completed.add(identity)
 
     visit(value)
 
@@ -320,8 +340,8 @@ def _parse_yaml_document(content: str) -> Any:
         if loader.yaml_version not in (None, (1, 2)):
             raise InvalidEvidenceInputError("Only YAML 1.2 evidence is supported.")
         _ensure_acyclic_yaml(value)
-    except (yaml.YAMLError, OverflowError, RecursionError, ValueError) as exc:
-        raise InvalidEvidenceInputError("YAML evidence input is invalid.") from exc
+    except (yaml.YAMLError, OverflowError, RecursionError, ValueError):
+        raise InvalidEvidenceInputError("YAML evidence input is invalid.") from None
     finally:
         if loader is not None:
             loader.dispose()
@@ -350,24 +370,23 @@ def _parse_json_document(content: str) -> Any:
         )
     except InvalidEvidenceInputError:
         raise
-    except (json.JSONDecodeError, RecursionError, ValueError) as exc:
-        raise InvalidEvidenceInputError("JSON evidence input is invalid.") from exc
+    except (json.JSONDecodeError, RecursionError, ValueError):
+        raise InvalidEvidenceInputError("JSON evidence input is invalid.") from None
 
-    def reject_unpaired_surrogates(node: Any) -> None:
+    pending = [value]
+    while pending:
+        node = pending.pop()
         if isinstance(node, str):
             if any(0xD800 <= ord(character) <= 0xDFFF for character in node):
                 raise InvalidEvidenceInputError(
                     "JSON evidence contains a non-scalar Unicode string."
                 )
         elif isinstance(node, list):
-            for child in node:
-                reject_unpaired_surrogates(child)
+            pending.extend(node)
         elif isinstance(node, dict):
             for key, child in node.items():
-                reject_unpaired_surrogates(key)
-                reject_unpaired_surrogates(child)
+                pending.extend((key, child))
 
-    reject_unpaired_surrogates(value)
     return value
 
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import unittest
+import traceback
+from unittest import mock
 
 from tools.implementation_matchers import (
     DiscrepancyCode,
@@ -13,6 +15,7 @@ from tools.implementation_matchers import (
     MatcherResult,
     evaluate_assertion,
 )
+from tools import implementation_matchers as matchers
 
 
 class ImplementationMatcherTests(unittest.TestCase):
@@ -161,9 +164,82 @@ class ImplementationMatcherTests(unittest.TestCase):
                 with self.assertRaises(InvalidEvidenceInputError):
                     evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, ""), content)
 
+    def test_equivalent_timestamp_keys_are_duplicates_at_full_precision(self) -> None:
+        for keys in (
+            ("2001-12-15T02:59:43.1Z", "2001-12-14t21:59:43.10-05:00"),
+            ("2001-12-15", "2001-12-15T00:00:00Z"),
+            ("2001-12-15T02:59:43", "2001-12-15T02:59:43Z"),
+        ):
+            with self.subTest(keys=keys):
+                content = f"ok: true\n{keys[0]}: first\n{keys[1]}: second\n"
+                with self.assertRaises(InvalidEvidenceInputError):
+                    evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, "ok"), content)
+        content = ("ok: true\n2001-12-15T00:00:00.0000001Z: first\n"
+                   "2001-12-15T00:00:00.0000002Z: second\n")
+        self.assertTrue(evaluate_assertion(
+            EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, "ok"), content).passed)
+
+    def test_shared_alias_dag_is_visited_once_and_cycles_remain_invalid(self) -> None:
+        # Independent DAG invariant: each distinct collection should be visited
+        # once. Count iteration instead of a machine-dependent timing threshold.
+        class CountingList(list):
+            visits = 0
+
+            def __iter__(self):
+                type(self).visits += 1
+                if type(self).visits > 21:
+                    raise AssertionError("Shared DAG collections must be visited once")
+                return super().__iter__()
+
+        shared = CountingList([0, 0])
+        for _ in range(20):
+            shared = CountingList([shared, shared])
+        matchers._ensure_acyclic_yaml(shared)
+        self.assertLessEqual(CountingList.visits, 21)
+        nodes = ["a0: &a0 [0, 0]"] + [
+            f"a{i}: &a{i} [*a{i-1}, *a{i-1}]" for i in range(1, 30)
+        ]
+        self.assertTrue(evaluate_assertion(
+            EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, "a0"), "\n".join(nodes)).passed)
+        with self.assertRaises(InvalidEvidenceInputError):
+            evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, ""), "a: &a [*a]")
+
+    def test_json_validation_does_not_leak_recursion_errors(self) -> None:
+        # Materialize independently: isolate post-parse validation from CPython's
+        # own JSON depth limit, which varies with platform and caller stack.
+        value = "leaf"
+        for _ in range(2000):
+            value = [value]
+        with mock.patch.object(matchers.json, "loads", return_value=value):
+            result = evaluate_assertion(EvidenceAssertion(MatcherKind.JSON_POINTER_EXISTS, ""), "[]")
+        self.assertTrue(result.passed)
+        self.assertEqual(result.resolved_node_paths, ("",))
+        try:
+            result = evaluate_assertion(EvidenceAssertion(MatcherKind.JSON_POINTER_EXISTS, ""),
+                                        "[" * 2000 + "0" + "]" * 2000)
+        except InvalidEvidenceInputError:
+            pass  # The decoder's own platform-dependent depth limit is allowed.
+        else:
+            self.assertTrue(result.passed)
+            self.assertEqual(result.resolved_node_paths, ("",))
+        with mock.patch.object(matchers.json, "loads", side_effect=RecursionError):
+            with self.assertRaises(InvalidEvidenceInputError):
+                evaluate_assertion(EvidenceAssertion(MatcherKind.JSON_POINTER_EXISTS, ""), "[]")
+
+    def test_invalid_yaml_formatted_traceback_contains_no_source_snippet(self) -> None:
+        marker = "synthetic-token-123"
+        content = f'value: "{marker}"\n broken: true\n'
+        try:
+            evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, ""), content)
+        except InvalidEvidenceInputError as error:
+            self.assertNotIn(marker, "".join(traceback.format_exception(error)))
+        else:
+            self.fail("Malformed YAML must fail closed")
+
     def test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed(self) -> None:
         for content in ("%YAML 1.1\n---\non: true\n", "value: !!bool yes\n",
-                        "value: !!int 0b10\n", "value: !!null other\n"):
+                        "value: !!int 0b10\n", "value: !!null other\n",
+                        "value: !!timestamp invalid\n", "value: 2026-02-30\n"):
             with self.subTest(content=content):
                 with self.assertRaises(InvalidEvidenceInputError):
                     evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, ""), content)
