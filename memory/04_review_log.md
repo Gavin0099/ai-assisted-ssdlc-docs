@@ -190,3 +190,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-collection-key-committed.json; 40 focused pass. Full receipt359 run/356pass/3skips. Old-head regression4errors.
 - Next action: Review latest exact head; merge B1 only after independent/Codex/CI gates; then B2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:20a2ff3c93ba720493571f46d6756535c1d7724ff34dbe274c164e44fef75326 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-float-keys
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `20a2ff3c93ba720493571f46d6756535c1d7724ff34dbe274c164e44fef75326`
+- Commit binding: `cc833edfafb917f53e1c9f28336651cdca904e9e` (bound)
+- Record: B1 float-key P2 remediation: lossless coefficient/exponent key identity prevents binary float rounding collisions for scalars and collection keys; equivalent forms still duplicate. Float values remain uncomparable.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-float-key-committed.json;42focusedpass. Oldf6abb55 regression12errors. Latest fullCI pending.
+- Next action: Latest exact-head independent/Codex/CI before merge B1 then B2.
+- PLAN reconciliation: `updated`
