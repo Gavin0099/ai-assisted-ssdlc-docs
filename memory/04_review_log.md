@@ -311,3 +311,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-git-capability-committed.json; 63 run62 pass1 Windows skip; prior capability test fails on874fdb9. Latest-head independent/Codex/CI pending.
 - Next action: Finish latest B3 review gate then B4.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:b65a4cafd64209401fd186d8766b75aefe36e9943bb52b3b3a562b5acbb6f929 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-prerequisite
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `b65a4cafd64209401fd186d8766b75aefe36e9943bb52b3b3a562b5acbb6f929`
+- Commit binding: `46957db93a8ea2190cb99e050174c1c0e08e5cf9` (bound)
+- Record: B3 preserves fixed Git prerequisite diagnostics across Product and policy admission while suppressing raw subprocess stderr and unexpected exception chains.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-prerequisite-committed.json; five targeted regression/privacy/partial-clone cases pass. Product regression fails on4d971de. Latest full CI and independent/Codex review pending.
+- Next action: Gate latest B3 head then B4.
+- PLAN reconciliation: `updated`
