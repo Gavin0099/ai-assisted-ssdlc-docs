@@ -157,3 +157,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-scalar-committed-focused.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-scalar-alias-before.json
 - Next action: Complete latest-head reviews and CI for PR #22, merge B1 if clean, then start B2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:ed8b99669d766f6fb439e91307c5eb886db96dae4dba74214c34c6d9e529a475 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-integer-cap
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `ed8b99669d766f6fb439e91307c5eb886db96dae4dba74214c34c6d9e529a475`
+- Commit binding: `9f93b0dde33cdf38a0258252329342465170ab65` (bound)
+- Record: B1 Codex integer-digit-cap P2 fixed with local chunked decimal conversion for JSON and YAML; process digit limit unchanged. Arithmetic-oracle regressions reject 47e3462 with five errors; fixed 9f93b0d focused 37 pass. Current full coverage remains a required CI gate before merge.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-integer-committed-focused.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-big-integer-before.json
+- Next action: Review and CI current PR #22 head, conditional merge, then B2 from main.
+- PLAN reconciliation: `updated`
