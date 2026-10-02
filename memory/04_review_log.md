@@ -344,3 +344,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b4-committed.json (4 committed critical tests); s2-b4-index-fixed.json (25 focused PASS); s2-b4-full.json (472 run/468 pass/4 Windows skips, before index delta). Candidate-before has21failedsubcases and one corrected test exception oracle; index-before rejects d4c5535. Drift/readiness PASS with inherited warnings. Latest-head CI/Codex and independent delta review pending.
 - Next action: Verify remote ref, obtain latest-head independent/Codex approval and CI; conditionally merge B4, then C1. P1 still requires human-selected real product baseline and explicit rules.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:451f45b9a4acd2930db6190604b4c36d5c03afb4d0ac39a7eeefef0af0393fe5 -->
+### Canonical memory checkpoint — 2026-10-03-S2-C1
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `451f45b9a4acd2930db6190604b4c36d5c03afb4d0ac39a7eeefef0af0393fe5`
+- Commit binding: `32b6a283ec216380e2101e1f85ed2d943df0ff08` (bound)
+- Record: S2-C1 code32b6a28 adds actual dual admission, identity-only opt-in and sealed complete records; independent manifest/authority and sentinel regressions fixed. No output/CLI/real product claim.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-c1-committed.json; 4 critical committed tests; focused23 PASS. Prior integration107 run106pass1skip. Full suite still running; receipt only after completion.
+- Next action: Exact-head independent/Codex review and CI, conditional merge; C2 serial after main gate; P1 awaits human baselines/rules.
+- PLAN reconciliation: `updated`

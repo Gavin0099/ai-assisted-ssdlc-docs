@@ -65,3 +65,5 @@
 - B3 lazy-fetch fixed; latest PR 24 review/CI pending. PLAN is current authority. <!-- memory_record_projection:active-task-summary:22a99ace1889fd967ba14dea02d6058aaffe1df0b4722672f2328804330a9709 -->
 
 - S2-B4 evaluator and index committed; exact-head PR gates pending, then C1. Real P1 awaits human inputs. <!-- memory_record_projection:active-task-summary:7aa22bb5f34e3220b9cd55743a60d15c3fafc07d082fb5986e95e6c22fdf265f -->
+
+- S2-C1 code32b6a28 dual admission/records;23 focusedPASS. Exact-head reviews/CI/merge pending, then C2. Real P1 inputs pending. <!-- memory_record_projection:active-task-summary:451f45b9a4acd2930db6190604b4c36d5c03afb4d0ac39a7eeefef0af0393fe5 -->
