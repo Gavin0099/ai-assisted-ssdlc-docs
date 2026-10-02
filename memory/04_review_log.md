@@ -366,3 +366,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-c1-mechanical-committed.json; two committed negative subcases. Focused24 PASS. Previous full496 is code32b6a28, latest full belongs to new PR CI.
 - Next action: Latest complete-head independent/Codex review and CI; conditional merge then C2. P1 human inputs pending.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:93524a3d0d802b778449d7f0d5e9ca923ce377fc7a01e71e3e0931bff8de73cb -->
+### Canonical memory checkpoint — 2026-10-03-S2-C2
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `93524a3d0d802b778449d7f0d5e9ca923ce377fc7a01e71e3e0931bff8de73cb`
+- Commit binding: `2998f7557c0a77d219298b09b792133ffeac3026` (bound)
+- Record: S2-C2 code2998f75 adds explicit JSON/Markdown CLI, allowlisted deterministic projection and atomic output. Synthetic Scenario1-12 plus independent full-byte goldens and actual write faults pass; independent P2 root-node loss fixed with before/fixed regression. Windows22 focused and4 committed critical PASS; priorfull518 predates root fix. Latest PR review/CI/conditionalmerge pending; real P1 awaits human baselines/rules.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-c2-committed.json; PASS: artifacts/evidence/test-results/s2-c2-fixed.json; PASS: artifacts/evidence/test-results/s2-c2-full.json (before root fix)
+- Next action: Latest complete-head independent/Codex review, required CI and conditional merge; P1 needs human-selected policy/product baselines and explicit rules.
+- PLAN reconciliation: `updated`

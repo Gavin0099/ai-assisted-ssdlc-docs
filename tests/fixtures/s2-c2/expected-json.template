@@ -1,0 +1,54 @@
+{
+  "warning": null,
+  "verification_id": "SYNTHETIC-E2E",
+  "policy_assessment_identity": {
+    "assessment_id": "ASSESS-1",
+    "target_source_type": "github",
+    "target_repo": "example/policy",
+    "target_commit": "e40ae7fee3fb70b1adb5a17ba814839b550ee0e0",
+    "target_manifest_digest": "350a8774b27aae2ab5c281850fdf2198a1e6568603d447523a80784dd8688455",
+    "target_corpus_digest": "af25cfc47a923597affbacad4019bb552cf8e12e0d270113bba5f0632ff83a12"
+  },
+  "policy_snapshot_integrity_verified": true,
+  "policy_unverified_reason_codes": [],
+  "product_target_source_type": "github",
+  "product_target_repo": "example/product",
+  "product_target_commit": "${PRODUCT_COMMIT}",
+  "product_manifest_digest": "${PRODUCT_MANIFEST}",
+  "product_corpus_digest": "${PRODUCT_CORPUS}",
+  "product_snapshot_integrity_verified": true,
+  "product_unverified_reason_codes": [],
+  "expectation_set_digest": "${EXP_SET}",
+  "ruleset_digest": "${RULE_SET}",
+  "policy_repository_identity_status": "VERIFIED",
+  "product_repository_identity_status": "VERIFIED",
+  "policy_provenance_verified": true,
+  "product_provenance_verified": true,
+  "provenance_verified": true,
+  "verified_items": [
+    {
+      "expectation_id": "EXP-1",
+      "expectation_digest": "${EXP}",
+      "task_id": "PW.4.4",
+      "rule_id": "RULE-1",
+      "rule_digest": "${RULE}",
+      "verdict": "EVIDENCE_FOUND",
+      "evidence_refs": [
+        {
+          "repo_path": "src/file.lock",
+          "content_digest": "${FILE_SHA}",
+          "locator": {
+            "kind": "file_existence",
+            "value": "src/file.lock"
+          },
+          "resolved_node_paths": [],
+          "matched_snippet": null
+        }
+      ],
+      "discrepancy_details": null,
+      "applicability_reason": null,
+      "explanation": ""
+    }
+  ],
+  "claim_boundary": ${CLAIMS_JSON}
+}

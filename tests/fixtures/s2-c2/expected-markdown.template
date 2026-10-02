@@ -1,0 +1,58 @@
+# S2 靜態實作憑證驗證
+
+驗證編號 SYNTHETIC-E2E
+
+這份報告保留每條規則的結果。未合成 Task 判定、優先級、審查決策或執行成效。
+
+## 來源與完整性
+
+| 欄位 | 狀態 |
+| --- | --- |
+| policy_snapshot_integrity_verified | true |
+| policy_repository_identity_status | VERIFIED |
+| policy_unverified_reason_codes | — |
+| policy_provenance_verified | true |
+| product_snapshot_integrity_verified | true |
+| product_repository_identity_status | VERIFIED |
+| product_unverified_reason_codes | — |
+| product_provenance_verified | true |
+| provenance_verified | true |
+
+## 固定版本與指紋
+
+| 欄位 | 值 |
+| --- | --- |
+| policy.assessment_id | ASSESS-1 |
+| policy.target_source_type | github |
+| policy.target_repo | example/policy |
+| policy.target_commit | e40ae7fee3fb70b1adb5a17ba814839b550ee0e0 |
+| policy.target_manifest_digest | 350a8774b27aae2ab5c281850fdf2198a1e6568603d447523a80784dd8688455 |
+| policy.target_corpus_digest | af25cfc47a923597affbacad4019bb552cf8e12e0d270113bba5f0632ff83a12 |
+| product_target_source_type | github |
+| product_target_repo | example/product |
+| product_target_commit | ${PRODUCT_COMMIT} |
+| product_manifest_digest | ${PRODUCT_MANIFEST} |
+| product_corpus_digest | ${PRODUCT_CORPUS} |
+| expectation_set_digest | ${EXP_SET} |
+| ruleset_digest | ${RULE_SET} |
+
+## 每條規則的結果
+
+### PW.4.4／EXP-1／RULE-1
+
+| 欄位 | 值 |
+| --- | --- |
+| verdict | EVIDENCE\_FOUND |
+| expectation_digest | ${EXP} |
+| rule_digest | ${RULE} |
+| discrepancy_details | — |
+| applicability_reason | — |
+| explanation |  |
+
+| 檔案 | SHA-256 | Locator | Expression | Concrete nodes |
+| --- | --- | --- | --- | --- |
+| src/file.lock | ${FILE_SHA} | file\_existence | src/file.lock | \[\] |
+
+## 不能從這份結果宣稱什麼
+
+${CLAIMS_MD}

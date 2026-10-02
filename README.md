@@ -62,6 +62,41 @@ unless the referenced source artifacts and reviewer decisions explicitly support
 - Change-management demo: [examples/dependency-upgrade/](examples/dependency-upgrade/)
 - Incident follow-up demo: [examples/production-incident/](examples/production-incident/)
 
+## S2 static implementation evidence CLI
+
+Supply a verified S1 assessment, its original manifest and local policy repository,
+the product manifest/repository, and explicit JSON ruleset/expectation files.
+Rules and expectations must be supplied through human review; the CLI does not
+derive them from NIST Task IDs or document coverage, and does not verify approval
+identity. Use a fixed verification ID for reproducible output.
+
+```powershell
+python -X utf8 -m tools.verify_implementation_evidence `
+  --verification-id S2-REVIEW-001 `
+  --assessment inputs/assessment.yaml `
+  --policy-manifest inputs/target-manifest.yaml --policy-repo C:/Repos/policy `
+  --product-manifest inputs/product-manifest.json --product-repo C:/Repos/product `
+  --ruleset inputs/ruleset.json --expectations inputs/expectations.json `
+  --format markdown --output reports/verification.md
+```
+
+Choose `json` or `markdown`; omit `--output` for UTF-8 stdout. A file destination's
+parent must already exist. File output uses a same-directory temporary file and
+atomic replace after full admission/evaluation/rendering. Input files and source
+repositories are protected from report writes. Invalid input/publication returns
+Exit 1; valid MISSING, DISCREPANCY or NOT_APPLICABLE results return Exit 0.
+
+Default provenance is strict. `--allow-unverified-provenance` admits only absent
+repository identity evidence while both pinned snapshots remain integrity verified;
+both formats disclose UNVERIFIED PROVENANCE and separate side status/reasons.
+Known identity mismatch, missing manifest, invalid digest or corpus still fail.
+
+Outputs preserve individual rule results and the five frozen cannot-claim clauses;
+they do not create Task roll-ups, priorities, queue actions, HTML, compliance claims
+or proof of actual execution. Public tests use synthetic repos; real S2-P1 remains
+subject to the human-selected baselines and explicit rules in the
+[slice plan](docs/specs/s2-b-slice-plan.md).
+
 ## Validation
 
 Run the local validators:
