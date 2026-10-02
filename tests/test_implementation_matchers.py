@@ -315,6 +315,27 @@ class ImplementationMatcherTests(unittest.TestCase):
                     MatcherKind.YAML_PATH_EQUALS, "value", ExpectedScalarKind.INTEGER, integer
                 ), "value: " + sign + digits).passed)
 
+    def test_decimal_conversion_uses_balanced_big_integer_multiplications(self) -> None:
+        # Independent algorithmic invariant: for uniform nonzero digits, both
+        # multiplication operands grow together, rather than one growing linearly
+        # while the other stays at a small block width. No timing threshold.
+        class TrackedInt(int):
+            def __mul__(self, other):
+                widths = (self.bit_length(), other.bit_length())
+                if min(widths) and max(widths) > 8 * min(widths):
+                    raise AssertionError("Decimal conversion must balance large operands")
+                return TrackedInt(super().__mul__(other))
+
+            def __add__(self, other):
+                return TrackedInt(super().__add__(other))
+
+            def __radd__(self, other):
+                return TrackedInt(int(other) + int(self))
+
+        with mock.patch.object(matchers, "int", side_effect=TrackedInt, create=True):
+            result = matchers._parse_decimal_integer("1" * 4096)
+        self.assertEqual(result, (10 ** 4096 - 1) // 9)
+
     def test_typed_values_do_not_coerce_in_yaml_or_json(self) -> None:
         cases = (("true", ExpectedScalarKind.INTEGER, 1),
                  ("1", ExpectedScalarKind.BOOLEAN, True),

@@ -227,10 +227,22 @@ def _parse_decimal_integer(source: str) -> int:
     """Parse decimal digits locally without changing the process digit limit."""
     negative = source.startswith("-")
     digits = source[1:] if source.startswith(("-", "+")) else source
-    value = 0
-    for offset in range(0, len(digits), 18):
-        chunk = digits[offset:offset + 18]
-        value = value * 10 ** len(chunk) + int(chunk, 10)
+    digits = digits.lstrip("0") or "0"
+    powers: dict[int, int] = {}
+    # Balanced splitting keeps big-integer multiplication subquadratic;
+    # a growing prefix multiplied by a fixed small base would be quadratic.
+    def convert(start: int, stop: int) -> int:
+        if stop - start <= 18:
+            return int(digits[start:stop], 10)
+        middle = (start + stop) // 2
+        left = convert(start, middle)
+        right = convert(middle, stop)
+        width = stop - middle
+        if width not in powers:
+            powers[width] = 10 ** width
+        return left * powers[width] + right
+
+    value = convert(0, len(digits))
     return -value if negative else value
 
 
