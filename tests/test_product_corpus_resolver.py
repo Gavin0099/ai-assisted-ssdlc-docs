@@ -287,9 +287,14 @@ class ProductCorpusResolverTests(unittest.TestCase):
         corpus_hash = hashlib.sha256(f"src/app.yml\t{file_hash}\n".encode()).hexdigest()
         seal = hashlib.sha256((f"manifest\t{snapshot.manifest_digest}\ncommit\t{commit}\n"
                                f"corpus\t{corpus_hash}\nsrc/app.yml\t{file_hash}\t{len(content)}\n").encode()).hexdigest()
-        with self.assertRaises((CorpusResolverError, TypeError)):
-            changed = replace(snapshot, files=(entry,), corpus_digest=corpus_hash,
-                              total_bytes=len(content), _admission_digest=seal)
+        with self.assertRaises((TypeError, ValueError)):
+            replace(snapshot, files=(entry,), corpus_digest=corpus_hash,
+                    total_bytes=len(content), _admission_digest=seal)
+        # The protected constructor argument must not hide the independent
+        # downstream test: valid recomputed content still lacks admission.
+        changed = replace(snapshot, files=(entry,), corpus_digest=corpus_hash,
+                          total_bytes=len(content))
+        with self.assertRaises(CorpusResolverError):
             verify_admitted_product_snapshot(changed)
 
     def test_github_matching_repo_on_wrong_host_is_rejected(self) -> None:
