@@ -41,3 +41,5 @@
 - B0 merged. B1 PR #22 integer cap fixed 9f93b0d; focused37pass. Latest-head independent/Codex review and CI pending; B2 not started. <!-- memory_record_projection:active-task-summary:ed8b99669d766f6fb439e91307c5eb886db96dae4dba74214c34c6d9e529a475 -->
 
 - B0 merged. B1 PR22 balanced integer fix9e13ade;38focusedPASS,800000-digit diagnosticPASS. Latest-head reviews/CI pending;B2 notstarted. <!-- memory_record_projection:active-task-summary:54fa42cd31551f98fc75a298bb9246b532c6e098aff22f935ad8abff6c631ce4 -->
+
+- B0 mergedPR21. B1 collection keys fixed;40focusedPASS/full359run356pass3skips;latest-head reviews and CI required. B2-C2 serial after B1 merge. P1 product baseline/human rules pending. <!-- memory_record_projection:active-task-summary:fa1c62290d14d51b15d588d47235705bb8843c9dea81a190cce50ad9fe3a44fa -->

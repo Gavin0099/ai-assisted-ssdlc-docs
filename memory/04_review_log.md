@@ -179,3 +179,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-balanced-committed-focused.json; PASS: artifacts/evidence/test-results/s2-b1-balanced-committed-probe.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-balanced-integer-before.json
 - Next action: Finish current-head PR #22 independent/Codex reviews and CI, merge if clean, then B2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:fa1c62290d14d51b15d588d47235705bb8843c9dea81a190cce50ad9fe3a44fa -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-collection-keys
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `fa1c62290d14d51b15d588d47235705bb8843c9dea81a190cce50ad9fe3a44fa`
+- Commit binding: `eaf84f4` (bound)
+- Record: B1 collection-key review remediation: legal Core list/map keys use tagged structural identities with alias memoization. Duplicate, recursive, unsupported-tag and surrogate keys fail closed; frozen non-string navigation boundary retained.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-collection-key-committed.json; 40 focused pass. Full receipt359 run/356pass/3skips. Old-head regression4errors.
+- Next action: Review latest exact head; merge B1 only after independent/Codex/CI gates; then B2.
+- PLAN reconciliation: `updated`
