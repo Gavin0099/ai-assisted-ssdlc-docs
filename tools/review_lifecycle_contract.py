@@ -141,11 +141,12 @@ def validate_sync_content(state: str, verification: SyncVerification,
 
     The documented sync can change assessment ID/navigation path only. Arrays
     keep original order (including basis indexes); no semantic normalization.
-    Equal contents alone never cause a sync decision or accepted state.
+    Equal contents alone never cause a sync decision or accepted state, and do
+    not negate a separately evidenced not_synced decision/result record.
     """
     matched = selected.comparison == target.comparison
     if (state == "synced" and (verification.result != "matched" or not matched)
-            or state == "not_synced" and (verification.result != "not_synced" or matched)):
+            or state == "not_synced" and verification.result != "not_synced"):
         _fail("sync.verification", "declared state/result contradict the actual compared contents")
 
 

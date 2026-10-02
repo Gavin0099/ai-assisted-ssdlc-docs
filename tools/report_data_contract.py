@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
+import stat
 from dataclasses import dataclass
 from pathlib import Path, PureWindowsPath
 from typing import Any
@@ -149,10 +151,11 @@ def parse_artifact_ref(value: Any, label: str = "artifact_ref") -> ArtifactRef:
 
 
 class ArtifactStore:
-    """Infrastructure: caller-owned root, resolution before reading, no writes.
+    """Infrastructure: caller-owned root, opened-handle verification, no writes.
 
     Symlinks/junctions inside the root are allowed; targets outside it are not.
-    Reading the resolved name prevents following the original link a second time.
+    Verify the actual opened file before reading; the descriptor pins the file
+    even if a concurrent process replaces its pathname after verification.
     """
     def __init__(self, report_root: Path):
         try:
@@ -180,9 +183,45 @@ class ArtifactStore:
     def read_path(self, relative: str, from_file: Path | None = None) -> tuple[Path, bytes]:
         path = self.resolve(relative, from_file)
         try:
-            return path, path.read_bytes()
+            flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NONBLOCK", 0)
+            with os.fdopen(os.open(path, flags), "rb") as opened:
+                if not stat.S_ISREG(os.fstat(opened.fileno()).st_mode):
+                    _fail("artifact.read", "opened target is not a regular file")
+                actual = self._opened_path(opened.fileno())
+                if not actual.is_relative_to(self.root):
+                    _fail("artifact.path", "opened target escapes report root")
+                return actual, opened.read()
         except OSError as exc:
             _fail("artifact.read", str(exc))
+
+    @staticmethod
+    def _opened_path(descriptor: int) -> Path:
+        """OS-backed handle identity, never a re-resolution of the input name.
+
+        Windows uses GetFinalPathNameByHandleW; Linux uses procfs descriptor
+        metadata. If that metadata is unavailable, reject before reading bytes.
+        """
+        if os.name == "nt":
+            import ctypes
+            import msvcrt
+            from ctypes import wintypes
+
+            final_path = ctypes.WinDLL("kernel32", use_last_error=True).GetFinalPathNameByHandleW
+            final_path.argtypes = [wintypes.HANDLE, wintypes.LPWSTR, wintypes.DWORD, wintypes.DWORD]
+            final_path.restype = wintypes.DWORD
+            buffer = ctypes.create_unicode_buffer(32768)
+            count = final_path(msvcrt.get_osfhandle(descriptor), buffer, len(buffer), 0)
+            if not count:
+                raise ctypes.WinError(ctypes.get_last_error())
+            if count >= len(buffer):
+                raise OSError("opened artifact path exceeds the handle-path buffer")
+            name = buffer.value
+            if name.startswith("\\\\?\\UNC\\"):
+                name = "\\\\" + name[8:]
+            elif name.startswith("\\\\?\\"):
+                name = name[4:]
+            return Path(name)
+        return Path(os.readlink(f"/proc/self/fd/{descriptor}"))
 
     def read_ref(self, ref: ArtifactRef, from_file: Path) -> tuple[Path, bytes]:
         # Revalidate values even if a caller directly constructed the dataclass.
@@ -515,7 +554,12 @@ def load_assessment_bytes(raw: bytes) -> AssessmentDocument:
         report = parse_corpus_assessment_dict(payload)
         # ID may differ across a documented sync. Everything else stays bound.
         comparison_header = {k: v for k, v in header.items() if k != "id"}
-        comparison_header["target"] = {k: v for k, v in target.items() if k != "manifest_path"}
+        comparison_header["target"] = {
+            **{k: v for k, v in target.items() if k != "manifest_path"},
+            "commit": report.target.commit,
+            "manifest_digest": report.target.manifest_digest,
+            "corpus_digest": report.target.corpus_digest,
+        }
         comparison_payload = {**payload, "assessment": comparison_header}
         comparison = json.dumps(comparison_payload, sort_keys=True, ensure_ascii=False, allow_nan=False)
     except (TypeError, ValueError, RecursionError) as exc:

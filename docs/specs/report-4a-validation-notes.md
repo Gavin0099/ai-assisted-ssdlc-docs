@@ -13,7 +13,7 @@
 | [review_lifecycle_contract.py](../../tools/review_lifecycle_contract.py) 的 `parse_review_lifecycle(value)` 及 decision parsers | 純結構解析；文件 review 意見不會轉成人工接受 |
 | 同模組的 `load_review_lifecycle(relative_path, report_root, authorized_auxiliary_sources=...)` | 載入 report data，驗證接受／同步紀錄、內容指紋及實際 target 對照；不寫回任何檔案 |
 
-`report_root` 與 auxiliary allowlist 由呼叫端依已授權範圍提供；sidecar 清單不能自行授權新增來源。所有 ArtifactRef 相對於引用檔所在目錄解析，先檢查 root containment，再讀 bytes 與核對 SHA-256。來源 locator 只在 corpus／auxiliary 清單中查找，不直接拿去開公司工作目錄檔案。
+`report_root` 與 auxiliary allowlist 由呼叫端依已授權範圍提供；sidecar 清單不能自行授權新增來源。所有 ArtifactRef 相對於引用檔所在目錄解析，先檢查 root containment，再開啟 descriptor 並核對實際 handle 的 regular-file 與所在位置，最後讀 bytes 與核對 SHA-256。Windows 使用 GetFinalPathNameByHandleW，Linux 使用 `/proc/self/fd`；無法取得 handle metadata 時在讀內容前拒絕。這防止檢查後、開啟前被 symlink／junction 替換；後續讀取仍使用同一個 handle。來源 locator 只在 corpus／auxiliary 清單中查找，不直接拿去開公司工作目錄檔案。
 
 既有 `CorpusSnapshot.to_dict()` 不含 repo。新 adapter 讀 assessment 的 `target.manifest_path` 所指固定 manifest，核對既有 canonical manifest digest、commit 與 authority surface，取得 repo 後再與 assessment／metadata 對照；manifest 也必須在允許的 report root 內。metadata 成員指紋、數量與 bytes 總數須一致，不能把 manifest 排除的 auxiliary 檔案冒充 corpus 成員。沒有改舊 metadata exporter 或 assessment contract。
 
@@ -24,7 +24,7 @@
 - 結構或引用無效時丟出 `ReportContractError`，不回傳成功 bundle，不修改輸入，也不將錯誤偷偷降成草稿。
 - 合法 null 或缺 Task supplement 會留下 `ReportValidation.incomplete`，`complete=False`；與已整理的空清單分開。D3 缺／多／重複 corpus 成員則直接拒絕。
 - Lifecycle 的 `accepted=True` 只表示指定結構化接受紀錄及同版內容綁定通過。它不代表 release approval、risk acceptance、審查者身分／權限查證，或真實同步動作已執行。
-- Sync 比對保留完整結果、basis 原始順序、cannot claim、evidence、queue、scope 及來源身分；僅允許 assessment ID 與導航用 manifest_path 不同。相同 verdict 不足以通過。`not_synced` 必須有 target 內容未對應的核驗支持；相同內容不自動顯示 synced，缺明確動作紀錄仍拒絕 synced。
+- Sync 比對保留完整結果、basis 原始順序、cannot claim、evidence、queue、scope 及來源身分；允許 assessment ID、導航用 manifest_path，以及既有 S1 contract 正規化的 provenance SHA 大小寫不同，ArtifactRef 仍綁各自原始 bytes。相同 verdict 不足以通過。`not_synced` 必須有明確核驗紀錄，內容相同可與未發生同步事件同時成立；相同內容不自動顯示 synced，缺明確動作紀錄仍拒絕 synced。
 - 本刀不做 authority 計數文案、舊報告轉寫或任何報告呈現；未收集旗標與 scope 限制交給後續 projection 保留。
 
 ## C1～C8 的 executable matrix
@@ -44,7 +44,7 @@
 
 ## 驗證結果
 
-50 項新測試跨兩個環境執行。Windows 通過 48 項，2 項 symlink 因系統權限不足跳過；Ubuntu 通過 49 項，跳過 Windows 專用 junction。50 項各至少在一個環境實際通過，包含 Linux 真實 symlink 與 Windows 真實 junction 的越界拒絕及讀取前阻擋。這不等於 Windows 原生 symlink 已實測。
+初版 50 項新測試跨兩個環境執行。Codex review 修正增加 4 項，共 54 項，含路徑檢查後實際替換目錄的競態、handle metadata 不可用、內容相同但未同步，以及三種 provenance SHA 大小寫。Windows 原生 symlink 仍受系統權限限制；Linux symlink 與 Windows junction 分別實測。最新計數與結果見 PR current head 的 CI 及綁定修正 commit 的 receipt。
 
 - 新 contract tests：`python -X utf8 -m unittest discover -s tests -p 'test_*contract.py' -v`。PR 分支重新執行；Linux CI 也會透過既有完整 discovery 執行。
 - 完整 regression：`python -X utf8 -m unittest discover -s tests -p 'test_*.py'`。此指令是既有 CI 的測試入口，新測試不需要另一份 workflow。

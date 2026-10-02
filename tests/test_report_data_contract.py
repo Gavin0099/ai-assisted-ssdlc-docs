@@ -420,6 +420,72 @@ class TestReportDataContract(ContractTestCase):
 
 
 class TestArtifactRootBoundary(ContractTestCase):
+    def test_resolved_directory_replaced_before_open_is_rejected_before_read(self):
+        with tempfile.TemporaryDirectory() as outside:
+            outside_bytes = b"Synthetic private bytes outside the caller-authorized root."
+            (Path(outside) / "private.txt").write_bytes(outside_bytes)
+            raced = self.root / "race"
+            retired = self.root / "retired"
+            raced.mkdir()
+            (raced / "private.txt").write_bytes(b"Authorized synthetic bytes.")
+            store = ArtifactStore(self.root)
+            resolve = store.resolve
+            read_calls = []
+            opened_descriptors = []
+            fdopen = os.fdopen
+
+            class ObservedFile:
+                def __init__(self, handle):
+                    self.handle = handle
+                    opened_descriptors.append(handle.fileno())
+
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *args):
+                    self.handle.close()
+
+                def fileno(self):
+                    return self.handle.fileno()
+
+                def read(self):
+                    read_calls.append(self.fileno())
+                    return self.handle.read()
+
+            def resolve_then_swap(*args, **kwargs):
+                resolved = resolve(*args, **kwargs)
+                raced.rename(retired)
+                if os.name == "nt":
+                    result = subprocess.run(["cmd", "/c", "mklink", "/J", str(raced), outside], capture_output=True)
+                    self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+                else:
+                    raced.symlink_to(outside, target_is_directory=True)
+                return resolved
+
+            try:
+                with patch.object(store, "resolve", side_effect=resolve_then_swap), patch(
+                    "tools.report_data_contract.os.fdopen", side_effect=lambda *a, **k: ObservedFile(fdopen(*a, **k))
+                ):
+                    # A matching hash must never authorize reading an outside file.
+                    ref = ArtifactRef("race/private.txt", hashlib.sha256(outside_bytes).hexdigest())
+                    with self.assertRaisesRegex(ReportContractError, "opened target escapes report root"):
+                        store.read_ref(ref, self.root / "report-data.json")
+                self.assertEqual(read_calls, [])
+                self.assertEqual(len(opened_descriptors), 1)
+                with self.assertRaises(OSError):
+                    os.fstat(opened_descriptors[0])  # Failed admission closes the handle.
+            finally:
+                if os.name == "nt" and retired.exists() and raced.exists():
+                    os.rmdir(raced)
+                elif raced.is_symlink():
+                    raced.unlink()
+
+    def test_unavailable_opened_handle_metadata_fails_before_read(self):
+        store = ArtifactStore(self.root)
+        with patch.object(store, "_opened_path", side_effect=OSError("handle metadata unavailable")):
+            with self.assertRaisesRegex(ReportContractError, "handle metadata unavailable"):
+                store.read_ref(ArtifactRef("policy.md", POLICY_HASH), self.root / "report-data.json")
+
     def test_symlink_escape_is_rejected_before_read(self):
         with tempfile.TemporaryDirectory() as outside:
             private = Path(outside) / "private.txt"
@@ -430,7 +496,7 @@ class TestArtifactRootBoundary(ContractTestCase):
             except OSError as exc:
                 self.skipTest(f"OS cannot create symlink: {exc}")
             ref = ArtifactRef("escape.txt", "2" * 64)
-            with patch.object(Path, "read_bytes", side_effect=AssertionError("outside file must not be read")) as read:
+            with patch("tools.report_data_contract.os.open", side_effect=AssertionError("outside file must not be opened")) as read:
                 with self.assertRaisesRegex(ReportContractError, "escapes report root"):
                     ArtifactStore(self.root).read_ref(ref, self.root / "report-data.json")
                 read.assert_not_called()
@@ -443,7 +509,7 @@ class TestArtifactRootBoundary(ContractTestCase):
             result = subprocess.run(["cmd", "/c", "mklink", "/J", str(junction), outside], capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
             try:
-                with patch.object(Path, "read_bytes", side_effect=AssertionError("outside file must not be read")) as read:
+                with patch("tools.report_data_contract.os.open", side_effect=AssertionError("outside file must not be opened")) as read:
                     with self.assertRaisesRegex(ReportContractError, "escapes report root"):
                         ArtifactStore(self.root).read_ref(ArtifactRef("junction/private.txt", "2" * 64), self.root / "report-data.json")
                     read.assert_not_called()

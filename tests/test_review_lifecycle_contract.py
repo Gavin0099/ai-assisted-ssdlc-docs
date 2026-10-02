@@ -221,13 +221,46 @@ class TestReviewLifecycleContract(ContractTestCase):
         self.rewrite_record("sync-verification.json", {"result": "not_synced"}, "verification_ref")
         with self.assertRaisesRegex(ReportContractError, "sync.verification"):
             self.load()
-        self.set_sync("not_synced")  # Equal contents cannot support a mismatch claim.
+        self.set_sync("not_synced")
+        self.rewrite_record("sync-verification.json", {"result": "matched"}, "verification_ref")
         with self.assertRaisesRegex(ReportContractError, "sync.verification"):
             self.load()
         self.set_sync()
         self.rewrite_record("sync-verification.json", {"result": "verified"}, "verification_ref")
         with self.assertRaisesRegex(ReportContractError, "sync.result"):
             self.load()
+
+    def test_equal_contents_can_remain_not_synced_without_a_sync_decision(self):
+        self.set_sync("not_synced")
+        try:
+            loaded = self.load()
+        except ReportContractError as exc:
+            self.fail(f"Matching contents must preserve an explicitly evidenced not_synced state: {exc}")
+        self.assertEqual(loaded.target.comparison, loaded.report_data.assessment.comparison)
+        self.assertEqual(loaded.lifecycle.sync.state, "not_synced")
+        self.assertIsNone(loaded.sync_decision)
+        self.assertFalse(loaded.accepted)
+
+    def test_sync_comparison_normalizes_only_provenance_hex_case(self):
+        from tools.report_data_contract import load_assessment_bytes
+        from tools.review_lifecycle_contract import validate_sync_content
+
+        selected_payload = copy.deepcopy(self.bundle.assessment)
+        selected_payload["assessment"]["target"]["commit"] = "ab" * 20
+        selected = load_assessment_bytes(yaml.safe_dump(selected_payload).encode())
+        for field in ["commit", "manifest_digest", "corpus_digest"]:
+            with self.subTest(field=field):
+                target_payload = copy.deepcopy(selected_payload)
+                target_payload["assessment"]["target"][field] = target_payload["assessment"]["target"][field].upper()
+                target = load_assessment_bytes(yaml.safe_dump(target_payload).encode())
+                self.assertNotEqual(selected.sha256, target.sha256)  # Raw ArtifactRef bindings stay distinct.
+                verification = parse_sync_verification({"result": "matched", **self.bindings(),
+                                                        "assessment_sha256": selected.sha256, "target_sha256": target.sha256})
+                try:
+                    validate_sync_content("synced", verification, selected, target)
+                except ReportContractError as exc:
+                    self.fail(f"Hex-case variants must preserve the S1 provenance identity: {exc}")
+                self.assertEqual(selected.comparison, target.comparison)
 
     def test_non_null_invalid_proofs_raise_instead_of_becoming_draft(self):
         self.lifecycle["acceptance_ref"] = {"path": "not-found.json", "sha256": "2" * 64}
