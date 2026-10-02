@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -c \"import time;from tools.implementation_matchers import *;a=EvidenceAssertion(MatcherKind.JSON_POINTER_EXISTS,'');s='1'*800000;t=time.perf_counter();r=evaluate_assertion(a,s);assert r.passed;print({'digits':len(s),'passed':r.passed,'seconds':round(time.perf_counter()-t,4),'timing_boundary':'diagnostic_only'})\"",
+  "exit_code": 0,
+  "started_at": "2026-10-02T18:10:04Z",
+  "finished_at": "2026-10-02T18:10:04Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "9e13ade3410f5c697c7e27f0212cf70f2ee6d7ab",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b1-balanced-committed-probe.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

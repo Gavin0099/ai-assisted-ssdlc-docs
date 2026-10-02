@@ -168,3 +168,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-integer-committed-focused.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-big-integer-before.json
 - Next action: Review and CI current PR #22 head, conditional merge, then B2 from main.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:54fa42cd31551f98fc75a298bb9246b532c6e098aff22f935ad8abff6c631ce4 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-balanced-integer
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `54fa42cd31551f98fc75a298bb9246b532c6e098aff22f935ad8abff6c631ce4`
+- Commit binding: `9e13ade3410f5c697c7e27f0212cf70f2ee6d7ab` (bound)
+- Record: Fixed Codex B1 quadratic-decimal-conversion P2 with balanced splitting and cached powers. Operand-balance regression rejects 31c9ebb; fixed9e13ade has38focused PASS. Committed 800000-digit JSON root-existence diagnostic PASS in0.3553s, timing not qualification. Latest-head full CI and reviews pending.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-balanced-committed-focused.json; PASS: artifacts/evidence/test-results/s2-b1-balanced-committed-probe.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-balanced-integer-before.json
+- Next action: Finish current-head PR #22 independent/Codex reviews and CI, merge if clean, then B2.
+- PLAN reconciliation: `updated`
