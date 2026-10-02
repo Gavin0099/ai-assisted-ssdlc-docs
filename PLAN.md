@@ -26,7 +26,7 @@
 
 - [x] S2-A: Implementation Evidence Verification Specification & Acceptance Criteria (FROZEN at dece98a).
 - [ ] S2-B: Implementation Contracts, Manifest, Corpus Resolver, Matchers & Evaluator Core. Candidate WIP is isolated; delivery follows [B0–P1 slice plan](docs/specs/s2-b-slice-plan.md).
-- [x] S2-B0 local audit: frozen S2-A versus immutable candidate 663caca; 65 tests run/64 pass/one Windows skip, with independent probes showing numeric resolver, admission integrity and item invariant defects. No production code port. PR review/CI/conditional merge remain delivery gates; B1 starts after B0 merge. Real P1 requires user-supplied product baseline and human-authored rules.
+- [x] S2-B0 local audit: frozen S2-A versus immutable candidate 663caca; 65 tests run/64 pass/one Windows skip, with independent probes showing numeric resolver, admission integrity and item invariant defects. The 12 selected candidate blobs are durably archived with fingerprints and replayed on public baseline a5a3216; this remediates Codex P2 source availability without a production port. PR review/CI/conditional merge remain delivery gates; B1 starts after B0 merge. Real P1 requires user-supplied product baseline and human-authored rules.
 - [ ] S2-C: Dual Provenance Orchestrator, CLI, Deterministic Projection & E2E Validation.
 
 - [x] REPORT-3B: Minimal Report Data Contract v0.1 accepted/frozen by the user; assessment remains unchanged, D1-D3 use report data and D4 uses separate lifecycle records. Published with REPORT-4A as its reviewed behavior source.

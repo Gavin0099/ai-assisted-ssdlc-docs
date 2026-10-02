@@ -1,0 +1,68 @@
+{
+  "candidate_commit": "663caca91a7eb06b10a7c1e5a27f10caf97ad9b7",
+  "replay_baseline_commit": "a5a32163e153b247e5714399ce3d615f70937229",
+  "status": "UNACCEPTED_CANDIDATE_ARCHIVE",
+  "files": [
+    {
+      "path": "schemas/product-target-manifest.schema.yaml",
+      "git_blob": "0366bd22a5a5fd4b7102f1c9e61b294a83f71c98",
+      "sha256": "e710d1ffc072131ba8b016f2fde4b4e8d0af3b524a992eeea94706ede48ad840"
+    },
+    {
+      "path": "tests/test_implementation_contracts.py",
+      "git_blob": "c253d8182bc0b4b1a67c69c68f71e6f17cf8072c",
+      "sha256": "9b1117f19fa7a234be26c646789a54d0b22b77e36e1760d3cf01befb8e707dfe"
+    },
+    {
+      "path": "tests/test_implementation_evaluator.py",
+      "git_blob": "788a62c6da2158d84eb7befa102087c05ad60965",
+      "sha256": "003cd92ef8d77d48b7d91028f1c23086cd300a48e7064daa32bd26c511e2fcbf"
+    },
+    {
+      "path": "tests/test_implementation_matchers.py",
+      "git_blob": "da9e56fe8b5f08fd2a14dcc1f13dabbc79865c26",
+      "sha256": "036e17abdb1aa7a191de67bda318aa46d96fcf3c40cab9a57105eae78276057e"
+    },
+    {
+      "path": "tests/test_product_corpus_resolver.py",
+      "git_blob": "b9676a9160c2daa697eaf0152ec4ca50c94fd6dc",
+      "sha256": "cc53697c2d7a6202577fc1e64cf914be70ef6019b809a3edeebfc5934c789d9d"
+    },
+    {
+      "path": "tests/test_product_target_manifest.py",
+      "git_blob": "9c202a4196445c2c05c2d14baac3ae9aedf77468",
+      "sha256": "6f1ddd7151c0477e6898033148b4064e4544eb6ad24d0173b1d47d5bce988c39"
+    },
+    {
+      "path": "tools/implementation_contracts.py",
+      "git_blob": "b4f503fdc928c44b967f437a6dbf607a5ae07e00",
+      "sha256": "ca79c5a0b70be02fb9510ee482a7fe65de8c64c951652f0f84da4f070d131a98"
+    },
+    {
+      "path": "tools/implementation_evaluator.py",
+      "git_blob": "56b3753d5866faae42c69db308910bdbda3dcd23",
+      "sha256": "68b26318d3505b2bf11fb5f92fc51c7eb2574d714a2f30556f85bf37de7f0167"
+    },
+    {
+      "path": "tools/implementation_matchers.py",
+      "git_blob": "711238f1b199c71cb979061e2182cafd73ade884",
+      "sha256": "fca47c449d6796b06b2ce0ccb060bf50b58067e1de74930e192b4c85671f5dbc"
+    },
+    {
+      "path": "tools/product_corpus_resolver.py",
+      "git_blob": "134e94d7ab5930ba510d4c1c8805296d8f0f91b2",
+      "sha256": "79350db9390fb5f18a65cc16775e0d69efa17ffd7405ad6151fab14c869f6ec0"
+    },
+    {
+      "path": "tools/repo_corpus_resolver.py",
+      "git_blob": "7f7666ac6ed1469fdff899889ced3c89a573a843",
+      "sha256": "a87e728f600dc7fb5334c615cc9697d722adf055b144c636e15df5ae602b6afd"
+    },
+    {
+      "path": "tools/validate_product_target_manifest.py",
+      "git_blob": "bb20c96b701e8e3b0ec6846706165d343349d296",
+      "sha256": "5f66f3c9ef67fc05d7fb83c5edc6d002e113f53d941037d14d4f5d3123e2b9c8"
+    }
+  ],
+  "archive_sha256": "7882245665193caa401b32a6a259928639fe11c8a930120a8ecddb5d12c9f2b0"
+}

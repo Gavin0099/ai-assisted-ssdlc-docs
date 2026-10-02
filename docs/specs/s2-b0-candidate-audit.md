@@ -7,6 +7,7 @@ B0 只回答現有 WIP 哪些可以沿用、哪些必須修正；沒有移植 pr
 - 公開 main：`a5a32163e153b247e5714399ce3d615f70937229`。
 - 唯一行為依據：[凍結 S2-A](s2-a-implementation-evidence-spec.md)，Git blob 與 `dece98a8513000ea3e2e63391eabca2b6b9add3f` 相同；SHA-256 `55360c62ff986cfffe8cd8afaf09d75827f3a8c057e543792f63dea09bca6759`。
 - 候選：`wip/s2-b-implementation-candidates`，`663caca91a7eb06b10a7c1e5a27f10caf97ad9b7`。下表行號只指此 commit。
+- 候選 commit 只在原本本機 ref；fresh clone 使用[選定來源封存](candidates/s2-b0-663caca/README.md)與逐檔指紋重播，後續移植不依賴 WIP branch 持續存在。
 - 候選附帶的 S2-A 比凍結版舊，不移植其規格、治理、hook 或 memory 變更；不 merge/cherry-pick 整個 WIP。
 
 ## 處置與驗收
