@@ -1,0 +1,8 @@
+test_digest_record_delimiter_collision_path_is_rejected (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_digest_record_delimiter_collision_path_is_rejected) ... ok
+test_terminal_newline_path_is_not_silently_excluded (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_terminal_newline_path_is_not_silently_excluded) ... ok
+test_policy_authority_uses_complete_path_matching (tests.test_repo_corpus_resolver.RepoCorpusResolverTests.test_policy_authority_uses_complete_path_matching) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.082s
+
+OK

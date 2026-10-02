@@ -322,3 +322,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-prerequisite-committed.json; five targeted regression/privacy/partial-clone cases pass. Product regression fails on4d971de. Latest full CI and independent/Codex review pending.
 - Next action: Gate latest B3 head then B4.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:6fa5d888429ccb472206ddcc519e309689b068d106346d82d04e8142eee64797 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-delimiter
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `6fa5d888429ccb472206ddcc519e309689b068d106346d82d04e8142eee64797`
+- Commit binding: `b2f0b6d970861f20d492453a0594e74aaa94688c` (bound)
+- Record: B3 keeps the frozen corpus digest encoding unambiguous by rejecting selected tab/newline paths before hashing and in Product snapshot validation. Glob wildcards use DOTALL so malformed selected paths cannot disappear behind double-star matching.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-delimiter-committed.json; three regressions including real Git collision and single/double-star selection pass. Before receipt has three failures on d185417. Latest-head CI/review pending.
+- Next action: Review latest B3 head, merge then B4.
+- PLAN reconciliation: `updated`
