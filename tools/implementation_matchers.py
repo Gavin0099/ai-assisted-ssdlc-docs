@@ -323,8 +323,13 @@ def _ensure_acyclic_yaml(value: Any) -> None:
     completed: set[int] = set()
 
     def visit(node: Any) -> None:
-        if isinstance(node, str) and any(0xD800 <= ord(char) <= 0xDFFF for char in node):
-            raise InvalidEvidenceInputError("YAML evidence contains a non-scalar Unicode string.")
+        if isinstance(node, str):
+            if id(node) in completed:
+                return
+            if any(0xD800 <= ord(char) <= 0xDFFF for char in node):
+                raise InvalidEvidenceInputError("YAML evidence contains a non-scalar Unicode string.")
+            completed.add(id(node))
+            return
         if not isinstance(node, (dict, list, tuple)):
             return
         identity = id(node)

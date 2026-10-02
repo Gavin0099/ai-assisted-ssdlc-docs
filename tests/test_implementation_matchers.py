@@ -274,6 +274,23 @@ class ImplementationMatcherTests(unittest.TestCase):
         ), 'value: "\\U0001F600"')
         self.assertTrue(result.passed)
 
+    def test_shared_scalar_alias_is_validated_once(self) -> None:
+        class CountingString(str):
+            visits = 0
+
+            def __iter__(self):
+                type(self).visits += 1
+                if type(self).visits > 1:
+                    raise AssertionError("Shared scalar must be Unicode-validated once")
+                return super().__iter__()
+
+        shared = CountingString("safe" * 2500)
+        matchers._ensure_acyclic_yaml([shared] * 1000)
+        self.assertEqual(CountingString.visits, 1)
+        content = 'value: &text "safe"\naliases: [' + ', '.join(['*text'] * 1000) + ']'
+        self.assertTrue(evaluate_assertion(
+            EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, "aliases"), content).passed)
+
     def test_typed_values_do_not_coerce_in_yaml_or_json(self) -> None:
         cases = (("true", ExpectedScalarKind.INTEGER, 1),
                  ("1", ExpectedScalarKind.BOOLEAN, True),
