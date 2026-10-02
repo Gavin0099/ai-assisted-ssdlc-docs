@@ -245,3 +245,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b2-committed.json; latest 34 focused pass; initial Windows full397 run394 pass3platform skips; old candidate27 tests9failures3errors. Latest independent/Codex review and CI remain pending.
 - Next action: Close B2 independent/Codex exact-head review and CI gate, merge if clean, then B3 from updated main; P1 baseline and human rules pending.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:5f5e939ca1ab69c84a9f9bff0b5fa9b1d8834d5fd3efc844d8e23612566263da -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `5f5e939ca1ab69c84a9f9bff0b5fa9b1d8834d5fd3efc844d8e23612566263da`
+- Commit binding: `f8e6e3c621b18e128b57bfbb76c70a112e5451d8` (bound)
+- Record: S2-B3 strict Product manifest and pinned corpus admission; independent review and remote delivery gates pending.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-committed.json; 37 run/36 pass/one Windows OS symlink skip; full 435 run/431 pass/four platform skips; B2 focused34 pass.
+- Next action: Review exact latest PR head, merge after Engineering gate, then B4; P1 human baseline/rules pending.
+- PLAN reconciliation: `updated`
