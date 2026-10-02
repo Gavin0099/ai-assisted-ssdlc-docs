@@ -96,5 +96,11 @@
     "artifacts/reporting/report-4e-validation.json"
   ],
   "stdout": "",
-  "stderr": "----------------------------------------------------------------------\nRan 311 tests in 41.590s\n\nOK (skipped=2)\n"
+  "stderr": "----------------------------------------------------------------------\nRan 311 tests in 41.590s\n\nOK (skipped=2)\n",
+  "cannot_claim": [
+    "No browser visual or interactive qualification.",
+    "Legacy shared breadcrumb still labels the reader Company SSDLC Pilot; actual report title, corpus, IDs and verdicts are preserved.",
+    "Technical review and tests do not establish semantic assessment correctness, implementation, human acceptance, synchronization or publication authority.",
+    "Private company inputs, reports, fidelity tests and their receipts are excluded from this delivery."
+  ]
 }
