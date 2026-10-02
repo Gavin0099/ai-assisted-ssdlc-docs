@@ -223,3 +223,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-map-node-committed.json;44focusedpass. Old9db7853 malformed-node regression3failures2errors.
 - Next action: Latest exact-head independent/Codex/CI gate then B1 merge and B2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:285ad8c4d7ec1ef192506fa6c2398031bfaf506845375838a1213fda3c92d5fd -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-scalar-node
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `285ad8c4d7ec1ef192506fa6c2398031bfaf506845375838a1213fda3c92d5fd`
+- Commit binding: `78851ab081204d61ae5a898f8ffebba5745bf17d` (bound)
+- Record: B1 tag/node-kind batch remediation: shared ScalarNode constructor guard blocks SafeLoader legacy !!value mapping-as-scalar shortcut and hidden custom tags; timestamp raw TypeError is sanitized. Map-node and scalar-key memo guards retained.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-scalar-node-committed.json;45focusedpass. Oldbab50a4 node/tag regression6failures1error.
+- Next action: Current-head independent/Codex/CI before B1 merge then B2.
+- PLAN reconciliation: `updated`
