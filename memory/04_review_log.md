@@ -201,3 +201,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-float-key-committed.json;42focusedpass. Oldf6abb55 regression12errors. Latest fullCI pending.
 - Next action: Latest exact-head independent/Codex/CI before merge B1 then B2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:7966588bbd6195111c7bec2b789aab2fa08d2572c10f75a96886e76194d32e1a -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-scalar-key-alias
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `7966588bbd6195111c7bec2b789aab2fa08d2572c10f75a96886e76194d32e1a`
+- Commit binding: `2af6883000ad2d05beeaa974f81b18e07c0c1309` (bound)
+- Record: B1 independent P2: shared scalar numeric key aliases now use interned node IDs, avoiding repeated canonicalization and bigint hashing. Lossless float identity, tagged equality and non-string navigation boundaries retained.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-float-alias-committed.json;43focusedpass. Old99bdb44 regressionFAIL20conversions versus1. LatestCI pending.
+- Next action: Latest exact-head independent/Codex/CI then merge B1 and start B2.
+- PLAN reconciliation: `updated`

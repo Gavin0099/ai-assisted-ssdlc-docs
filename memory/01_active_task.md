@@ -45,3 +45,5 @@
 - B0 mergedPR21. B1 collection keys fixed;40focusedPASS/full359run356pass3skips;latest-head reviews and CI required. B2-C2 serial after B1 merge. P1 product baseline/human rules pending. <!-- memory_record_projection:active-task-summary:fa1c62290d14d51b15d588d47235705bb8843c9dea81a190cce50ad9fe3a44fa -->
 
 - B0 mergedPR21. B1 float-key fix42focusedPASS; oldf6abb55 regression12errors. Latest-head independent/Codex/CI gate pending. B2-C2 serial after merge. P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:20a2ff3c93ba720493571f46d6756535c1d7724ff34dbe274c164e44fef75326 -->
+
+- B0 mergedPR21. B1 interned shared scalar keys43focusedPASS; old99bdb44 iteration regression fails. Latest-head review/CI gate pending. B2-C2 serial after merge; P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:7966588bbd6195111c7bec2b789aab2fa08d2572c10f75a96886e76194d32e1a -->
