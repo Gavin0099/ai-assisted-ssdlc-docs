@@ -36,3 +36,14 @@
 - Validation boundary: PASS: artifacts/reporting/report-4a-pr-fix-regression.json -> exit_code=0,251 run249 pass2 Windows symlink privilege skips,linked implementation8f0efdf. PASS: artifacts/reporting/report-4a-review-regression-replay.json,three assertion failures on old465e435 prove sensitivity; first replay import/patch error is retained as attempt1 and not counted. Latest contract run54: Windows52/Linux53 pass,each platform only skips inapplicable/privilege cases. NOT CLAIMED: semantic correctness, private data/provenance/authenticity, actual product execution or updated-head remote approval.
 - Next action: Push fixes and companion, request Codex re-review for the latest exact PR19 head, verify CI and resolve review threads before conditional merge. No real migration/rendering/S2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:7916a2fa3a90388c5f4551d0d6a94af5ecd9b516d399e3867071ba382960dfa2 -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `7916a2fa3a90388c5f4551d0d6a94af5ecd9b516d399e3867071ba382960dfa2`
+- Commit binding: `99644c3` (bound)
+- Record: REPORT-4E public tooling: wired the repository skill to validated structured data, fixed three Markdown layers and shared offline HTML. Kept legacy render and independent lifecycle state. Public tests are synthetic and private-free; no private input migration or publication included.
+- Validation boundary: artifacts/reporting/report-4e-validation.json: independent technical review NO_BLOCKING_FINDINGS; Windows 311/309 pass/2 skips, Ubuntu 311/310 pass/1 skip; blind skill project exit 0 with four outputs and preserved draft/not_synced state; skill validator and diff check PASS.
+- Next action: Open the authorized public tooling PR, obtain current-head Codex review and green checks, then conditionally merge. Browser visual and interaction QA remains not verified.
+- PLAN reconciliation: `updated`

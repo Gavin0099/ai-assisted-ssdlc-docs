@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/governance-drift.yml"
+      - ".agents/**"
       - ".gitmodules"
       - ".governance/**"
       - "AGENTS.base.md"
@@ -26,6 +27,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/governance-drift.yml"
+      - ".agents/**"
       - ".gitmodules"
       - ".governance/**"
       - "AGENTS.base.md"

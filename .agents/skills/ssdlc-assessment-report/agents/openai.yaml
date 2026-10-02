@@ -1,0 +1,4 @@
+interface:
+  display_name: "SSDLC 分析與報告"
+  short_description: "固定來源分析，產出白話工程修正單、三層 Markdown 與離線網頁"
+  default_prompt: "請使用 $ssdlc-assessment-report，分析指定 SSDLC repo 與分支，依固定規則產出三層 Markdown 和離線網頁。"

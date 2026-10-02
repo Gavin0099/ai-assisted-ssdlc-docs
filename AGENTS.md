@@ -435,3 +435,29 @@ Prompt yourself:
 - Do not copy raw secrets, credentials, customer data, incident payloads, or full scanner dumps into templates, examples, or queue artifacts.
 - Do not remove `review_due` from risk acceptance, weak evidence, deferred review, or accepted exceptions.
 - Do not treat AI summaries as primary evidence.
+
+## SSDLC Assessment Reporting Rule
+<!-- governance:key=assessment_reporting -->
+
+分析、撰寫或更新本 repo 的 S1 文件覆蓋 assessment、Pilot 結果及產品補充審閱時，
+所有 AI agent 必須遵守 [S1 報告呈現規則](docs/specs/s1-report-presentation-contract.md)，
+先依規則的固定分析流程，再使用[主管摘要模板](templates/s1-assessment-summary.md)、
+[工程師修正單模板](templates/s1-assessment-actions.md)及
+[完整技術附錄模板](templates/s1-assessment-technical-review.md)，不自行更換章節或表格欄位。
+
+執行入口使用 [ssdlc-assessment-report skill](.agents/skills/ssdlc-assessment-report/SKILL.md)：
+從固定來源分析、工程修正單及三層 Markdown 到網頁交付；寫作參考與網頁配色／呈現依該 skill 的共用參考，正式判定仍由 repo contract 決定。
+
+- 固定三層：主管摘要、工程師修正單、完整技術附錄；摘要以 2–3 頁內閱讀量為目標。
+- 摘要固定四節：結論、工程師要處理什麼、建議處理順序、詳細 NIST 判定。
+- 修正單固定 A 改文件、B 補證據、C 改善建議；六欄為 ID、類型、哪裡有問題、現在的問題、要怎麼改、怎樣算改完。
+- 每項必須能寫成「請修改哪份文件哪個段落，因為什麼，改成／補上什麼，完成後用什麼確認」；寫不出來就留待釐清，不派給工程師。
+- 完整來源、逐題理由與稽核軌跡保留在附錄；三層互相連結，工程師不必先讀 NIST reasoning 才能找到改法。
+- 文件覆蓋、執行證據、核准狀態及人工接受分開呈現；摘要不得提高原結果的宣稱。
+- 每個需修改／補證的項目必須指出文件位置、適用規則與效力、具體問題、改法及完成確認方式；不能把證據不足直接寫成未照規則執行。
+- 既有判定及 finding 欄位沿用 REPORT-1 rubric；格式調整不授權重判、改 assessment schema／Review Engine 或開始 S2。
+- 「用這個 branch 再 review」等重審指令也必須完成三層，不等使用者再提醒；依 contract §9 保存來源版本、舊報告及穩定問題 ID。
+- 交付前必須完成 contract §8 核對；完成回覆按 §10 固定列出「主管摘要／工程師六欄修正單／完整技術附錄」三個本次檔案連結。只列 findings 或 verdict 不算完整交付。
+- 三層 Markdown 完成後，預設依 contract §11 用共用 HTML 模板／轉換器產出同版本的網頁閱讀版；保留三份來源、固定判定與草稿狀態，不自行另做版型或發布到外部。
+
+以上為 repo-specific 人類報告規則，不取代 AI Governance 更新協定或其他 artifact contract。

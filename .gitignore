@@ -16,3 +16,12 @@ artifacts/*.db
 **/artifacts/governance/version_compatibility.json
 **/artifacts/*.db
 # <<< ai-governance hygiene (managed) <<<
+
+# Local company report bundles and their fidelity evidence are not public fixtures.
+/experiments/s1-company-pilot/report-4b/
+/experiments/s1-company-pilot/report-4c/
+/experiments/s1-company-pilot/report-4d/
+/local_tests/
+/artifacts/reporting/report-4b-*
+/artifacts/reporting/report-4c-*
+/artifacts/reporting/report-4d-*

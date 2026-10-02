@@ -54,6 +54,8 @@ unless the referenced source artifacts and reviewer decisions explicitly support
 - Reviewer guide: [docs/reviewer-guide.md](docs/reviewer-guide.md)
 - Security Decision validator contract: [docs/security-decision-validator-contract.md](docs/security-decision-validator-contract.md)
 - Reviewer report contract: [docs/reviewer-report-contract.md](docs/reviewer-report-contract.md)
+- SSDLC assessment reporting skill: [.agents/skills/ssdlc-assessment-report/SKILL.md](.agents/skills/ssdlc-assessment-report/SKILL.md)
+- Recorded assessment → three Markdown layers → offline HTML: [reporting workflow](docs/specs/s1-reporting-workflow-integration.md)
 - Templates: [templates/](templates/)
 - Schemas: [schemas/](schemas/)
 - Feature demos: [examples/feature-file-upload/](examples/feature-file-upload/) and [examples/feature-auth-flow/](examples/feature-auth-flow/)
@@ -63,6 +65,8 @@ unless the referenced source artifacts and reviewer decisions explicitly support
 ## Validation
 
 Run the local validators:
+
+The default regression suite uses synthetic reporting fixtures and needs no company repository. Real company migration checks remain local under `local_tests/` with their private input bundle; they are not part of the public suite.
 
 ```powershell
 python -m pip install -r requirements-validation.txt
