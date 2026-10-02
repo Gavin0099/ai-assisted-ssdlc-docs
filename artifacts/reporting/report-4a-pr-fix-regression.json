@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest discover -s tests -p test_*.py",
+  "exit_code": 0,
+  "started_at": "2026-10-02T07:44:03Z",
+  "finished_at": "2026-10-02T07:44:34Z",
+  "runner": "windows-main-based-review-fix",
+  "linked_commit": "8f0efdff86fb38ed997a593e3449ac028f41b25f",
+  "output_artifacts": [
+    "artifacts/reporting/report-4a-pr-fix-regression.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}
