@@ -47,3 +47,5 @@
 - B0 mergedPR21. B1 float-key fix42focusedPASS; oldf6abb55 regression12errors. Latest-head independent/Codex/CI gate pending. B2-C2 serial after merge. P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:20a2ff3c93ba720493571f46d6756535c1d7724ff34dbe274c164e44fef75326 -->
 
 - B0 mergedPR21. B1 interned shared scalar keys43focusedPASS; old99bdb44 iteration regression fails. Latest-head review/CI gate pending. B2-C2 serial after merge; P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:7966588bbd6195111c7bec2b789aab2fa08d2572c10f75a96886e76194d32e1a -->
+
+- B0 mergedPR21. B1 Core map-node guard44focusedPASS; old9db7853 regression3failures2errors. Latest-head gates pending. B2-C2 serial aftermerge;P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:ad26eb6f77c6075fa10e1de0069e7474b47391b79f2756342554294b9827e96a -->

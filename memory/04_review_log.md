@@ -212,3 +212,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-float-alias-committed.json;43focusedpass. Old99bdb44 regressionFAIL20conversions versus1. LatestCI pending.
 - Next action: Latest exact-head independent/Codex/CI then merge B1 and start B2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:ad26eb6f77c6075fa10e1de0069e7474b47391b79f2756342554294b9827e96a -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-map-node
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `ad26eb6f77c6075fa10e1de0069e7474b47391b79f2756342554294b9827e96a`
+- Commit binding: `ed9dccf5017ea565f04bea3861e646c938014ec3` (bound)
+- Record: B1 review P2: Core map constructor rejects incompatible ScalarNode/SequenceNode at root, value or key; errors sanitized. Prior scalar-key memoization remains enforced.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-map-node-committed.json;44focusedpass. Old9db7853 malformed-node regression3failures2errors.
+- Next action: Latest exact-head independent/Codex/CI gate then B1 merge and B2.
+- PLAN reconciliation: `updated`
