@@ -439,6 +439,32 @@ class ImplementationMatcherTests(unittest.TestCase):
                     evaluate_assertion(root, document)
         self.assertTrue(evaluate_assertion(root, '? [true]\n: first\n? [1]\n: second\n').passed)
 
+    def test_yaml_float_keys_preserve_lossless_decimal_identity(self) -> None:
+        root = EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, '')
+        for first, second in (
+            ('9007199254740992.0', '9007199254740993.0'),
+            ('1e400', '.inf'), ('1e400', '2e400'),
+            ('1e-400', '0.0'), ('-1e-400', '1e-400'),
+            ('0.1', '0.100000000000000000001'),
+        ):
+            for wrap in (False, True):
+                document = (f'? [{first}]\n: first\n? [{second}]\n: second\n' if wrap
+                            else f'{first}: first\n{second}: second\n')
+                with self.subTest(first=first, second=second, wrap=wrap):
+                    self.assertTrue(evaluate_assertion(root, document).passed)
+
+    def test_yaml_equivalent_float_key_spellings_are_duplicates(self) -> None:
+        root = EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, '')
+        for first, second in (('0.10', '1e-1'), ('100.0', '1e2'),
+                              ('-.Inf', '-.inf'), ('.NaN', '.nan'),
+                              ('-0.0', '0.0')):
+            for wrap in (False, True):
+                document = (f'? [{first}]\n: first\n? [{second}]\n: second\n' if wrap
+                            else f'{first}: first\n{second}: second\n')
+                with self.subTest(first=first, second=second, wrap=wrap):
+                    with self.assertRaises(InvalidEvidenceInputError):
+                        evaluate_assertion(root, document)
+
     def test_yaml_empty_path_targets_document_root(self) -> None:
         result = evaluate_assertion(
             self._equals(

@@ -309,6 +309,31 @@ for _tag, _constructor in (
     _UniqueKeyYaml12CoreLoader.add_constructor(f"tag:yaml.org,2002:{_tag}", _constructor)
 
 
+def _yaml_float_key_identity(source: str) -> Any:
+    """Lossless Core float key equality, independent of native float rounding.
+
+    YAML 1.2.2 section 10.2.1.4 canonicalizes zero, infinity, NaN and finite
+    scientific notation. Keep coefficient digits and decimal exponent locally;
+    no expansion of huge exponents or process-wide numeric setting changes.
+    """
+    text = source.lower()
+    if text == ".nan":
+        return "nan"
+    negative = text.startswith("-")
+    text = text.lstrip("+-")
+    if text == ".inf":
+        return "-inf" if negative else "inf"
+    mantissa, separator, exponent_text = text.partition("e")
+    exponent = _parse_decimal_integer(exponent_text) if separator else 0
+    whole, dot, fraction = mantissa.partition(".")
+    digits = (whole + fraction).lstrip("0")
+    if not digits:
+        return (False, "0", 0)
+    significant = digits.rstrip("0")
+    exponent += len(digits) - len(significant) - (len(fraction) if dot else 0)
+    return (negative, significant, exponent)
+
+
 def _yaml_key_identity(loader: _UniqueKeyYaml12CoreLoader, node: yaml.Node) -> int:
     """Intern tagged structural equality without expanding a shared alias DAG."""
     node_id = id(node)
@@ -321,7 +346,7 @@ def _yaml_key_identity(loader: _UniqueKeyYaml12CoreLoader, node: yaml.Node) -> i
         value = loader.construct_object(node, deep=True)
         if isinstance(value, str) and any(0xD800 <= ord(char) <= 0xDFFF for char in value):
             raise InvalidEvidenceInputError("YAML key contains a non-scalar Unicode string.")
-        canonical = ".nan" if type(value) is float and value != value else value
+        canonical = _yaml_float_key_identity(node.value) if type(value) is float else value
     elif isinstance(node, yaml.SequenceNode) and node.tag == "tag:yaml.org,2002:seq":
         canonical = tuple(_yaml_key_identity(loader, child) for child in node.value)
     elif isinstance(node, MappingNode) and node.tag == "tag:yaml.org,2002:map":
@@ -362,7 +387,7 @@ def _construct_unique_yaml_mapping(
         # Preserve YAML tag equality; Python otherwise merges true with 1.
         # Only literal string keys are navigable through the frozen path DSL.
         if type(key) is not str and not isinstance(key, _YamlCollectionKey):
-            canonical = ".nan" if type(key) is float and key != key else key
+            canonical = _yaml_float_key_identity(key_node.value) if type(key) is float else key
             key = (key_node.tag, canonical)
         duplicate = key in result
         if duplicate:
