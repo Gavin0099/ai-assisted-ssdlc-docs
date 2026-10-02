@@ -142,7 +142,7 @@ class PolicyAssessmentAdmission:
     """Immutable validated authority; the marker is not human-approval proof."""
 
     __slots__ = ("_identity", "_findings", "_admission_token", "_snapshot",
-                 "_assessment_sha256", "_manifest_sha256", "_identity_status", "_reason_codes")
+                 "_assessment_sha256", "_manifest_sha256", "_identity_status", "_reason_codes", "_admission_seal")
 
     def __init__(
         self,
@@ -168,6 +168,7 @@ class PolicyAssessmentAdmission:
         object.__setattr__(self, "_manifest_sha256", manifest_sha256)
         object.__setattr__(self, "_identity_status", identity_status)
         object.__setattr__(self, "_reason_codes", reason_codes)
+        object.__setattr__(self, "_admission_seal", _policy_admission_seal(self))
 
     def __setattr__(self, name: str, value: Any) -> None:
         raise AttributeError("PolicyAssessmentAdmission is immutable.")
@@ -194,6 +195,7 @@ class PolicyAssessmentAdmission:
 
     @property
     def policy_snapshot_integrity_verified(self) -> bool:
+        verify_admitted_policy_assessment(self)
         return True
 
     @property
@@ -882,6 +884,7 @@ def _validate_expectation_links(
     policy_admission: PolicyAssessmentAdmission,
     ruleset: ImplementationEvidenceRuleset,
 ) -> None:
+    verify_admitted_policy_assessment(policy_admission)
     if not isinstance(policy_admission, PolicyAssessmentAdmission) or getattr(policy_admission, "_admission_token", None) is not _POLICY_ADMISSION_TOKEN:
         _fail("Actual policy admission is required.")
     identity = expectation_set.policy_assessment_identity
@@ -934,6 +937,7 @@ def admit_policy_assessment(
     assessment_path: Path | str,
     manifest_path: Path | str,
     repo_path: Path | str,
+    *, allow_unverified_provenance: bool = False,
 ) -> PolicyAssessmentAdmission:
     """Admit actual S1 validation and materialization, never a provenance flag."""
     from tools.corpus_assessment_engine import parse_corpus_assessment_dict
@@ -945,8 +949,12 @@ def admit_policy_assessment(
         snapshot = None
 
         def resolve(self, manifest: Any, repo_path: Path) -> Any:
-            _verify_repository_identity(manifest.target.source_type, manifest.target.repo, repo_path)
-            self.snapshot = RepoCorpusResolver(git_client=git_client).resolve(manifest, repo_path)
+            before = classify_repository_identity(manifest.target.source_type, manifest.target.repo, repo_path)
+            if before is not identity_status:
+                _fail("Policy identity changed before materialization.")
+            self.snapshot = RepoCorpusResolver(git_client=git_client).materialize(manifest, repo_path)
+            if classify_repository_identity(manifest.target.source_type, manifest.target.repo, repo_path) is not before:
+                _fail("Policy identity changed during materialization.")
             return self.snapshot
 
     try:
@@ -958,6 +966,11 @@ def admit_policy_assessment(
         parsed_report = parse_corpus_assessment_dict(_load_policy_yaml(assessment_bytes))
         manifest = parse_target_manifest(_load_policy_yaml(manifest_bytes))
         git_client = GitCliClient()  # Preserve prerequisite errors outside S1's broad wrapper.
+        if type(allow_unverified_provenance) is not bool:
+            _fail("Provenance opt-in must be boolean.")
+        identity_status = classify_repository_identity(manifest.target.source_type, manifest.target.repo, repository)
+        if identity_status is RepositoryIdentityStatus.UNVERIFIED and not allow_unverified_provenance:
+            _fail("Policy repository identity requires explicit opt-in.")
         resolver = CapturingResolver()
         # The S1 linter and parser read the same captured assessment bytes.
         # Repeated reads of a concurrently edited source cannot validate a
@@ -983,7 +996,8 @@ def admit_policy_assessment(
             or snapshot.target_commit != report.target.commit
         ):
             _fail("Policy inputs changed during validation or materialization.")
-        _verify_repository_identity(manifest.target.source_type, manifest.target.repo, repository)
+        if classify_repository_identity(manifest.target.source_type, manifest.target.repo, repository) is not identity_status:
+            _fail("Policy identity changed after materialization.")
         if (
             manifest.target.repo != report.target.repo
             or manifest.target.commit.lower() != report.target.commit
@@ -1015,6 +1029,7 @@ def admit_policy_assessment(
             snapshot=snapshot,
             assessment_sha256=hashlib.sha256(assessment_bytes).hexdigest(),
             manifest_sha256=hashlib.sha256(manifest_bytes).hexdigest(),
+            identity_status=identity_status, reason_codes=identity_reason_codes(identity_status),
         )
     except GitCapabilityError:
         raise ContractInputError(str(GitCapabilityError())) from None
@@ -1026,7 +1041,7 @@ def admit_policy_assessment(
         ) from None
 
 
-def _verify_repository_identity(source_type: str, declared_repo: str, repository: Path) -> None:
+def classify_repository_identity(source_type: str, declared_repo: str, repository: Path) -> RepositoryIdentityStatus:
     """Known host/path mismatches cannot become identity uncertainty."""
     from tools.repo_corpus_resolver import GitCliClient
     client = GitCliClient()
@@ -1044,10 +1059,18 @@ def _verify_repository_identity(source_type: str, declared_repo: str, repository
     if source_type == "local_git":
         if Path(declared_repo).resolve() != repository.resolve():
             _fail("Declared local policy repository does not match the materialized root.")
-        return
-    origin = client.get_remote_url(repository)
-    if not origin:
-        _fail("Policy repository identity is unverified.")
+        return RepositoryIdentityStatus.VERIFIED
+    if source_type != "github":
+        _fail("Unsupported S2 repository source type.")
+    remote = client._run(["config", "--get-all", "remote.origin.url"], repository)
+    if remote.returncode == 1 and not remote.stdout:
+        return RepositoryIdentityStatus.UNVERIFIED
+    if remote.returncode != 0 or not remote.stdout.strip():
+        _fail("Repository identity evidence could not be read.")
+    origins = remote.stdout.splitlines()
+    if len(origins) != 1 or not origins[0].strip():
+        _fail("Repository origin identity is ambiguous or empty.")
+    origin = origins[0].strip()
     if origin.startswith("git@github.com:"):
         host, path = "github.com", origin[len("git@github.com:"):]
     else:
@@ -1060,6 +1083,105 @@ def _verify_repository_identity(source_type: str, declared_repo: str, repository
         path = path[:-4]
     if host != "github.com" or path.casefold() != declared_repo.casefold():
         _fail("Policy repository has a known identity mismatch.")
+
+    return RepositoryIdentityStatus.VERIFIED
+
+
+def _verify_repository_identity(source_type: str, declared_repo: str, repository: Path) -> None:
+    if classify_repository_identity(source_type, declared_repo, repository) is not RepositoryIdentityStatus.VERIFIED:
+        _fail("Repository identity is unverified.")
+
+
+def identity_reason_codes(status: RepositoryIdentityStatus) -> tuple[str, ...]:
+    if type(status) is not RepositoryIdentityStatus:
+        _fail("Unsupported repository identity status.")
+    return () if status is RepositoryIdentityStatus.VERIFIED else ("REPOSITORY_IDENTITY_UNVERIFIED",)
+
+
+def validate_identity_state(status: RepositoryIdentityStatus, reasons: tuple[str, ...]) -> None:
+    if type(reasons) is not tuple or reasons != identity_reason_codes(status):
+        _fail("Repository identity status and reason codes disagree.")
+
+
+def _policy_admission_seal(admission: PolicyAssessmentAdmission) -> str:
+    from tools.product_corpus_resolver import product_snapshot_integrity_digest, _relative_path
+    from tools.repo_corpus_resolver import CorpusSnapshot, glob_to_regex
+    from tools.validate_target_manifest import (
+        TargetManifest, TargetSpec, AuthoritySurfaceSpec, BaselineSpec, ModeSpec,
+        parse_target_manifest,
+    )
+    identity = admission.identity
+    if type(identity) is not PolicyAssessmentIdentity:
+        _fail("Policy admission identity has an invalid shape.")
+    identity.__post_init__()
+    snapshot = admission.snapshot
+    if type(snapshot) is not CorpusSnapshot:
+        _fail("Policy admission needs its actual immutable snapshot.")
+    manifest = snapshot.manifest
+    if (type(manifest) is not TargetManifest or type(manifest.target) is not TargetSpec
+            or type(manifest.authority_surface) is not AuthoritySurfaceSpec
+            or type(manifest.baseline) is not BaselineSpec or type(manifest.mode) is not ModeSpec
+            or type(manifest.authority_surface.include) is not tuple
+            or type(manifest.authority_surface.exclude) is not tuple):
+        _fail("Policy manifest has an invalid immutable shape.")
+    # Reuse S1's schema authority; cached fingerprints cannot replace actual data.
+    reparsed = parse_target_manifest({
+        "target": vars(manifest.target), "baseline": vars(manifest.baseline),
+        "mode": vars(manifest.mode), "authority_surface": {
+            "include": list(manifest.authority_surface.include),
+            "exclude": list(manifest.authority_surface.exclude)}})
+    if reparsed != manifest or manifest.digest != snapshot.manifest_digest:
+        _fail("Policy manifest differs from its admitted fingerprint.")
+    if (snapshot.manifest.target.source_type != identity.target_source_type
+            or snapshot.manifest.target.repo != identity.target_repo
+            or snapshot.target_commit != identity.target_commit
+            or snapshot.manifest.target.commit.lower() != identity.target_commit
+            or snapshot.manifest_digest != identity.target_manifest_digest
+            or snapshot.corpus_digest != identity.target_corpus_digest):
+        _fail("Policy snapshot identity differs from assessment admission.")
+    file_seal = product_snapshot_integrity_digest(
+        manifest_digest=snapshot.manifest_digest, target_commit=snapshot.target_commit,
+        corpus_digest=snapshot.corpus_digest, files=snapshot.files)
+    includes = tuple(glob_to_regex(p) for p in manifest.authority_surface.include)
+    excludes = tuple(glob_to_regex(p) for p in manifest.authority_surface.exclude)
+    paths = frozenset(snapshot.paths())
+    if any(not any(p.fullmatch(path) for p in includes)
+           or any(p.fullmatch(path) for p in excludes) for path in paths):
+        _fail("Policy file is outside the actual manifest authority surface.")
+    if (type(snapshot.total_files) is not int or type(snapshot.total_bytes) is not int
+            or len(snapshot.files) != snapshot.total_files
+            or sum(f.byte_size for f in snapshot.files) != snapshot.total_bytes):
+        _fail("Policy snapshot totals differ from admitted files.")
+    validate_identity_state(admission._identity_status, admission._reason_codes)
+    _require_digest(admission.assessment_sha256, "assessment fingerprint")
+    _require_digest(admission.manifest_sha256, "manifest fingerprint")
+    if (type(admission.findings) is not tuple or not admission.findings
+            or any(type(f) is not PolicyFindingAuthority for f in admission.findings)
+            or len({f.finding_id for f in admission.findings}) != len(admission.findings)):
+        _fail("Policy finding authority must be immutable and unique.")
+    findings = []
+    for f in admission.findings:
+        for value in (f.finding_id, f.task_id, f.company_source_ref):
+            _require_string(value, "policy finding")
+        if f.company_source_ref != "<corpus>#unmentioned":
+            path = _relative_path(f.company_source_ref.split("#", 1)[0])
+            if path not in paths:
+                _fail("Policy finding source is outside its actual corpus.")
+        findings.append({"id": f.finding_id, "task": f.task_id, "source": f.company_source_ref})
+    return _canonical_digest({"identity": _identity_payload(identity), "file_seal": file_seal,
+        "assessment_sha256": admission.assessment_sha256, "manifest_sha256": admission.manifest_sha256,
+        "findings": findings, "status": admission._identity_status.value, "reasons": list(admission._reason_codes)})
+
+
+def verify_admitted_policy_assessment(admission: Any) -> PolicyAssessmentAdmission:
+    if type(admission) is not PolicyAssessmentAdmission or getattr(admission, "_admission_token", None) is not _POLICY_ADMISSION_TOKEN:
+        _fail("An actual admitted policy assessment is required.")
+    try:
+        if _policy_admission_seal(admission) != admission._admission_seal:
+            _fail("Policy admission differs from its original fingerprint.")
+    except Exception:
+        raise ContractInputError("Policy admission failed integrity revalidation.") from None
+    return admission
 
 
 def _load_policy_yaml(content: bytes) -> Any:

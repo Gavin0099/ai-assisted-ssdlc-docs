@@ -1,0 +1,9 @@
+test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) ... ok
+test_policy_unreferenced_missing_sentinel_remains_valid_s1_input (tests.test_implementation_verification.VerificationTests.test_policy_unreferenced_missing_sentinel_remains_valid_s1_input) ... ok
+test_dual_provenance_four_status_combinations_and_explicit_opt_in (tests.test_implementation_verification.VerificationTests.test_dual_provenance_four_status_combinations_and_explicit_opt_in) ... ok
+test_record_verifier_rejects_metadata_mutation_without_repair (tests.test_implementation_verification.VerificationTests.test_record_verifier_rejects_metadata_mutation_without_repair) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 15.097s
+
+OK

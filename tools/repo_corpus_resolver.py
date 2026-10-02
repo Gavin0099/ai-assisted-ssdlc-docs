@@ -365,6 +365,17 @@ class RepoCorpusResolver:
                     f"does not match claimed github repository '{manifest.target.repo}'."
                 )
 
+        return self.materialize(manifest, actual_repo_path)
+
+    def materialize(self, manifest: ManifestT, repo_path: Path) -> CorpusSnapshot[ManifestT]:
+        """Pinned object/integrity read only; caller separately owns repository identity.
+
+        resolve() retains the existing strict S1 identity wrapper. S2 classifies
+        actual identity on both sides of this same fixed-object materializer.
+        """
+        actual_repo_path = Path(repo_path).resolve()
+        if not actual_repo_path.is_dir():
+            raise CorpusResolverError("Materialization requires an existing repository root.")
         target_commit = manifest.target.commit
         if not self.git_client.verify_commit_exists(actual_repo_path, target_commit):
             raise CorpusResolverError(

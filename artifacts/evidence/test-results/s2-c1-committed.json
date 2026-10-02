@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority tests.test_implementation_verification.VerificationTests.test_policy_unreferenced_missing_sentinel_remains_valid_s1_input tests.test_implementation_verification.VerificationTests.test_dual_provenance_four_status_combinations_and_explicit_opt_in tests.test_implementation_verification.VerificationTests.test_record_verifier_rejects_metadata_mutation_without_repair -v",
+  "exit_code": 0,
+  "started_at": "2026-10-02T21:07:30Z",
+  "finished_at": "2026-10-02T21:07:45Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "32b6a283ec216380e2101e1f85ed2d943df0ff08",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-c1-committed.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

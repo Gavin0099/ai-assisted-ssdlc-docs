@@ -1,0 +1,15 @@
+test_policy_consumer_rechecks_actual_frozen_content (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_frozen_content) ... FAIL
+
+======================================================================
+FAIL: test_policy_consumer_rechecks_actual_frozen_content (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_frozen_content)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 58, in test_policy_consumer_rechecks_actual_frozen_content
+    with self.assertRaises(ContractInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 1.926s
+
+FAILED (failures=1)

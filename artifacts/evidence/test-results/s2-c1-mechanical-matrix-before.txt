@@ -1,0 +1,26 @@
+test_record_rejects_mechanically_false_but_well_formed_items (tests.test_implementation_verification.VerificationTests.test_record_rejects_mechanically_false_but_well_formed_items) ... 
+  test_record_rejects_mechanically_false_but_well_formed_items (tests.test_implementation_verification.VerificationTests.test_record_rejects_mechanically_false_but_well_formed_items) (case='false_missing') ... FAIL
+  test_record_rejects_mechanically_false_but_well_formed_items (tests.test_implementation_verification.VerificationTests.test_record_rejects_mechanically_false_but_well_formed_items) (case='invented_node') ... FAIL
+
+======================================================================
+FAIL: test_record_rejects_mechanically_false_but_well_formed_items (tests.test_implementation_verification.VerificationTests.test_record_rejects_mechanically_false_but_well_formed_items) (case='false_missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 242, in test_record_rejects_mechanically_false_but_well_formed_items
+    with self.subTest(case="false_missing"), self.assertRaises(VerificationInputError):
+                                             ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: VerificationInputError not raised
+
+======================================================================
+FAIL: test_record_rejects_mechanically_false_but_well_formed_items (tests.test_implementation_verification.VerificationTests.test_record_rejects_mechanically_false_but_well_formed_items) (case='invented_node')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 261, in test_record_rejects_mechanically_false_but_well_formed_items
+    with self.subTest(case="invented_node"), self.assertRaises(VerificationInputError):
+                                             ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: VerificationInputError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 2.439s
+
+FAILED (failures=2)

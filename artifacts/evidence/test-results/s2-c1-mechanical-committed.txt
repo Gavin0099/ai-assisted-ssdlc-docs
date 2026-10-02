@@ -1,0 +1,6 @@
+test_record_rejects_mechanically_false_but_well_formed_items (tests.test_implementation_verification.VerificationTests.test_record_rejects_mechanically_false_but_well_formed_items) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.487s
+
+OK

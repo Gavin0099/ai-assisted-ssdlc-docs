@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest tests.test_implementation_verification.VerificationTests.test_record_rejects_mechanically_false_but_well_formed_items -v",
+  "exit_code": 0,
+  "started_at": "2026-10-02T21:17:36Z",
+  "finished_at": "2026-10-02T21:17:39Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "0f00c234c80f7ae2c38861fc231012b39f4706af",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-c1-mechanical-committed.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

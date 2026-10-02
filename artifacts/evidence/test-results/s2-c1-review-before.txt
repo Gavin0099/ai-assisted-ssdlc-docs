@@ -1,0 +1,55 @@
+test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) ... 
+  test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) (changed=TargetManifest(target=TargetSpec(source_type='github', repo='example/policy', commit='e40ae7fee3fb70b1adb5a17ba814839b550ee0e0'), authority_surface=AuthoritySurfaceSpec(include=('outside/**',), exclude=()), baseline=BaselineSpec(framework='NIST_SP_800_218', version='1.1'), mode=ModeSpec(read_only=True))) ... FAIL
+  test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) (changed=TargetManifest(target=TargetSpec(source_type='github', repo='example/policy', commit='e40ae7fee3fb70b1adb5a17ba814839b550ee0e0'), authority_surface=AuthoritySurfaceSpec(include=('policy/**',), exclude=('policy/**',)), baseline=BaselineSpec(framework='NIST_SP_800_218', version='1.1'), mode=ModeSpec(read_only=True))) ... FAIL
+  test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) (changed=TargetManifest(target=TargetSpec(source_type='github', repo='example/policy', commit='e40ae7fee3fb70b1adb5a17ba814839b550ee0e0'), authority_surface=AuthoritySurfaceSpec(include=('policy/**',), exclude=()), baseline=BaselineSpec(framework='NIST_SP_800_218', version='1.1'), mode=ModeSpec(read_only=False))) ... FAIL
+  test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) (changed=TargetManifest(target=TargetSpec(source_type='github', repo='example/policy', commit='e40ae7fee3fb70b1adb5a17ba814839b550ee0e0'), authority_surface=AuthoritySurfaceSpec(include=('policy/**',), exclude=()), baseline=BaselineSpec(framework='NIST_SP_800_218', version='9.9'), mode=ModeSpec(read_only=True))) ... FAIL
+test_policy_unreferenced_missing_sentinel_remains_valid_s1_input (tests.test_implementation_verification.VerificationTests.test_policy_unreferenced_missing_sentinel_remains_valid_s1_input) ... ERROR
+
+======================================================================
+ERROR: test_policy_unreferenced_missing_sentinel_remains_valid_s1_input (tests.test_implementation_verification.VerificationTests.test_policy_unreferenced_missing_sentinel_remains_valid_s1_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 95, in test_policy_unreferenced_missing_sentinel_remains_valid_s1_input
+    from tools.validate_ssdf_assessment import validate_assessment
+ImportError: cannot import name 'validate_assessment' from 'tools.validate_ssdf_assessment' (C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\validate_ssdf_assessment.py). Did you mean: 'validate_ssdf_assessment'?
+
+======================================================================
+FAIL: test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) (changed=TargetManifest(target=TargetSpec(source_type='github', repo='example/policy', commit='e40ae7fee3fb70b1adb5a17ba814839b550ee0e0'), authority_surface=AuthoritySurfaceSpec(include=('outside/**',), exclude=()), baseline=BaselineSpec(framework='NIST_SP_800_218', version='1.1'), mode=ModeSpec(read_only=True)))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 81, in test_policy_consumer_rechecks_actual_manifest_and_authority
+    with self.subTest(changed=changed), self.assertRaises(ContractInputError):
+                                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) (changed=TargetManifest(target=TargetSpec(source_type='github', repo='example/policy', commit='e40ae7fee3fb70b1adb5a17ba814839b550ee0e0'), authority_surface=AuthoritySurfaceSpec(include=('policy/**',), exclude=('policy/**',)), baseline=BaselineSpec(framework='NIST_SP_800_218', version='1.1'), mode=ModeSpec(read_only=True)))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 81, in test_policy_consumer_rechecks_actual_manifest_and_authority
+    with self.subTest(changed=changed), self.assertRaises(ContractInputError):
+                                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) (changed=TargetManifest(target=TargetSpec(source_type='github', repo='example/policy', commit='e40ae7fee3fb70b1adb5a17ba814839b550ee0e0'), authority_surface=AuthoritySurfaceSpec(include=('policy/**',), exclude=()), baseline=BaselineSpec(framework='NIST_SP_800_218', version='1.1'), mode=ModeSpec(read_only=False)))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 81, in test_policy_consumer_rechecks_actual_manifest_and_authority
+    with self.subTest(changed=changed), self.assertRaises(ContractInputError):
+                                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_policy_consumer_rechecks_actual_manifest_and_authority (tests.test_implementation_verification.VerificationTests.test_policy_consumer_rechecks_actual_manifest_and_authority) (changed=TargetManifest(target=TargetSpec(source_type='github', repo='example/policy', commit='e40ae7fee3fb70b1adb5a17ba814839b550ee0e0'), authority_surface=AuthoritySurfaceSpec(include=('policy/**',), exclude=()), baseline=BaselineSpec(framework='NIST_SP_800_218', version='9.9'), mode=ModeSpec(read_only=True)))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 81, in test_policy_consumer_rechecks_actual_manifest_and_authority
+    with self.subTest(changed=changed), self.assertRaises(ContractInputError):
+                                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.642s
+
+FAILED (failures=4, errors=1)

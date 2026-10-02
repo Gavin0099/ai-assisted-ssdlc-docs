@@ -344,3 +344,25 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b4-committed.json (4 committed critical tests); s2-b4-index-fixed.json (25 focused PASS); s2-b4-full.json (472 run/468 pass/4 Windows skips, before index delta). Candidate-before has21failedsubcases and one corrected test exception oracle; index-before rejects d4c5535. Drift/readiness PASS with inherited warnings. Latest-head CI/Codex and independent delta review pending.
 - Next action: Verify remote ref, obtain latest-head independent/Codex approval and CI; conditionally merge B4, then C1. P1 still requires human-selected real product baseline and explicit rules.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:451f45b9a4acd2930db6190604b4c36d5c03afb4d0ac39a7eeefef0af0393fe5 -->
+### Canonical memory checkpoint — 2026-10-03-S2-C1
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `451f45b9a4acd2930db6190604b4c36d5c03afb4d0ac39a7eeefef0af0393fe5`
+- Commit binding: `32b6a283ec216380e2101e1f85ed2d943df0ff08` (bound)
+- Record: S2-C1 code32b6a28 adds actual dual admission, identity-only opt-in and sealed complete records; independent manifest/authority and sentinel regressions fixed. No output/CLI/real product claim.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-c1-committed.json; 4 critical committed tests; focused23 PASS. Prior integration107 run106pass1skip. Full suite still running; receipt only after completion.
+- Next action: Exact-head independent/Codex review and CI, conditional merge; C2 serial after main gate; P1 awaits human baselines/rules.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:2b3a5b382a3bc31432e98576b49cf6534623a786c866eb7fa6a81bf619c91832 -->
+### Canonical memory checkpoint — 2026-10-03-S2-C1-mechanical
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `2b3a5b382a3bc31432e98576b49cf6534623a786c866eb7fa6a81bf619c91832`
+- Commit binding: `0f00c234c80f7ae2c38861fc231012b39f4706af` (bound)
+- Record: C1 PR26 Codex P1 fixed0f00c23: public record constructor compares mechanically evaluated items before original seal; false MISSING/invented node subcases reject prior e3d376f.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-c1-mechanical-committed.json; two committed negative subcases. Focused24 PASS. Previous full496 is code32b6a28, latest full belongs to new PR CI.
+- Next action: Latest complete-head independent/Codex review and CI; conditional merge then C2. P1 human inputs pending.
+- PLAN reconciliation: `updated`
