@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_file_lookup_uses_one_admitted_index_not_repeated_linear_scans tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_same_id_foreign_ruleset_cannot_replace_bound_semantics tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_multi_rule_edges_remain_independent_and_ordered tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_any_success_cannot_hide_later_invalid_evidence -v",
+  "exit_code": 0,
+  "started_at": "2026-10-02T20:46:36Z",
+  "finished_at": "2026-10-02T20:46:45Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "4b9245c43978790f767ed9f39e88f922f362b7c7",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b4-committed.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

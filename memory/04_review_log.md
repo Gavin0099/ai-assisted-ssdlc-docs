@@ -333,3 +333,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-delimiter-committed.json; three regressions including real Git collision and single/double-star selection pass. Before receipt has three failures on d185417. Latest-head CI/review pending.
 - Next action: Review latest B3 head, merge then B4.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:7aa22bb5f34e3220b9cd55743a60d15c3fafc07d082fb5986e95e6c22fdf265f -->
+### Canonical memory checkpoint — 2026-10-03-S2-B4
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `7aa22bb5f34e3220b9cd55743a60d15c3fafc07d082fb5986e95e6c22fdf265f`
+- Commit binding: `4b9245c43978790f767ed9f39e88f922f362b7c7` (bound)
+- Record: S2-B4 mechanical evaluator implemented from fixed B0 candidate: bound aggregate-only evaluation, strict immutable item/ref/locator invariants, full candidate parsing and sanitized discrepancies. Independent review P2 repeated linear lookup fixed with one admitted path index. B3 PR24 merge c09a958 and post-merge main CI verified before branch. No CLI, record, Task roll-up, priority or real product Pilot.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b4-committed.json (4 committed critical tests); s2-b4-index-fixed.json (25 focused PASS); s2-b4-full.json (472 run/468 pass/4 Windows skips, before index delta). Candidate-before has21failedsubcases and one corrected test exception oracle; index-before rejects d4c5535. Drift/readiness PASS with inherited warnings. Latest-head CI/Codex and independent delta review pending.
+- Next action: Verify remote ref, obtain latest-head independent/Codex approval and CI; conditionally merge B4, then C1. P1 still requires human-selected real product baseline and explicit rules.
+- PLAN reconciliation: `updated`

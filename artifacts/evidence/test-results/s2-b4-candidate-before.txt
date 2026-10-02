@@ -1,0 +1,257 @@
+test_admitted_rule_or_expectation_mutation_is_rejected_before_evaluation (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_admitted_rule_or_expectation_mutation_is_rejected_before_evaluation) ... ok
+test_any_and_all_quantify_files_not_yaml_nodes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_any_and_all_quantify_files_not_yaml_nodes) ... ok
+test_any_failure_reports_all_candidates_with_sanitized_json (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_any_failure_reports_all_candidates_with_sanitized_json) ... ok
+test_any_success_cannot_hide_later_invalid_evidence (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_any_success_cannot_hide_later_invalid_evidence) ... ok
+test_candidate_invalid_yaml_fails_closed_not_as_discrepancy (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_candidate_invalid_yaml_fails_closed_not_as_discrepancy) ... ok
+test_discrepancy_codes_and_node_consistency (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_codes_and_node_consistency) ... ok
+test_discrepancy_ref_paths_and_codes_cannot_disagree (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_ref_paths_and_codes_cannot_disagree) ... 
+  test_discrepancy_ref_paths_and_codes_cannot_disagree (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_ref_paths_and_codes_cannot_disagree) (nodes=(), code='VALUE_MISMATCH') ... FAIL
+  test_discrepancy_ref_paths_and_codes_cannot_disagree (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_ref_paths_and_codes_cannot_disagree) (nodes=(), code='UNCOMPARABLE_NODE') ... FAIL
+  test_discrepancy_ref_paths_and_codes_cannot_disagree (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_ref_paths_and_codes_cannot_disagree) (nodes=('/key',), code='NO_NODE_MATCH') ... FAIL
+  test_discrepancy_ref_paths_and_codes_cannot_disagree (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_ref_paths_and_codes_cannot_disagree) (payload='[{"code":"VALUE_MISMATCH","repo_path":"src/other.yml"}]') ... FAIL
+test_domain_values_reject_invalid_verdict_discrepancy_order_and_refs (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_domain_values_reject_invalid_verdict_discrepancy_order_and_refs) ... ok
+test_each_expectation_rule_link_produces_distinct_item_without_rollup (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_each_expectation_rule_link_produces_distinct_item_without_rollup) ... ok
+test_empty_candidate_set_is_missing_but_not_applicable_takes_precedence (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_empty_candidate_set_is_missing_but_not_applicable_takes_precedence) ... ok
+test_evaluator_rejects_unadmitted_product_snapshot (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_evaluator_rejects_unadmitted_product_snapshot) ... ok
+test_file_exists_returns_one_ref_with_specified_locator (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_file_exists_returns_one_ref_with_specified_locator) ... ok
+test_file_quantifier_complete_matrix (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_file_quantifier_complete_matrix) ... ok
+test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) ... 
+  test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'evidence_refs': [EvidenceRef(repo_path='src/a.yml', content_digest='cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', locator=EvidenceLocator(kind='yaml_path', value='key'), resolved_node_paths=('/key',), matched_snippet=None)]}") ... FAIL
+  test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'evidence_refs': (EvidenceRef(repo_path='src/a.yml', content_digest='cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', locator=EvidenceLocator(kind='yaml_path', value='key'), resolved_node_paths=('/key',), matched_snippet=None), EvidenceRef(repo_path='src/a.yml', content_digest='cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', locator=EvidenceLocator(kind='yaml_path', value='key'), resolved_node_paths=('/key',), matched_snippet=None))}") ... FAIL
+  test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'expectation_id': 1}") ... FAIL
+  test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'rule_id': ''}") ... FAIL
+  test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'task_id': 'PW.8.1'}") ... FAIL
+  test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'explanation': 1}") ... FAIL
+  test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'explanation': '\\ud800'}") ... FAIL
+test_node_locations_preserve_traversal_not_lexical_index_order (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_node_locations_preserve_traversal_not_lexical_index_order) ... ok
+test_not_applicable_does_not_parse_but_still_requires_admission (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_not_applicable_does_not_parse_but_still_requires_admission) ... ok
+test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) ... 
+  test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='unknown', value="'x'") ... FAIL
+  test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='json_pointer', value="'missing-slash'") ... FAIL
+  test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='yaml_path', value="'key..bad'") ... FAIL
+  test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='file_existence', value="'../bad'") ... FAIL
+  test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='json_pointer', value="'\\ud800'") ... FAIL
+  test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind=True, value="'key'") ... FAIL
+  test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (path="'src/a.yml'", nodes=('/key', '/key')) ... FAIL
+  test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (path="'src/a\\tb.yml'", nodes=()) ... FAIL
+  test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (path="'src/a\\nb.yml'", nodes=()) ... FAIL
+test_replaced_snapshot_and_admitted_aggregates_fail_integrity_checks (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_replaced_snapshot_and_admitted_aggregates_fail_integrity_checks) ... ok
+test_root_and_escaped_key_locators (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_root_and_escaped_key_locators) ... ok
+test_same_id_foreign_ruleset_cannot_replace_bound_semantics (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_same_id_foreign_ruleset_cannot_replace_bound_semantics) ... FAIL
+test_selector_pattern_failure_is_not_treated_as_empty_candidate_set (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_selector_pattern_failure_is_not_treated_as_empty_candidate_set) ... ERROR
+test_selector_union_deduplicates_and_sorts_paths (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_selector_union_deduplicates_and_sorts_paths) ... ok
+
+======================================================================
+ERROR: test_selector_pattern_failure_is_not_treated_as_empty_candidate_set (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_selector_pattern_failure_is_not_treated_as_empty_candidate_set)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 379, in test_selector_pattern_failure_is_not_treated_as_empty_candidate_set
+    make_rule(matcher="YAML_PATH_EXISTS", target_path="enabled..path")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 72, in make_rule
+    return ImplementationEvidenceRule(
+        rule_id=rule_id,
+    ...<9 lines>...
+        ),
+    )
+  File "<string>", line 11, in __init__
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_contracts.py", line 83, in __post_init__
+    _validate_rule_shape(self)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_contracts.py", line 380, in _validate_rule_shape
+    raise ContractInputError("Rule assertion is invalid.") from None
+tools.implementation_contracts.ContractInputError: Rule assertion is invalid.
+
+======================================================================
+FAIL: test_discrepancy_ref_paths_and_codes_cannot_disagree (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_ref_paths_and_codes_cannot_disagree) (nodes=(), code='VALUE_MISMATCH')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 610, in test_discrepancy_ref_paths_and_codes_cannot_disagree
+    with self.subTest(nodes=nodes, code=code), self.assertRaises(ValueError):
+                                               ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_discrepancy_ref_paths_and_codes_cannot_disagree (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_ref_paths_and_codes_cannot_disagree) (nodes=(), code='UNCOMPARABLE_NODE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 610, in test_discrepancy_ref_paths_and_codes_cannot_disagree
+    with self.subTest(nodes=nodes, code=code), self.assertRaises(ValueError):
+                                               ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_discrepancy_ref_paths_and_codes_cannot_disagree (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_ref_paths_and_codes_cannot_disagree) (nodes=('/key',), code='NO_NODE_MATCH')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 610, in test_discrepancy_ref_paths_and_codes_cannot_disagree
+    with self.subTest(nodes=nodes, code=code), self.assertRaises(ValueError):
+                                               ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_discrepancy_ref_paths_and_codes_cannot_disagree (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_discrepancy_ref_paths_and_codes_cannot_disagree) (payload='[{"code":"VALUE_MISMATCH","repo_path":"src/other.yml"}]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 617, in test_discrepancy_ref_paths_and_codes_cannot_disagree
+    with self.subTest(payload=payload), self.assertRaises(ValueError):
+                                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'evidence_refs': [EvidenceRef(repo_path='src/a.yml', content_digest='cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', locator=EvidenceLocator(kind='yaml_path', value='key'), resolved_node_paths=('/key',), matched_snippet=None)]}")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 603, in test_item_models_reject_mutable_and_malformed_fields
+    with self.subTest(patch=repr(patch)), self.assertRaises(ValueError):
+                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'evidence_refs': (EvidenceRef(repo_path='src/a.yml', content_digest='cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', locator=EvidenceLocator(kind='yaml_path', value='key'), resolved_node_paths=('/key',), matched_snippet=None), EvidenceRef(repo_path='src/a.yml', content_digest='cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', locator=EvidenceLocator(kind='yaml_path', value='key'), resolved_node_paths=('/key',), matched_snippet=None))}")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 603, in test_item_models_reject_mutable_and_malformed_fields
+    with self.subTest(patch=repr(patch)), self.assertRaises(ValueError):
+                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'expectation_id': 1}")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 603, in test_item_models_reject_mutable_and_malformed_fields
+    with self.subTest(patch=repr(patch)), self.assertRaises(ValueError):
+                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'rule_id': ''}")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 603, in test_item_models_reject_mutable_and_malformed_fields
+    with self.subTest(patch=repr(patch)), self.assertRaises(ValueError):
+                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'task_id': 'PW.8.1'}")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 603, in test_item_models_reject_mutable_and_malformed_fields
+    with self.subTest(patch=repr(patch)), self.assertRaises(ValueError):
+                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'explanation': 1}")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 603, in test_item_models_reject_mutable_and_malformed_fields
+    with self.subTest(patch=repr(patch)), self.assertRaises(ValueError):
+                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_item_models_reject_mutable_and_malformed_fields (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_item_models_reject_mutable_and_malformed_fields) (patch="{'explanation': '\\ud800'}")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 603, in test_item_models_reject_mutable_and_malformed_fields
+    with self.subTest(patch=repr(patch)), self.assertRaises(ValueError):
+                                          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='unknown', value="'x'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 625, in test_ref_and_locator_strict_shapes
+    with self.subTest(kind=kind, value=repr(value)), self.assertRaises(ValueError):
+                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='json_pointer', value="'missing-slash'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 625, in test_ref_and_locator_strict_shapes
+    with self.subTest(kind=kind, value=repr(value)), self.assertRaises(ValueError):
+                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='yaml_path', value="'key..bad'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 625, in test_ref_and_locator_strict_shapes
+    with self.subTest(kind=kind, value=repr(value)), self.assertRaises(ValueError):
+                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='file_existence', value="'../bad'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 625, in test_ref_and_locator_strict_shapes
+    with self.subTest(kind=kind, value=repr(value)), self.assertRaises(ValueError):
+                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind='json_pointer', value="'\\ud800'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 625, in test_ref_and_locator_strict_shapes
+    with self.subTest(kind=kind, value=repr(value)), self.assertRaises(ValueError):
+                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (kind=True, value="'key'")
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 625, in test_ref_and_locator_strict_shapes
+    with self.subTest(kind=kind, value=repr(value)), self.assertRaises(ValueError):
+                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (path="'src/a.yml'", nodes=('/key', '/key'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 629, in test_ref_and_locator_strict_shapes
+    with self.subTest(path=repr(path), nodes=nodes), self.assertRaises(ValueError):
+                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (path="'src/a\\tb.yml'", nodes=())
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 629, in test_ref_and_locator_strict_shapes
+    with self.subTest(path=repr(path), nodes=nodes), self.assertRaises(ValueError):
+                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_ref_and_locator_strict_shapes (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_ref_and_locator_strict_shapes) (path="'src/a\\nb.yml'", nodes=())
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 629, in test_ref_and_locator_strict_shapes
+    with self.subTest(path=repr(path), nodes=nodes), self.assertRaises(ValueError):
+                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_same_id_foreign_ruleset_cannot_replace_bound_semantics (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_same_id_foreign_ruleset_cannot_replace_bound_semantics)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_evaluator.py", line 507, in test_same_id_foreign_ruleset_cannot_replace_bound_semantics
+    with self.assertRaises(EvaluatorInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: EvaluatorInputError not raised
+
+----------------------------------------------------------------------
+Ran 22 tests in 33.506s
+
+FAILED (failures=21, errors=1)

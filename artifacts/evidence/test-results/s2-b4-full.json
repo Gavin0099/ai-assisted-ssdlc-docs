@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest discover -s tests -v",
+  "exit_code": 0,
+  "started_at": "2026-10-02T20:42:08Z",
+  "finished_at": "2026-10-02T20:44:22Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "c09a9588d95fc986dd76ee74cc96656d50f04b55",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b4-full.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}
