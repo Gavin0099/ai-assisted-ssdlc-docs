@@ -215,8 +215,8 @@ class GitCliClient:
     def verify_commit_exists(self, repo_path: Path, commit: str) -> bool:
         if not repo_path.is_dir():
             return False
-        res = self._run(["cat-file", "-e", f"{commit}^{{commit}}"], cwd=repo_path)
-        return res.returncode == 0
+        res = self._run(["cat-file", "-t", commit], cwd=repo_path)
+        return res.returncode == 0 and res.stdout.strip() == "commit"
 
     def get_remote_url(self, repo_path: Path, remote_name: str = "origin") -> str | None:
         if not repo_path.is_dir():

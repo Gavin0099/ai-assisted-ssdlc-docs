@@ -1,0 +1,26 @@
+test_commit_field_rejects_annotated_tag_tree_and_blob_object_ids (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_commit_field_rejects_annotated_tag_tree_and_blob_object_ids) ... 
+  test_commit_field_rejects_annotated_tag_tree_and_blob_object_ids (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_commit_field_rejects_annotated_tag_tree_and_blob_object_ids) (object_id='67d0bff48445f43f6acc96c78f487c6f72a8d05f') ... FAIL
+test_policy_commit_field_rejects_an_annotated_tag_object (tests.test_repo_corpus_resolver.RepoCorpusResolverTests.test_policy_commit_field_rejects_an_annotated_tag_object) ... FAIL
+
+======================================================================
+FAIL: test_commit_field_rejects_annotated_tag_tree_and_blob_object_ids (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_commit_field_rejects_annotated_tag_tree_and_blob_object_ids) (object_id='67d0bff48445f43f6acc96c78f487c6f72a8d05f')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 162, in test_commit_field_rejects_annotated_tag_tree_and_blob_object_ids
+    with self.subTest(object_id=object_id), self.assertRaises(CorpusResolverError):
+                                            ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+======================================================================
+FAIL: test_policy_commit_field_rejects_an_annotated_tag_object (tests.test_repo_corpus_resolver.RepoCorpusResolverTests.test_policy_commit_field_rejects_an_annotated_tag_object)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_repo_corpus_resolver.py", line 495, in test_policy_commit_field_rejects_an_annotated_tag_object
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.277s
+
+FAILED (failures=2)

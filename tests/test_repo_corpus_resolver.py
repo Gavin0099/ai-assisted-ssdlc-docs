@@ -482,6 +482,19 @@ mode:
         self.assertEqual(snapshot.get_file("policy/a.md").content, "original\n")
         self.assertEqual(snapshot.target_commit, old)
 
+    def test_policy_commit_field_rejects_an_annotated_tag_object(self) -> None:
+        commit = self._commit_files({"policy/a.md": b"fixture\n"})
+        run_git(["-c", "tag.gpgsign=false", "tag", "-a", "fixture-tag", "-m", "synthetic tag", commit], self.repo_dir)
+        tag = run_git(["rev-parse", "fixture-tag"], self.repo_dir).stdout.strip()
+        manifest = TargetManifest(
+            target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=tag),
+            authority_surface=AuthoritySurfaceSpec(include=("policy/**",), exclude=()),
+            baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
+            mode=ModeSpec(read_only=True),
+        )
+        with self.assertRaises(CorpusResolverError):
+            RepoCorpusResolver().resolve(manifest, self.repo_dir)
+
     def test_policy_authority_uses_complete_path_matching(self) -> None:
         commit = self._commit_files({"policy/keep.md": b"keep\n"})
 

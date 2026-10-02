@@ -153,6 +153,15 @@ class ProductCorpusResolverTests(unittest.TestCase):
                 finally:
                     run_git(["replace", "-d", old], self.repo_dir)
 
+    def test_commit_field_rejects_annotated_tag_tree_and_blob_object_ids(self) -> None:
+        commit = self._commit_files({"src/app.yml": b"fixture\n"}, "commit object")
+        run_git(["-c", "tag.gpgsign=false", "tag", "-a", "fixture-tag", "-m", "synthetic tag", commit], self.repo_dir)
+        objects = [run_git(["rev-parse", selector], self.repo_dir).stdout.strip()
+                   for selector in ("fixture-tag", f"{commit}^{{tree}}", f"{commit}:src/app.yml")]
+        for object_id in objects:
+            with self.subTest(object_id=object_id), self.assertRaises(CorpusResolverError):
+                ProductCorpusResolver().resolve(self._manifest(object_id, ["src/**"]), self.repo_dir)
+
     def test_terminal_newline_path_is_not_silently_excluded(self) -> None:
         # Build actual Git objects: Windows cannot create this filename, but
         # such a pinned tree must still materialize precisely on all hosts.
