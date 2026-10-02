@@ -53,3 +53,13 @@
 - B0 mergedPR21. B1 shared scalar-node guard45focusedPASS;oldbab node/tag regression6failures1error. Latest-head gates pending. B2-C2 aftermerge;P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:285ad8c4d7ec1ef192506fa6c2398031bfaf506845375838a1213fda3c92d5fd -->
 
 - B0/PR21 and B1/PR22 merged. B2 code680d71b:34focusedPASS; strict policy snapshot/identity/source/digest admission. PR reviews/CI/merge pending; B3-C2 serial next. P1 human baseline/rules pending. <!-- memory_record_projection:active-task-summary:d7e4175c5a71b449ce483b518fa69527da4da30d5efc3cc198cfe3c11a767131 -->
+
+- B0-B2 merged. B3 codef8e6e3c:37 focused/36 pass/1skip, full435/431/4skip; pinned Git corpus and strict admission. Latest-head independent/Codex/CI/merge pending. B4-C2 serial next; P1 human baseline/rules pending. <!-- memory_record_projection:active-task-summary:5f5e939ca1ab69c84a9f9bff0b5fa9b1d8834d5fd3efc844d8e23612566263da -->
+
+- B0-B2 merged. B3 four independent findings fixed cd5c826;41focused40pass1skip/full441437pass4skip. Latest-head reviews/CI/merge pending; shared pinned Git/complete-path runtime fixes bounded. B4-C2 serial next;P1 inputs pending. <!-- memory_record_projection:active-task-summary:8b655b765525ad8954d040efa7d3014ccc9dadbc47b7a2162a3873276b15bc13 -->
+
+- B3 PR24 Python3.11 test oracle fixed01a2438;41focused40pass1skip. Four production findings already fixed. Final-head review/CI/merge pending; B4-C2 serial after gate. P1 human inputs pending. <!-- memory_record_projection:active-task-summary:1e1634a08f49e48efc4fbe40c0a741fb5da95a6542166d0613ea75023c5547fc -->
+
+- B3 PR24 tag-as-commit defect fixed61fab83;61focused60pass1skip. Final-head independent/Codex/CI/merge pending. B4-C2 serial aftergate; P1 human inputs pending. <!-- memory_record_projection:active-task-summary:cc5f301490ee24eb3d5d4d05ab2c065e6b4032c1a37f18da024361bcc41f3504 -->
+
+- B3 lazy-fetch fixed; latest PR 24 review/CI pending. PLAN is current authority. <!-- memory_record_projection:active-task-summary:22a99ace1889fd967ba14dea02d6058aaffe1df0b4722672f2328804330a9709 -->

@@ -245,3 +245,91 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b2-committed.json; latest 34 focused pass; initial Windows full397 run394 pass3platform skips; old candidate27 tests9failures3errors. Latest independent/Codex review and CI remain pending.
 - Next action: Close B2 independent/Codex exact-head review and CI gate, merge if clean, then B3 from updated main; P1 baseline and human rules pending.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:5f5e939ca1ab69c84a9f9bff0b5fa9b1d8834d5fd3efc844d8e23612566263da -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `5f5e939ca1ab69c84a9f9bff0b5fa9b1d8834d5fd3efc844d8e23612566263da`
+- Commit binding: `f8e6e3c621b18e128b57bfbb76c70a112e5451d8` (bound)
+- Record: S2-B3 strict Product manifest and pinned corpus admission; independent review and remote delivery gates pending.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-committed.json; 37 run/36 pass/one Windows OS symlink skip; full 435 run/431 pass/four platform skips; B2 focused34 pass.
+- Next action: Review exact latest PR head, merge after Engineering gate, then B4; P1 human baseline/rules pending.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:8b655b765525ad8954d040efa7d3014ccc9dadbc47b7a2162a3873276b15bc13 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-review
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `8b655b765525ad8954d040efa7d3014ccc9dadbc47b7a2162a3873276b15bc13`
+- Commit binding: `cd5c826a410deedd660a5075fef9fb0af5e5ae76` (bound)
+- Record: B3 independent review fixed replacement-object substitution, complete authority selection, scalar-tag bypass and dict/parser text disagreement.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-review-committed.json; focused41 run40 pass1skip; full441 run437 pass4skip; failed-before five subcases at f05d3d4.
+- Next action: Exact-head independent/Codex review and CI, conditional merge then B4; P1 human baseline/rules pending.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:1e1634a08f49e48efc4fbe40c0a741fb5da95a6542166d0613ea75023c5547fc -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-portable
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `1e1634a08f49e48efc4fbe40c0a741fb5da95a6542166d0613ea75023c5547fc`
+- Commit binding: `01a2438d6ddef5e09252ae0828d13ca7bcce72a4` (bound)
+- Record: B3 CI/Codex test portability fixed; protected constructor and recomputed-content consumer checks are now independent.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-portable-committed.json; focused41 run40 pass1skip; Python3.11 latest CI pending.
+- Next action: Review final PR24 head and rerun required CI; conditional merge then B4; P1 inputs pending.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:cc5f301490ee24eb3d5d4d05ab2c065e6b4032c1a37f18da024361bcc41f3504 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-tag
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `cc5f301490ee24eb3d5d4d05ab2c065e6b4032c1a37f18da024361bcc41f3504`
+- Commit binding: `61fab83b1ef56da4be7eb4be9a0cda4365dc8cac` (bound)
+- Record: B3 Codex tag-as-commit identity defect fixed; shared Git verifier requires the exact object to be commit.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-tag-committed.json;61run60pass1WindowsOSskip; two before-fix Product/Policy regressions reject dc557dd.
+- Next action: Final PR24 independent/Codex/CI gate, conditional merge then B4; P1 inputs pending.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:22a99ace1889fd967ba14dea02d6058aaffe1df0b4722672f2328804330a9709 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-lazy-fetch
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `22a99ace1889fd967ba14dea02d6058aaffe1df0b4722672f2328804330a9709`
+- Commit binding: `192ded6aebb32686a8510f42e298043c5abf3768` (bound)
+- Record: B3 closes synthetic partial-clone lazy-fetch side effect by disabling it on all shared Git reads; missing objects fail closed without changing the object store.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-lazy-fetch-committed.json; 62 run,61 pass,one Windows skip. Before receipt reproduces two failed paths. Latest-head PR review/CI pending.
+- Next action: Review and merge latest B3 head, then serial B4.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:52e758d47d278bb8f939d1def7aead8d5b4083eda1a0b8fdfef5edaae2645a8f -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-git-capability
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `52e758d47d278bb8f939d1def7aead8d5b4083eda1a0b8fdfef5edaae2645a8f`
+- Commit binding: `7f3facb7558ea40142e530486abe4a23182864f1` (bound)
+- Record: B3 static readers explicitly require no-lazy-fetch capability (Git 2.48+ supported baseline); README and CI declare/enforce it. Unsupported binaries fail before any repository read; no unsafe compatibility fallback.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-git-capability-committed.json; 63 run62 pass1 Windows skip; prior capability test fails on874fdb9. Latest-head independent/Codex/CI pending.
+- Next action: Finish latest B3 review gate then B4.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:b65a4cafd64209401fd186d8766b75aefe36e9943bb52b3b3a562b5acbb6f929 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-prerequisite
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `b65a4cafd64209401fd186d8766b75aefe36e9943bb52b3b3a562b5acbb6f929`
+- Commit binding: `46957db93a8ea2190cb99e050174c1c0e08e5cf9` (bound)
+- Record: B3 preserves fixed Git prerequisite diagnostics across Product and policy admission while suppressing raw subprocess stderr and unexpected exception chains.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-prerequisite-committed.json; five targeted regression/privacy/partial-clone cases pass. Product regression fails on4d971de. Latest full CI and independent/Codex review pending.
+- Next action: Gate latest B3 head then B4.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:6fa5d888429ccb472206ddcc519e309689b068d106346d82d04e8142eee64797 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-delimiter
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `6fa5d888429ccb472206ddcc519e309689b068d106346d82d04e8142eee64797`
+- Commit binding: `b2f0b6d970861f20d492453a0594e74aaa94688c` (bound)
+- Record: B3 keeps the frozen corpus digest encoding unambiguous by rejecting selected tab/newline paths before hashing and in Product snapshot validation. Glob wildcards use DOTALL so malformed selected paths cannot disappear behind double-star matching.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-delimiter-committed.json; three regressions including real Git collision and single/double-star selection pass. Before receipt has three failures on d185417. Latest-head CI/review pending.
+- Next action: Review latest B3 head, merge then B4.
+- PLAN reconciliation: `updated`

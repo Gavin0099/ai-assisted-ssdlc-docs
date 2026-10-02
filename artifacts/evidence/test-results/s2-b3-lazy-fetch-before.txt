@@ -1,0 +1,26 @@
+test_partial_clone_missing_blob_never_fetches_or_changes_object_store (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_partial_clone_missing_blob_never_fetches_or_changes_object_store) ... 
+  test_partial_clone_missing_blob_never_fetches_or_changes_object_store (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_partial_clone_missing_blob_never_fetches_or_changes_object_store) (reader='direct') ... FAIL
+  test_partial_clone_missing_blob_never_fetches_or_changes_object_store (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_partial_clone_missing_blob_never_fetches_or_changes_object_store) (reader='product') ... FAIL
+
+======================================================================
+FAIL: test_partial_clone_missing_blob_never_fetches_or_changes_object_store (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_partial_clone_missing_blob_never_fetches_or_changes_object_store) (reader='direct')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 462, in test_partial_clone_missing_blob_never_fetches_or_changes_object_store
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+======================================================================
+FAIL: test_partial_clone_missing_blob_never_fetches_or_changes_object_store (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_partial_clone_missing_blob_never_fetches_or_changes_object_store) (reader='product')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 462, in test_partial_clone_missing_blob_never_fetches_or_changes_object_store
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 1.412s
+
+FAILED (failures=2)

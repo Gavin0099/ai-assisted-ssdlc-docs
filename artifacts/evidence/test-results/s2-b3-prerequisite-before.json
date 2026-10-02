@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_custom_client_preserves_fixed_git_prerequisite_error -v",
+  "exit_code": 1,
+  "started_at": "2026-10-02T20:16:22Z",
+  "finished_at": "2026-10-02T20:16:23Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "4d971de2b67e58201d247343361cb0911b02759d",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b3-prerequisite-before.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

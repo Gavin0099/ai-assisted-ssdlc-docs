@@ -28,7 +28,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Generic, Protocol, TypeVar
 
 try:
     from tools.validate_target_manifest import (
@@ -50,6 +50,36 @@ class CorpusResolverError(RuntimeError):
     """Raised when repository corpus resolution fails closed."""
 
 
+class GitCapabilityError(CorpusResolverError):
+    """Fixed actionable prerequisite diagnostic, never subprocess stderr."""
+
+    def __init__(self) -> None:
+        super().__init__("Git with --no-lazy-fetch support is required (Git 2.48+ baseline).")
+
+
+class CorpusTarget(Protocol):
+    source_type: str
+    repo: str
+    commit: str
+
+
+class CorpusAuthoritySurface(Protocol):
+    include: tuple[str, ...]
+    exclude: tuple[str, ...]
+
+
+class CorpusManifest(Protocol):
+    target: CorpusTarget
+    authority_surface: CorpusAuthoritySurface
+
+    @property
+    def digest(self) -> str:
+        ...
+
+
+ManifestT = TypeVar("ManifestT", bound=CorpusManifest)
+
+
 @dataclass(frozen=True)
 class CorpusFile:
     """Immutable domain model representing an authoritative document in the corpus."""
@@ -68,10 +98,10 @@ class CorpusFile:
 
 
 @dataclass(frozen=True)
-class CorpusSnapshot:
+class CorpusSnapshot(Generic[ManifestT]):
     """Immutable aggregate root representing a materialized documentation corpus."""
 
-    manifest: TargetManifest
+    manifest: ManifestT
     target_commit: str
     files: tuple[CorpusFile, ...]
     total_files: int
@@ -147,7 +177,7 @@ def glob_to_regex(pattern: str) -> re.Pattern[str]:
             regex_parts.append(re.escape(pattern[i]))
             i += 1
     regex_parts.append("$")
-    return re.compile("".join(regex_parts))
+    return re.compile("".join(regex_parts), re.DOTALL)
 
 
 class ICorpusGitClient(Protocol):
@@ -174,11 +204,22 @@ class GitCliClient:
 
     def __init__(self, git_binary: str = "git") -> None:
         self.git_binary = git_binary
+        # Probe before any repository command. Older Git
+        # must not silently fall back to fetching or misreport a missing commit.
+        try:
+            capability = subprocess.run(
+                [git_binary, "--no-lazy-fetch", "--version"], capture_output=True,
+                check=False, text=True, encoding="utf-8", errors="replace",
+            )
+        except OSError:
+            raise GitCapabilityError() from None
+        if capability.returncode != 0:
+            raise GitCapabilityError()
 
     def _run(self, args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
         try:
             return subprocess.run(
-                [self.git_binary] + args,
+                [self.git_binary, "--no-replace-objects", "--no-lazy-fetch"] + args,
                 cwd=cwd,
                 capture_output=True,
                 text=True,
@@ -192,8 +233,8 @@ class GitCliClient:
     def verify_commit_exists(self, repo_path: Path, commit: str) -> bool:
         if not repo_path.is_dir():
             return False
-        res = self._run(["cat-file", "-e", f"{commit}^{{commit}}"], cwd=repo_path)
-        return res.returncode == 0
+        res = self._run(["cat-file", "-t", commit], cwd=repo_path)
+        return res.returncode == 0 and res.stdout.strip() == "commit"
 
     def get_remote_url(self, repo_path: Path, remote_name: str = "origin") -> str | None:
         if not repo_path.is_dir():
@@ -209,6 +250,8 @@ class GitCliClient:
     ) -> list[tuple[str, str, str, str]]:
         cmd = [
             self.git_binary,
+            "--no-replace-objects",
+            "--no-lazy-fetch",
             "-c",
             "core.quotepath=false",
             "ls-tree",
@@ -252,7 +295,7 @@ class GitCliClient:
         return entries
 
     def read_blob_bytes(self, repo_path: Path, commit: str, rel_path: str) -> bytes:
-        cmd = [self.git_binary, "cat-file", "-p", f"{commit}:{rel_path}"]
+        cmd = [self.git_binary, "--no-replace-objects", "--no-lazy-fetch", "cat-file", "-p", f"{commit}:{rel_path}"]
         try:
             res = subprocess.run(cmd, cwd=repo_path, capture_output=True, check=False)
         except OSError as exc:
@@ -269,8 +312,8 @@ class IRepoCorpusResolver(Protocol):
     """Protocol for resolving and materializing documentation corpora."""
 
     def resolve(
-        self, manifest: TargetManifest, repo_path: Path | None = None
-    ) -> CorpusSnapshot:
+        self, manifest: ManifestT, repo_path: Path | None = None
+    ) -> CorpusSnapshot[ManifestT]:
         ...
 
 
@@ -284,8 +327,8 @@ class RepoCorpusResolver:
         self.git_client = git_client or GitCliClient()
 
     def resolve(
-        self, manifest: TargetManifest, repo_path: Path | None = None
-    ) -> CorpusSnapshot:
+        self, manifest: ManifestT, repo_path: Path | None = None
+    ) -> CorpusSnapshot[ManifestT]:
         # Determine actual local filesystem repo path
         actual_repo_path: Path
         if repo_path is not None:
@@ -347,13 +390,17 @@ class RepoCorpusResolver:
                 # Regular files only; skip symlinks
                 continue
 
-            included = any(r.match(path) for r in include_regexes)
+            included = any(r.fullmatch(path) for r in include_regexes)
             if not included:
                 continue
 
-            excluded = any(r.match(path) for r in exclude_regexes)
+            excluded = any(r.fullmatch(path) for r in exclude_regexes)
             if excluded:
                 continue
+
+            # Keep the frozen path<TAB>hash<LF> digest encoding unambiguous.
+            if "\t" in path or "\n" in path:
+                raise CorpusResolverError("Selected Git path contains a corpus record delimiter.")
 
             matched_paths.append(path)
 

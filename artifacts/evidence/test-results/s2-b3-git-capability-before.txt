@@ -1,0 +1,15 @@
+test_unsupported_git_is_reported_before_any_repository_read (tests.test_repo_corpus_resolver.RepoCorpusResolverTests.test_unsupported_git_is_reported_before_any_repository_read) ... FAIL
+
+======================================================================
+FAIL: test_unsupported_git_is_reported_before_any_repository_read (tests.test_repo_corpus_resolver.RepoCorpusResolverTests.test_unsupported_git_is_reported_before_any_repository_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_repo_corpus_resolver.py", line 47, in test_unsupported_git_is_reported_before_any_repository_read
+    with self.assertRaisesRegex(CorpusResolverError, "Git.*--no-lazy-fetch.*required"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.211s
+
+FAILED (failures=1)

@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_commit_field_rejects_annotated_tag_tree_and_blob_object_ids tests.test_repo_corpus_resolver.RepoCorpusResolverTests.test_policy_commit_field_rejects_an_annotated_tag_object -v",
+  "exit_code": 1,
+  "started_at": "2026-10-02T19:48:55Z",
+  "finished_at": "2026-10-02T19:48:56Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "dc557dd70bdeb6bb7e01cab06ae74022d009dc1a",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b3-tag-before.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

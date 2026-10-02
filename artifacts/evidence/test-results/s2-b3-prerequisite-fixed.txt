@@ -1,0 +1,10 @@
+test_custom_client_preserves_fixed_git_prerequisite_error (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_custom_client_preserves_fixed_git_prerequisite_error) ... ok
+test_policy_admission_preserves_fixed_git_prerequisite_error (tests.test_implementation_contracts.ImplementationContractTests.test_policy_admission_preserves_fixed_git_prerequisite_error) ... ok
+test_resolver_exception_traceback_does_not_copy_raw_source (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_resolver_exception_traceback_does_not_copy_raw_source) ... ok
+test_policy_parse_error_has_no_source_bearing_traceback_chain (tests.test_implementation_contracts.ImplementationContractTests.test_policy_parse_error_has_no_source_bearing_traceback_chain) ... ok
+test_partial_clone_missing_blob_never_fetches_or_changes_object_store (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_partial_clone_missing_blob_never_fetches_or_changes_object_store) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.837s
+
+OK

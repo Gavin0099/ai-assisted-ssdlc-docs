@@ -66,6 +66,12 @@ unless the referenced source artifacts and reviewer decisions explicitly support
 
 Run the local validators:
 
+Repository corpus readers require Git with `--no-lazy-fetch` support (supported
+baseline: Git 2.48 or later). CI checks this capability before tests. Older Git
+is rejected with an explicit prerequisite error before repository reads; there
+is no unsafe fallback that might fetch missing objects. Upgrade Git to use S1/S2
+corpus readers. Document-only validators do not require Git.
+
 The default regression suite uses synthetic reporting fixtures and needs no company repository. Real company migration checks remain local under `local_tests/` with their private input bundle; they are not part of the public suite.
 
 ```powershell

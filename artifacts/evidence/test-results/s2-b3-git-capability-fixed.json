@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest tests.test_product_corpus_resolver tests.test_product_target_manifest tests.test_repo_corpus_resolver -v",
+  "exit_code": 0,
+  "started_at": "2026-10-02T20:09:00Z",
+  "finished_at": "2026-10-02T20:09:25Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "874fdb97380d4d6f41d160b0546f902f084214d7",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b3-git-capability-fixed.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

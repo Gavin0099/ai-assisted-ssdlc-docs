@@ -1,0 +1,208 @@
+test_bad_blob_and_missing_commit_fail_closed (test_product_corpus_resolver.ProductCorpusResolverTests.test_bad_blob_and_missing_commit_fail_closed) ... ok
+test_empty_product_corpus_fails_closed (test_product_corpus_resolver.ProductCorpusResolverTests.test_empty_product_corpus_fails_closed) ... ok
+test_exclude_always_wins_for_product_authority_surface (test_product_corpus_resolver.ProductCorpusResolverTests.test_exclude_always_wins_for_product_authority_surface) ... ok
+test_file_entrypoint_admits_manifest_before_resolving (test_product_corpus_resolver.ProductCorpusResolverTests.test_file_entrypoint_admits_manifest_before_resolving) ... ok
+test_git_symlink_mode_is_skipped_without_os_symlink_support (test_product_corpus_resolver.ProductCorpusResolverTests.test_git_symlink_mode_is_skipped_without_os_symlink_support) ... ok
+test_github_matching_repo_on_wrong_host_is_rejected (test_product_corpus_resolver.ProductCorpusResolverTests.test_github_matching_repo_on_wrong_host_is_rejected) ... FAIL
+test_github_source_requires_matching_local_origin (test_product_corpus_resolver.ProductCorpusResolverTests.test_github_source_requires_matching_local_origin) ... ok
+test_local_repo_path_override_cannot_change_declared_target (test_product_corpus_resolver.ProductCorpusResolverTests.test_local_repo_path_override_cannot_change_declared_target) ... ok
+test_raw_crlf_and_unicode_paths_have_independent_corpus_byte_oracle (test_product_corpus_resolver.ProductCorpusResolverTests.test_raw_crlf_and_unicode_paths_have_independent_corpus_byte_oracle) ... ok
+test_recomputed_content_cannot_inherit_snapshot_admission (test_product_corpus_resolver.ProductCorpusResolverTests.test_recomputed_content_cannot_inherit_snapshot_admission) ... FAIL
+test_resolver_exception_traceback_does_not_copy_raw_source (test_product_corpus_resolver.ProductCorpusResolverTests.test_resolver_exception_traceback_does_not_copy_raw_source) ... ERROR
+test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read (test_product_corpus_resolver.ProductCorpusResolverTests.test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read) ... 
+  test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read (test_product_corpus_resolver.ProductCorpusResolverTests.test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read) (mode='040000', path='src/invalid.yml') ... FAIL
+  test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read (test_product_corpus_resolver.ProductCorpusResolverTests.test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read) (mode='100644', path='../secret.yml') ... FAIL
+  test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read (test_product_corpus_resolver.ProductCorpusResolverTests.test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read) (mode='100644', path='/outside.yml') ... FAIL
+  test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read (test_product_corpus_resolver.ProductCorpusResolverTests.test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read) (mode='100644', path='C:/outside.yml') ... FAIL
+test_snapshot_replace_does_not_copy_admission (test_product_corpus_resolver.ProductCorpusResolverTests.test_snapshot_replace_does_not_copy_admission) ... FAIL
+test_snapshot_retains_separate_identity_and_integrity (test_product_corpus_resolver.ProductCorpusResolverTests.test_snapshot_retains_separate_identity_and_integrity) ... ERROR
+test_snapshot_uses_fixed_commit_and_spec_golden_digests (test_product_corpus_resolver.ProductCorpusResolverTests.test_snapshot_uses_fixed_commit_and_spec_golden_digests) ... ok
+test_symlink_is_skipped_from_product_evidence_snapshot (test_product_corpus_resolver.ProductCorpusResolverTests.test_symlink_is_skipped_from_product_evidence_snapshot) ... skipped 'The current Windows account cannot create Git symlinks'
+test_unvalidated_direct_manifest_cannot_cross_materialization_boundary (test_product_corpus_resolver.ProductCorpusResolverTests.test_unvalidated_direct_manifest_cannot_cross_materialization_boundary) ... FAIL
+test_authority_surface_requires_include_and_rejects_unsafe_patterns (test_product_target_manifest.ProductTargetManifestTests.test_authority_surface_requires_include_and_rejects_unsafe_patterns) ... ok
+test_commit_is_normalized_to_lowercase_before_digest (test_product_target_manifest.ProductTargetManifestTests.test_commit_is_normalized_to_lowercase_before_digest) ... ok
+test_digest_matches_python_default_ascii_escaping_for_unicode_paths (test_product_target_manifest.ProductTargetManifestTests.test_digest_matches_python_default_ascii_escaping_for_unicode_paths) ... ok
+test_digest_preserves_author_order_for_authority_paths (test_product_target_manifest.ProductTargetManifestTests.test_digest_preserves_author_order_for_authority_paths) ... ok
+test_duplicate_include_or_exclude_selectors_are_rejected (test_product_target_manifest.ProductTargetManifestTests.test_duplicate_include_or_exclude_selectors_are_rejected) ... ok
+test_exclude_must_be_a_list_when_present (test_product_target_manifest.ProductTargetManifestTests.test_exclude_must_be_a_list_when_present) ... ok
+test_github_owner_repo_is_accepted (test_product_target_manifest.ProductTargetManifestTests.test_github_owner_repo_is_accepted) ... ok
+test_manifest_parser_failure_has_no_source_bearing_chain (test_product_target_manifest.ProductTargetManifestTests.test_manifest_parser_failure_has_no_source_bearing_chain) ... FAIL
+test_manifest_version_must_be_supported_string (test_product_target_manifest.ProductTargetManifestTests.test_manifest_version_must_be_supported_string) ... ok
+test_schema_cannot_weaken_commit_or_repo_identity_rules (test_product_target_manifest.ProductTargetManifestTests.test_schema_cannot_weaken_commit_or_repo_identity_rules) ... ok
+test_schema_integer_one_cannot_replace_required_boolean (test_product_target_manifest.ProductTargetManifestTests.test_schema_integer_one_cannot_replace_required_boolean) ... FAIL
+test_schema_missing_required_rule_fails_closed (test_product_target_manifest.ProductTargetManifestTests.test_schema_missing_required_rule_fails_closed) ... ok
+test_source_type_repo_commit_and_read_only_are_strict (test_product_target_manifest.ProductTargetManifestTests.test_source_type_repo_commit_and_read_only_are_strict) ... ok
+test_unknown_fields_are_rejected_at_each_manifest_level (test_product_target_manifest.ProductTargetManifestTests.test_unknown_fields_are_rejected_at_each_manifest_level) ... ok
+test_valid_manifest_defaults_exclude_and_matches_golden_digest (test_product_target_manifest.ProductTargetManifestTests.test_valid_manifest_defaults_exclude_and_matches_golden_digest) ... ok
+test_yaml_duplicate_keys_fail_closed (test_product_target_manifest.ProductTargetManifestTests.test_yaml_duplicate_keys_fail_closed) ... ok
+
+======================================================================
+ERROR: test_resolver_exception_traceback_does_not_copy_raw_source (test_product_corpus_resolver.ProductCorpusResolverTests.test_resolver_exception_traceback_does_not_copy_raw_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 313, in test_resolver_exception_traceback_does_not_copy_raw_source
+    ProductCorpusResolver(RepoCorpusResolver(git_client=BrokenClient())).resolve(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._manifest("a" * 40, ["src/**"]), self.repo_dir)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\product_corpus_resolver.py", line 141, in resolve
+    snapshot = self._resolver.resolve(manifest, repo_path=Path(repo_path) if repo_path else None)
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\repo_corpus_resolver.py", line 391, in resolve
+    raw_bytes = self.git_client.read_blob_bytes(actual_repo_path, target_commit, rel_path)
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 311, in read_blob_bytes
+    raise RuntimeError("SYNTHETIC_PRIVATE_SOURCE_MUST_NOT_ESCAPE")
+RuntimeError: SYNTHETIC_PRIVATE_SOURCE_MUST_NOT_ESCAPE
+
+======================================================================
+ERROR: test_snapshot_retains_separate_identity_and_integrity (test_product_corpus_resolver.ProductCorpusResolverTests.test_snapshot_retains_separate_identity_and_integrity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 262, in test_snapshot_retains_separate_identity_and_integrity
+    self.assertTrue(snapshot.product_snapshot_integrity_verified)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ProductCorpusSnapshot' object has no attribute 'product_snapshot_integrity_verified'
+
+======================================================================
+FAIL: test_github_matching_repo_on_wrong_host_is_rejected (test_product_corpus_resolver.ProductCorpusResolverTests.test_github_matching_repo_on_wrong_host_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 256, in test_github_matching_repo_on_wrong_host_is_rejected
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+======================================================================
+FAIL: test_recomputed_content_cannot_inherit_snapshot_admission (test_product_corpus_resolver.ProductCorpusResolverTests.test_recomputed_content_cannot_inherit_snapshot_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 245, in test_recomputed_content_cannot_inherit_snapshot_admission
+    with self.assertRaises((CorpusResolverError, TypeError)):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'tools.repo_corpus_resolver.CorpusResolverError'>, <class 'TypeError'>) not raised
+
+======================================================================
+FAIL: test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read (test_product_corpus_resolver.ProductCorpusResolverTests.test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read) (mode='040000', path='src/invalid.yml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 281, in test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+======================================================================
+FAIL: test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read (test_product_corpus_resolver.ProductCorpusResolverTests.test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read) (mode='100644', path='../secret.yml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 283, in test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read
+    self.assertEqual(client.reads, 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read (test_product_corpus_resolver.ProductCorpusResolverTests.test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read) (mode='100644', path='/outside.yml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 283, in test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read
+    self.assertEqual(client.reads, 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read (test_product_corpus_resolver.ProductCorpusResolverTests.test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read) (mode='100644', path='C:/outside.yml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 281, in test_selected_non_regular_or_unsafe_tree_entry_is_rejected_before_blob_read
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+======================================================================
+FAIL: test_snapshot_replace_does_not_copy_admission (test_product_corpus_resolver.ProductCorpusResolverTests.test_snapshot_replace_does_not_copy_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 233, in test_snapshot_replace_does_not_copy_admission
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+======================================================================
+FAIL: test_unvalidated_direct_manifest_cannot_cross_materialization_boundary (test_product_corpus_resolver.ProductCorpusResolverTests.test_unvalidated_direct_manifest_cannot_cross_materialization_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 226, in test_unvalidated_direct_manifest_cannot_cross_materialization_boundary
+    with self.assertRaises((CorpusResolverError, ValueError)):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'tools.repo_corpus_resolver.CorpusResolverError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_manifest_parser_failure_has_no_source_bearing_chain (test_product_target_manifest.ProductTargetManifestTests.test_manifest_parser_failure_has_no_source_bearing_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\validate_product_target_manifest.py", line 493, in parse_product_target_manifest_file
+    data = yaml.load(path.read_text(encoding="utf-8"), Loader=_UniqueKeySafeLoader)
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\__init__.py", line 81, in load
+    return loader.get_single_data()
+           ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\constructor.py", line 49, in get_single_data
+    node = self.get_single_node()
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\composer.py", line 36, in get_single_node
+    document = self.compose_document()
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\composer.py", line 55, in compose_document
+    node = self.compose_node(None, None)
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\composer.py", line 84, in compose_node
+    node = self.compose_mapping_node(anchor)
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\composer.py", line 133, in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\composer.py", line 82, in compose_node
+    node = self.compose_sequence_node(anchor)
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\composer.py", line 110, in compose_sequence_node
+    while not self.check_event(SequenceEndEvent):
+              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\parser.py", line 98, in check_event
+    self.current_event = self.state()
+                         ~~~~~~~~~~^^
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\parser.py", line 483, in parse_flow_sequence_entry
+    raise ParserError("while parsing a flow sequence", self.marks[-1],
+            "expected ',' or ']', but got %r" % token.id, token.start_mark)
+yaml.parser.ParserError: while parsing a flow sequence
+  in "<unicode string>", line 1, column 19:
+    manifest_version: [
+                      ^
+expected ',' or ']', but got '<stream end>'
+  in "<unicode string>", line 2, column 27:
+    SYNTHETIC_PRIVATE_MANIFEST
+                              ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_target_manifest.py", line 209, in test_manifest_parser_failure_has_no_source_bearing_chain
+    parse_product_target_manifest_file(path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\validate_product_target_manifest.py", line 495, in parse_product_target_manifest_file
+    raise ProductTargetManifestValidationError(
+        f"Product Target Manifest YAML parsing failed ({type(exc).__name__})."
+    ) from exc
+tools.validate_product_target_manifest.ProductTargetManifestValidationError: Product Target Manifest YAML parsing failed (ParserError).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_target_manifest.py", line 211, in test_manifest_parser_failure_has_no_source_bearing_chain
+    self.assertNotIn("SYNTHETIC_PRIVATE_MANIFEST", "".join(traceback.format_exception(error)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'SYNTHETIC_PRIVATE_MANIFEST' unexpectedly found in 'Traceback (most recent call last):\n  File "C:\\Users\\reiko\\.codex\\worktrees\\reporting-workflow-pr\\ai-assisted-ssdlc-docs\\tools\\validate_product_target_manifest.py", line 493, in parse_product_target_manifest_file\n    data = yaml.load(path.read_text(encoding="utf-8"), Loader=_UniqueKeySafeLoader)\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\__init__.py", line 81, in load\n    return loader.get_single_data()\n           ~~~~~~~~~~~~~~~~~~~~~~^^\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\constructor.py", line 49, in get_single_data\n    node = self.get_single_node()\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\composer.py", line 36, in get_single_node\n    document = self.compose_document()\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\composer.py", line 55, in compose_document\n    node = self.compose_node(None, None)\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\composer.py", line 84, in compose_node\n    node = self.compose_mapping_node(anchor)\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\composer.py", line 133, in compose_mapping_node\n    item_value = self.compose_node(node, item_key)\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\composer.py", line 82, in compose_node\n    node = self.compose_sequence_node(anchor)\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\composer.py", line 110, in compose_sequence_node\n    while not self.check_event(SequenceEndEvent):\n              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\parser.py", line 98, in check_event\n    self.current_event = self.state()\n                         ~~~~~~~~~~^^\n  File "C:\\Users\\reiko\\AppData\\Roaming\\Python\\Python313\\site-packages\\yaml\\parser.py", line 483, in parse_flow_sequence_entry\n    raise ParserError("while parsing a flow sequence", self.marks[-1],\n            "expected \',\' or \']\', but got %r" % token.id, token.start_mark)\nyaml.parser.ParserError: while parsing a flow sequence\n  in "<unicode string>", line 1, column 19:\n    manifest_version: [\n                      ^\nexpected \',\' or \']\', but got \'<stream end>\'\n  in "<unicode string>", line 2, column 27:\n    SYNTHETIC_PRIVATE_MANIFEST\n                              ^\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File "C:\\Users\\reiko\\.codex\\worktrees\\reporting-workflow-pr\\ai-assisted-ssdlc-docs\\tests\\test_product_target_manifest.py", line 209, in test_manifest_parser_failure_has_no_source_bearing_chain\n    parse_product_target_manifest_file(path)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File "C:\\Users\\reiko\\.codex\\worktrees\\reporting-workflow-pr\\ai-assisted-ssdlc-docs\\tools\\validate_product_target_manifest.py", line 495, in parse_product_target_manifest_file\n    raise ProductTargetManifestValidationError(\n        f"Product Target Manifest YAML parsing failed ({type(exc).__name__})."\n    ) from exc\ntools.validate_product_target_manifest.ProductTargetManifestValidationError: Product Target Manifest YAML parsing failed (ParserError).\n'
+
+======================================================================
+FAIL: test_schema_integer_one_cannot_replace_required_boolean (test_product_target_manifest.ProductTargetManifestTests.test_schema_integer_one_cannot_replace_required_boolean)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_target_manifest.py", line 221, in test_schema_integer_one_cannot_replace_required_boolean
+    with self.assertRaises(ProductTargetManifestValidationError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ProductTargetManifestValidationError not raised
+
+----------------------------------------------------------------------
+Ran 33 tests in 6.952s
+
+FAILED (failures=10, errors=2, skipped=1)

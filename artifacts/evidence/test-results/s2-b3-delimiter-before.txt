@@ -1,0 +1,35 @@
+test_digest_record_delimiter_collision_path_is_rejected (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_digest_record_delimiter_collision_path_is_rejected) ... FAIL
+test_terminal_newline_path_is_not_silently_excluded (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_terminal_newline_path_is_not_silently_excluded) ... FAIL
+test_policy_authority_uses_complete_path_matching (tests.test_repo_corpus_resolver.RepoCorpusResolverTests.test_policy_authority_uses_complete_path_matching) ... FAIL
+
+======================================================================
+FAIL: test_digest_record_delimiter_collision_path_is_rejected (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_digest_record_delimiter_collision_path_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 201, in test_digest_record_delimiter_collision_path_is_rejected
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+======================================================================
+FAIL: test_terminal_newline_path_is_not_silently_excluded (tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_terminal_newline_path_is_not_silently_excluded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_product_corpus_resolver.py", line 182, in test_terminal_newline_path_is_not_silently_excluded
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+======================================================================
+FAIL: test_policy_authority_uses_complete_path_matching (tests.test_repo_corpus_resolver.RepoCorpusResolverTests.test_policy_authority_uses_complete_path_matching)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_repo_corpus_resolver.py", line 526, in test_policy_authority_uses_complete_path_matching
+    with self.assertRaises(CorpusResolverError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CorpusResolverError not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.965s
+
+FAILED (failures=3)
