@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest tests.test_implementation_cli.ImplementationCliTests.test_markdown_root_nodes_are_distinct_from_no_nodes tests.test_implementation_cli.ImplementationCliTests.test_full_json_and_markdown_match_independent_golden_templates tests.test_implementation_cli.ImplementationCliTests.test_partial_write_and_close_failure_cleanup_real_temporary_files tests.test_implementation_cli.ImplementationCliTests.test_scenario_11_invalid_acl_and_duplicate_evidence_never_write -v",
+  "exit_code": 0,
+  "started_at": "2026-10-02T21:38:44Z",
+  "finished_at": "2026-10-02T21:39:19Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "2998f7557c0a77d219298b09b792133ffeac3026",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-c2-committed.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}
