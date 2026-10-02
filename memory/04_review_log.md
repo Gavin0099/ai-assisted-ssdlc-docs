@@ -234,3 +234,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-scalar-node-committed.json;45focusedpass. Oldbab50a4 node/tag regression6failures1error.
 - Next action: Current-head independent/Codex/CI before B1 merge then B2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:d7e4175c5a71b449ce483b518fa69527da4da30d5efc3cc198cfe3c11a767131 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B2
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `d7e4175c5a71b449ce483b518fa69527da4da30d5efc3cc198cfe3c11a767131`
+- Commit binding: `680d71b6573d0f9e3587e76d125c00494b60faf2` (bound)
+- Record: S2-B2 strict rules and expectations now retain actual verified S1 policy snapshot and source authority, reject recomputed replacement admissions, bind bidirectional evidence kinds and canonical typed digests; product admission/evaluator/CLI remain excluded.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b2-committed.json; latest 34 focused pass; initial Windows full397 run394 pass3platform skips; old candidate27 tests9failures3errors. Latest independent/Codex review and CI remain pending.
+- Next action: Close B2 independent/Codex exact-head review and CI gate, merge if clean, then B3 from updated main; P1 baseline and human rules pending.
+- PLAN reconciliation: `updated`

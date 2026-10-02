@@ -51,3 +51,5 @@
 - B0 mergedPR21. B1 Core map-node guard44focusedPASS; old9db7853 regression3failures2errors. Latest-head gates pending. B2-C2 serial aftermerge;P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:ad26eb6f77c6075fa10e1de0069e7474b47391b79f2756342554294b9827e96a -->
 
 - B0 mergedPR21. B1 shared scalar-node guard45focusedPASS;oldbab node/tag regression6failures1error. Latest-head gates pending. B2-C2 aftermerge;P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:285ad8c4d7ec1ef192506fa6c2398031bfaf506845375838a1213fda3c92d5fd -->
+
+- B0/PR21 and B1/PR22 merged. B2 code680d71b:34focusedPASS; strict policy snapshot/identity/source/digest admission. PR reviews/CI/merge pending; B3-C2 serial next. P1 human baseline/rules pending. <!-- memory_record_projection:active-task-summary:d7e4175c5a71b449ce483b518fa69527da4da30d5efc3cc198cfe3c11a767131 -->
