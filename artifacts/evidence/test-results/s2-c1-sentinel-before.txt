@@ -1,0 +1,19 @@
+test_policy_unreferenced_missing_sentinel_remains_valid_s1_input (tests.test_implementation_verification.VerificationTests.test_policy_unreferenced_missing_sentinel_remains_valid_s1_input) ... ERROR
+
+======================================================================
+ERROR: test_policy_unreferenced_missing_sentinel_remains_valid_s1_input (tests.test_implementation_verification.VerificationTests.test_policy_unreferenced_missing_sentinel_remains_valid_s1_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 97, in test_policy_unreferenced_missing_sentinel_remains_valid_s1_input
+    record = self.orchestrate()
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_verification.py", line 123, in orchestrate
+    return ImplementationVerificationOrchestrator().verify(**{**args, **overrides})
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_verification.py", line 231, in verify
+    raise VerificationInputError("Static implementation verification failed closed.") from None
+tools.implementation_verification.VerificationInputError: Static implementation verification failed closed.
+
+----------------------------------------------------------------------
+Ran 1 test in 2.443s
+
+FAILED (errors=1)

@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from tools.implementation_contracts import RepositoryIdentityStatus, _verify_repository_identity
+from tools.implementation_contracts import RepositoryIdentityStatus, classify_repository_identity, identity_reason_codes, validate_identity_state
 from tools.repo_corpus_resolver import (
     CorpusFile, CorpusResolverError, GitCapabilityError, DISALLOWED_C0_BYTES, RepoCorpusResolver, glob_to_regex,
 )
@@ -167,34 +167,37 @@ class _GuardedProductGitClient:
 
 
 class ProductCorpusResolver:
-    """Default strict identity admission; identity-only opt-in belongs to C1."""
+    """Strict by default; explicit opt-in permits only missing identity evidence."""
 
     def __init__(self, resolver: RepoCorpusResolver | None = None) -> None:
         self._resolver = resolver or RepoCorpusResolver()
 
-    def resolve(self, manifest: ProductTargetManifest, repo_path: Path | str | None = None) -> ProductCorpusSnapshot:
+    def resolve(self, manifest: ProductTargetManifest, repo_path: Path | str | None = None,
+                *, allow_unverified_provenance: bool = False) -> ProductCorpusSnapshot:
         try:
             verify_admitted_product_manifest(manifest)
             if repo_path is None and manifest.target.source_type != "local_git":
                 raise CorpusResolverError("GitHub product materialization requires an explicit local root.")
             repository = Path(repo_path if repo_path is not None else manifest.target.repo).resolve()
-            _verify_repository_identity(manifest.target.source_type, manifest.target.repo, repository)
+            if type(allow_unverified_provenance) is not bool:
+                raise CorpusResolverError("Provenance opt-in must be boolean.")
+            status = classify_repository_identity(manifest.target.source_type, manifest.target.repo, repository)
+            if status is RepositoryIdentityStatus.UNVERIFIED and not allow_unverified_provenance:
+                raise CorpusResolverError("Product identity requires explicit opt-in.")
             guarded_client = _GuardedProductGitClient(self._resolver.git_client, manifest)
-            snapshot = RepoCorpusResolver(git_client=guarded_client).resolve(manifest, repository)
-            _verify_repository_identity(manifest.target.source_type, manifest.target.repo, repository)
+            snapshot = RepoCorpusResolver(git_client=guarded_client).materialize(manifest, repository)
+            if classify_repository_identity(manifest.target.source_type, manifest.target.repo, repository) is not status:
+                raise CorpusResolverError("Product identity changed during materialization.")
             admitted = ProductCorpusSnapshot(
                 manifest=manifest, target_commit=snapshot.target_commit, files=snapshot.files,
                 total_files=snapshot.total_files, total_bytes=snapshot.total_bytes,
                 manifest_digest=snapshot.manifest_digest, corpus_digest=snapshot.corpus_digest,
             )
-            seal = product_snapshot_integrity_digest(
-                manifest_digest=admitted.manifest_digest, target_commit=admitted.target_commit,
-                corpus_digest=admitted.corpus_digest, files=admitted.files,
-            )
             object.__setattr__(admitted, "_admission_token", _PRODUCT_SNAPSHOT_TOKEN)
-            object.__setattr__(admitted, "_admission_digest", seal)
-            object.__setattr__(admitted, "_identity_status", RepositoryIdentityStatus.VERIFIED)
+            object.__setattr__(admitted, "_identity_status", status)
+            object.__setattr__(admitted, "_reason_codes", identity_reason_codes(status))
             object.__setattr__(admitted, "_integrity_verified", True)
+            object.__setattr__(admitted, "_admission_digest", _product_admission_seal(admitted))
             return admitted
         except GitCapabilityError:
             raise GitCapabilityError() from None
@@ -202,19 +205,24 @@ class ProductCorpusResolver:
             raise CorpusResolverError("Product corpus admission failed closed.") from None
 
 
+def _product_admission_seal(snapshot: ProductCorpusSnapshot) -> str:
+    validate_identity_state(snapshot._identity_status, snapshot._reason_codes)
+    if snapshot._integrity_verified is not True:
+        raise CorpusResolverError("Product snapshot integrity must be verified.")
+    content_seal = product_snapshot_integrity_digest(
+        manifest_digest=snapshot.manifest_digest, target_commit=snapshot.target_commit,
+        corpus_digest=snapshot.corpus_digest, files=snapshot.files)
+    return hashlib.sha256((content_seal + "\n" + snapshot._identity_status.value + "\n"
+        + "\n".join(snapshot._reason_codes)).encode("utf-8")).hexdigest()
+
+
 def verify_admitted_product_snapshot(snapshot: object) -> ProductCorpusSnapshot:
     if (type(snapshot) is not ProductCorpusSnapshot
             or getattr(snapshot, "_admission_token", None) is not _PRODUCT_SNAPSHOT_TOKEN):
         raise CorpusResolverError("An admitted Product snapshot is required.")
     try:
-        if (snapshot._integrity_verified is not True or snapshot._identity_status is not RepositoryIdentityStatus.VERIFIED
-                or snapshot._reason_codes != () or type(snapshot._reason_codes) is not tuple):
-            raise CorpusResolverError("Product admission identity or integrity metadata is inconsistent.")
         snapshot.__post_init__()
-        seal = product_snapshot_integrity_digest(
-            manifest_digest=snapshot.manifest_digest, target_commit=snapshot.target_commit,
-            corpus_digest=snapshot.corpus_digest, files=snapshot.files,
-        )
+        seal = _product_admission_seal(snapshot)
         if seal != snapshot._admission_digest:
             raise CorpusResolverError("Product snapshot differs from its admitted fingerprint.")
     except Exception:
