@@ -411,6 +411,34 @@ class ImplementationMatcherTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     create()
 
+    def test_yaml_collection_keys_are_valid_but_not_path_navigable(self) -> None:
+        for document in (
+            '? [a, b]\n: value\nordinary: found\n',
+            '? {a: 1, b: 2}\n: value\nordinary: found\n',
+            '? [{a: [1, 2]}, b]\n: value\nordinary: found\n',
+        ):
+            with self.subTest(document=document):
+                root = evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, ''), document)
+                self.assertEqual(root.resolved_node_paths, ('',))
+                ordinary = evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, 'ordinary'), document)
+                self.assertEqual(ordinary.resolved_node_paths, ('/ordinary',))
+                self.assertFalse(evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, 'a, b'), document).passed)
+
+    def test_yaml_collection_key_equality_ignores_mapping_order_and_keeps_tags(self) -> None:
+        root = EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, '')
+        for document in (
+            '? [a, b]\n: first\n? [a, b]\n: second\n',
+            '? {a: 1, b: 2}\n: first\n? {b: 2, a: 1}\n: second\n',
+            '? {a: 1, a: 2}\n: value\n',
+            '? &loop [*loop]\n: value\n',
+            '? [!private raw-secret]\n: value\n',
+            '? ["\\uD800"]\n: value\n',
+        ):
+            with self.subTest(document=document):
+                with self.assertRaises(InvalidEvidenceInputError):
+                    evaluate_assertion(root, document)
+        self.assertTrue(evaluate_assertion(root, '? [true]\n: first\n? [1]\n: second\n').passed)
+
     def test_yaml_empty_path_targets_document_root(self) -> None:
         result = evaluate_assertion(
             self._equals(

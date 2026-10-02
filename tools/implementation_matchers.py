@@ -141,6 +141,12 @@ class _YamlTimestamp:
     fraction: str
 
 
+@dataclass(frozen=True)
+class _YamlCollectionKey:
+    # A document-local interned identity; never navigable as a string key.
+    identity: int
+
+
 class _UniqueKeyYaml12CoreLoader(yaml.SafeLoader):
     yaml_implicit_resolvers: dict[Any, Any] = {}
     # Core tags plus the frozen application's uncomparable timestamp tag.
@@ -153,6 +159,12 @@ class _UniqueKeyYaml12CoreLoader(yaml.SafeLoader):
             for name in ("str", "bool", "int", "float", "null", "map", "seq", "timestamp")
         }
     }
+
+    def __init__(self, stream: Any) -> None:
+        super().__init__(stream)
+        self.key_node_ids: dict[int, int] = {}
+        self.key_identities: dict[Any, int] = {}
+        self.active_key_nodes: set[int] = set()
 
 
 # YAML 1.2 Core resolution, https://yaml.org/spec/1.2.2/#1032-tag-resolution.
@@ -297,6 +309,40 @@ for _tag, _constructor in (
     _UniqueKeyYaml12CoreLoader.add_constructor(f"tag:yaml.org,2002:{_tag}", _constructor)
 
 
+def _yaml_key_identity(loader: _UniqueKeyYaml12CoreLoader, node: yaml.Node) -> int:
+    """Intern tagged structural equality without expanding a shared alias DAG."""
+    node_id = id(node)
+    if node_id in loader.active_key_nodes:
+        raise InvalidEvidenceInputError("YAML evidence contains a recursive key alias.")
+    if node_id in loader.key_node_ids:
+        return loader.key_node_ids[node_id]
+    loader.active_key_nodes.add(node_id)
+    if isinstance(node, yaml.ScalarNode):
+        value = loader.construct_object(node, deep=True)
+        if isinstance(value, str) and any(0xD800 <= ord(char) <= 0xDFFF for char in value):
+            raise InvalidEvidenceInputError("YAML key contains a non-scalar Unicode string.")
+        canonical = ".nan" if type(value) is float and value != value else value
+    elif isinstance(node, yaml.SequenceNode) and node.tag == "tag:yaml.org,2002:seq":
+        canonical = tuple(_yaml_key_identity(loader, child) for child in node.value)
+    elif isinstance(node, MappingNode) and node.tag == "tag:yaml.org,2002:map":
+        pairs = []
+        keys = set()
+        for key, value in node.value:
+            key_id = _yaml_key_identity(loader, key)
+            if key_id in keys:
+                raise InvalidEvidenceInputError("YAML key contains a duplicate mapping key.")
+            keys.add(key_id)
+            pairs.append((key_id, _yaml_key_identity(loader, value)))
+        canonical = frozenset(pairs)
+    else:
+        raise InvalidEvidenceInputError("YAML key uses an unsupported tag.")
+    signature = (node.tag, canonical)
+    identity = loader.key_identities.setdefault(signature, len(loader.key_identities))
+    loader.key_node_ids[node_id] = identity
+    loader.active_key_nodes.remove(node_id)
+    return identity
+
+
 def _construct_unique_yaml_mapping(
     loader: _UniqueKeyYaml12CoreLoader, node: MappingNode, deep: bool = False
 ) -> dict[Any, Any]:
@@ -309,21 +355,16 @@ def _construct_unique_yaml_mapping(
                 "YAML merge keys are unsupported",
                 key_node.start_mark,
             )
-        key = loader.construct_object(key_node, deep=deep)
+        if isinstance(key_node, (yaml.SequenceNode, MappingNode)):
+            key = _YamlCollectionKey(_yaml_key_identity(loader, key_node))
+        else:
+            key = loader.construct_object(key_node, deep=deep)
         # Preserve YAML tag equality; Python otherwise merges true with 1.
         # Only literal string keys are navigable through the frozen path DSL.
-        if type(key) is not str:
+        if type(key) is not str and not isinstance(key, _YamlCollectionKey):
             canonical = ".nan" if type(key) is float and key != key else key
             key = (key_node.tag, canonical)
-        try:
-            duplicate = key in result
-        except TypeError as exc:
-            raise ConstructorError(
-                "while constructing a mapping",
-                node.start_mark,
-                "mapping keys must be hashable",
-                key_node.start_mark,
-            ) from exc
+        duplicate = key in result
         if duplicate:
             raise ConstructorError(
                 "while constructing a mapping",
