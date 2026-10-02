@@ -1026,11 +1026,23 @@ def admit_policy_assessment(
 def _verify_repository_identity(source_type: str, declared_repo: str, repository: Path) -> None:
     """Known host/path mismatches cannot become identity uncertainty."""
     from tools.repo_corpus_resolver import GitCliClient
+    client = GitCliClient()
+    top_level = client._run(["rev-parse", "--show-toplevel"], repository)
+    if top_level.returncode == 0:
+        actual_root = Path(top_level.stdout.strip()).resolve()
+    else:
+        bare = client._run(["rev-parse", "--is-bare-repository"], repository)
+        git_dir = client._run(["rev-parse", "--absolute-git-dir"], repository)
+        if bare.returncode != 0 or bare.stdout.strip() != "true" or git_dir.returncode != 0:
+            _fail("S2 source root is not an identified Git repository.")
+        actual_root = Path(git_dir.stdout.strip()).resolve()
+    if actual_root != repository.resolve():
+        _fail("S2 source root differs from the actual Git repository root.")
     if source_type == "local_git":
         if Path(declared_repo).resolve() != repository.resolve():
             _fail("Declared local policy repository does not match the materialized root.")
         return
-    origin = GitCliClient().get_remote_url(repository)
+    origin = client.get_remote_url(repository)
     if not origin:
         _fail("Policy repository identity is unverified.")
     if origin.startswith("git@github.com:"):

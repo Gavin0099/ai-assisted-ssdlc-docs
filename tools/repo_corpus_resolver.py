@@ -28,7 +28,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Generic, Protocol, TypeVar
 
 try:
     from tools.validate_target_manifest import (
@@ -50,6 +50,29 @@ class CorpusResolverError(RuntimeError):
     """Raised when repository corpus resolution fails closed."""
 
 
+class CorpusTarget(Protocol):
+    source_type: str
+    repo: str
+    commit: str
+
+
+class CorpusAuthoritySurface(Protocol):
+    include: tuple[str, ...]
+    exclude: tuple[str, ...]
+
+
+class CorpusManifest(Protocol):
+    target: CorpusTarget
+    authority_surface: CorpusAuthoritySurface
+
+    @property
+    def digest(self) -> str:
+        ...
+
+
+ManifestT = TypeVar("ManifestT", bound=CorpusManifest)
+
+
 @dataclass(frozen=True)
 class CorpusFile:
     """Immutable domain model representing an authoritative document in the corpus."""
@@ -68,10 +91,10 @@ class CorpusFile:
 
 
 @dataclass(frozen=True)
-class CorpusSnapshot:
+class CorpusSnapshot(Generic[ManifestT]):
     """Immutable aggregate root representing a materialized documentation corpus."""
 
-    manifest: TargetManifest
+    manifest: ManifestT
     target_commit: str
     files: tuple[CorpusFile, ...]
     total_files: int
@@ -269,8 +292,8 @@ class IRepoCorpusResolver(Protocol):
     """Protocol for resolving and materializing documentation corpora."""
 
     def resolve(
-        self, manifest: TargetManifest, repo_path: Path | None = None
-    ) -> CorpusSnapshot:
+        self, manifest: ManifestT, repo_path: Path | None = None
+    ) -> CorpusSnapshot[ManifestT]:
         ...
 
 
@@ -284,8 +307,8 @@ class RepoCorpusResolver:
         self.git_client = git_client or GitCliClient()
 
     def resolve(
-        self, manifest: TargetManifest, repo_path: Path | None = None
-    ) -> CorpusSnapshot:
+        self, manifest: ManifestT, repo_path: Path | None = None
+    ) -> CorpusSnapshot[ManifestT]:
         # Determine actual local filesystem repo path
         actual_repo_path: Path
         if repo_path is not None:
