@@ -57,3 +57,5 @@
 - B0-B2 merged. B3 codef8e6e3c:37 focused/36 pass/1skip, full435/431/4skip; pinned Git corpus and strict admission. Latest-head independent/Codex/CI/merge pending. B4-C2 serial next; P1 human baseline/rules pending. <!-- memory_record_projection:active-task-summary:5f5e939ca1ab69c84a9f9bff0b5fa9b1d8834d5fd3efc844d8e23612566263da -->
 
 - B0-B2 merged. B3 four independent findings fixed cd5c826;41focused40pass1skip/full441437pass4skip. Latest-head reviews/CI/merge pending; shared pinned Git/complete-path runtime fixes bounded. B4-C2 serial next;P1 inputs pending. <!-- memory_record_projection:active-task-summary:8b655b765525ad8954d040efa7d3014ccc9dadbc47b7a2162a3873276b15bc13 -->
+
+- B3 PR24 Python3.11 test oracle fixed01a2438;41focused40pass1skip. Four production findings already fixed. Final-head review/CI/merge pending; B4-C2 serial after gate. P1 human inputs pending. <!-- memory_record_projection:active-task-summary:1e1634a08f49e48efc4fbe40c0a741fb5da95a6542166d0613ea75023c5547fc -->

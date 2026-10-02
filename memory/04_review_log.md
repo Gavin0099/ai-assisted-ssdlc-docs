@@ -267,3 +267,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-review-committed.json; focused41 run40 pass1skip; full441 run437 pass4skip; failed-before five subcases at f05d3d4.
 - Next action: Exact-head independent/Codex review and CI, conditional merge then B4; P1 human baseline/rules pending.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:1e1634a08f49e48efc4fbe40c0a741fb5da95a6542166d0613ea75023c5547fc -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-portable
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `1e1634a08f49e48efc4fbe40c0a741fb5da95a6542166d0613ea75023c5547fc`
+- Commit binding: `01a2438d6ddef5e09252ae0828d13ca7bcce72a4` (bound)
+- Record: B3 CI/Codex test portability fixed; protected constructor and recomputed-content consumer checks are now independent.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-portable-committed.json; focused41 run40 pass1skip; Python3.11 latest CI pending.
+- Next action: Review final PR24 head and rerun required CI; conditional merge then B4; P1 inputs pending.
+- PLAN reconciliation: `updated`
