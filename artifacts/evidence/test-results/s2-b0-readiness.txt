@@ -1,0 +1,84 @@
+External Repo Readiness
+
+ready              = True
+repo_root          = C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs
+project_facts      = status=available | artifact_exists=False | artifact_drift=False | source=02_workflow.md
+
+[checks]
+contract_files_complete  = True
+contract_resolved        = True
+framework_release_compatible = True
+framework_source_canonical = True
+framework_version_current = False
+framework_version_known  = True
+git_repo_present         = True
+gitlab_adapter_scope_consistent = True
+governance_baseline_present = True
+governance_drift_clean   = True
+hooks_ready              = True
+plan_fresh_enough        = True
+plan_present             = True
+project_facts_drift_free = True
+project_facts_intakeable = True
+project_facts_present    = True
+project_facts_schema_complete = True
+
+[governance_drift]  ← authoritative governance compliance check
+severity           = ok
+baseline_version   = 1.0.0
+
+[contract]
+source             = discovery
+path               = C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\contract.yaml
+name               = ai-assisted-ssdlc-docs-contract
+domain             = ai-assisted-ssdlc-docs
+plugin_version     = 1.0.0
+documents          = 9
+rule_roots         = 1
+validators         = 4
+
+[framework_version]
+state              = outdated
+current_release    = 1.3.0
+adopted_release    = 1.2.0
+adopted_commit     = 46b2574fa8ecaa6abcba27988cf71e7231c1e657
+framework_repo     = https://github.com/Gavin0099/ai-governance-framework.git
+canonical_repo     = https://github.com/Gavin0099/ai-governance-framework.git
+interface_version  = 1
+compatible_range   = >=1.0.0,<2.0.0
+lock_file          = C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\governance\framework.lock.json
+
+[plan]
+status             = FRESH
+days_since_update  = 1
+threshold_days     = 7
+
+[hooks]
+valid              = True
+framework_root     = E:\BackUp\Git_EE\ai-assisted-ssdlc-docs\ai-governance-framework
+
+[project_facts]
+status             = available
+available          = True
+source_file        = C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\memory\02_workflow.md
+source_filename    = 02_workflow.md
+schema_status      = complete
+missing_logical    = []
+sync_direction     = external_to_framework
+artifact_path      = C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\ai-governance-framework\artifacts\external-project-facts\ai-assisted-ssdlc-docs.json
+artifact_exists    = False
+artifact_drift     = False
+reason             = None
+remediation_hint   = None
+
+[agents_calibration]
+status             = repo_specific_minimal
+reason             = repo_local_paths_commands_or_boundaries_detected
+path               = C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\AGENTS.md
+reviewer_signal    = None
+repo_specific_signals = ['path_or_file:- Before claiming completion for any change touching `memory/**`, run `python -m governance_tools.memory_workflow --check --repo .`.', 'command:- For memory completion claims, run `python -m governance_tools.memory_workflow --check --repo . --run-guard` and report blockers before claiming DONE.', 'path_or_file:- Canonical writer signal: `governance_tools.memory_record` / `memory_record.py`.', 'path_or_file:- HIGH: changing validator logic, claim-ceiling rules, schema fields, or examples that imply remediation/compliance.', 'path_or_file:- MEDIUM: changing templates, reviewer guide, workflow wording, or evidence/review status vocabulary.', 'path_or_file:- `tools/validate_evidence_index.py`: run against `examples/feature-auth-flow/evidence-index.md`.', 'path_or_file:- `tools/validate_review_queue.py`: run against `examples/feature-auth-flow/review-queue.md`.', 'path_or_file:- `tools/validate_security_decision.py`: run against every `examples/*/security-decision-record.md` and the focused pass/fail fixtures.', 'path_or_file:- `tools/generate_due_reviews.py`: run against `examples/`.', 'path_or_file:- `tools/generate_reviewer_report.py`: run against `examples/feature-file-upload/` and preserve the aggregation-only, no-inferred-join contract.', 'command:- Governance changes require drift and readiness checks using `ai-governance-framework`.', 'command:- Any change that weakens `Cannot Claim`, claim ceiling, or AI-summary boundaries.', 'path_or_file:- Any broad schema/template change affecting more than one SSDLC artifact type.', 'command:- Do not remove `review_due` from risk acceptance, weak evidence, deferred review, or accepted exceptions.', 'path_or_file:所有 AI agent 必須遵守 [S1 報告呈現規則](docs/specs/s1-report-presentation-contract.md)，', 'path_or_file:先依規則的固定分析流程，再使用[主管摘要模板](templates/s1-assessment-summary.md)、', 'path_or_file:[工程師修正單模板](templates/s1-assessment-actions.md)及', 'path_or_file:[完整技術附錄模板](templates/s1-assessment-technical-review.md)，不自行更換章節或表格欄位。', 'path_or_file:執行入口使用 [ssdlc-assessment-report skill](.agents/skills/ssdlc-assessment-report/SKILL.md)：']
+
+warnings: 3
+- hooks (optional): copilot-instructions.md not found: C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\.github\copilot-instructions.md — run install-hooks.sh to deploy DONE boundary rules for Copilot Workspace
+- hooks (optional): Copilot lifecycle hooks are not fully installed; expected managed .github/hooks lifecycle bridge plus VS Code Stop and Copilot sessionEnd configs. Note that the VS Code config declares Stop only: VS Code loads every *.json under .github/hooks and normalizes the Copilot config's sessionStart to SessionStart, so adding SessionStart to the VS Code config registers a second start handler and writes the session envelope twice
+- framework-version: adopted release is older than current framework release
