@@ -355,3 +355,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-c1-committed.json; 4 critical committed tests; focused23 PASS. Prior integration107 run106pass1skip. Full suite still running; receipt only after completion.
 - Next action: Exact-head independent/Codex review and CI, conditional merge; C2 serial after main gate; P1 awaits human baselines/rules.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:2b3a5b382a3bc31432e98576b49cf6534623a786c866eb7fa6a81bf619c91832 -->
+### Canonical memory checkpoint — 2026-10-03-S2-C1-mechanical
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `2b3a5b382a3bc31432e98576b49cf6534623a786c866eb7fa6a81bf619c91832`
+- Commit binding: `0f00c234c80f7ae2c38861fc231012b39f4706af` (bound)
+- Record: C1 PR26 Codex P1 fixed0f00c23: public record constructor compares mechanically evaluated items before original seal; false MISSING/invented node subcases reject prior e3d376f.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-c1-mechanical-committed.json; two committed negative subcases. Focused24 PASS. Previous full496 is code32b6a28, latest full belongs to new PR CI.
+- Next action: Latest complete-head independent/Codex review and CI; conditional merge then C2. P1 human inputs pending.
+- PLAN reconciliation: `updated`
