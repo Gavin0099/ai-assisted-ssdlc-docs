@@ -39,6 +39,17 @@ def run_git(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
 
 
 class RepoCorpusResolverTests(unittest.TestCase):
+    def test_unsupported_git_is_reported_before_any_repository_read(self) -> None:
+        from unittest.mock import patch
+        before = dict(os.environ)
+        result = subprocess.CompletedProcess(["git"], 129, "", "unknown option")
+        with patch("tools.repo_corpus_resolver.subprocess.run", return_value=result) as process:
+            with self.assertRaisesRegex(CorpusResolverError, "Git.*--no-lazy-fetch.*required"):
+                GitCliClient()
+        self.assertEqual(process.call_count, 1)
+        self.assertEqual(process.call_args.args[0], ["git", "--no-lazy-fetch", "--version"])
+        self.assertEqual(dict(os.environ), before)
+
     def setUp(self) -> None:
         self.temp_dir = TemporaryDirectory()
         self.repo_dir = Path(self.temp_dir.name)

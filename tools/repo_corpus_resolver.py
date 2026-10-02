@@ -197,6 +197,17 @@ class GitCliClient:
 
     def __init__(self, git_binary: str = "git") -> None:
         self.git_binary = git_binary
+        # Probe outside any repository before trusting a static reader. Older Git
+        # must not silently fall back to fetching or misreport a missing commit.
+        try:
+            capability = subprocess.run(
+                [git_binary, "--no-lazy-fetch", "--version"], capture_output=True,
+                check=False, text=True, encoding="utf-8", errors="replace",
+            )
+        except OSError:
+            raise CorpusResolverError("Git with --no-lazy-fetch support is required (Git 2.48+ baseline).") from None
+        if capability.returncode != 0:
+            raise CorpusResolverError("Git with --no-lazy-fetch support is required (Git 2.48+ baseline).")
 
     def _run(self, args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
         try:
