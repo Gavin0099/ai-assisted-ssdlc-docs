@@ -519,12 +519,12 @@ mode:
 
         manifest = TargetManifest(
             target=TargetSpec(source_type="local_git", repo=str(self.repo_dir), commit=commit),
-            authority_surface=AuthoritySurfaceSpec(include=("policy/*",), exclude=("policy/secret.md",)),
+            authority_surface=AuthoritySurfaceSpec(include=("policy/**",), exclude=("policy/secret.md",)),
             baseline=BaselineSpec(framework="NIST_SP_800_218", version="1.1"),
             mode=ModeSpec(read_only=True),
         )
-        snapshot = RepoCorpusResolver(git_client=NewlineClient()).resolve(manifest, self.repo_dir)
-        self.assertEqual(snapshot.paths(), ("policy/keep.md", "policy/secret.md\n"))
+        with self.assertRaises(CorpusResolverError):
+            RepoCorpusResolver(git_client=NewlineClient()).resolve(manifest, self.repo_dir)
 
 
 if __name__ == "__main__":

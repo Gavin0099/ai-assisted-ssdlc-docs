@@ -164,7 +164,7 @@ class ProductCorpusResolverTests(unittest.TestCase):
 
     def test_terminal_newline_path_is_not_silently_excluded(self) -> None:
         # Build actual Git objects: Windows cannot create this filename, but
-        # such a pinned tree must still materialize precisely on all hosts.
+        # A selected delimiter path must be rejected, never silently excluded.
         def write_object(kind, content):
             return subprocess.run(
                 ["git", "hash-object", "-t", kind, "-w", "--stdin"],
@@ -179,10 +179,28 @@ class ProductCorpusResolverTests(unittest.TestCase):
         tree = write_object("tree", b"40000 src\0" + bytes.fromhex(subtree))
         commit = run_git(["commit-tree", tree, "-m", "raw path fixture"], self.repo_dir).stdout.strip()
         resolver = ProductCorpusResolver()
-        snapshot = resolver.resolve(self._manifest(commit, ["src/*"], ["src/secret.yml"]), self.repo_dir)
-        self.assertEqual(snapshot.paths(), ("src/keep.yml", "src/secret.yml\n"))
+        for pattern in ("src/*", "src/**"):
+            with self.subTest(pattern=pattern), self.assertRaises(CorpusResolverError):
+                resolver.resolve(self._manifest(commit, [pattern], ["src/secret.yml"]), self.repo_dir)
         exact = resolver.resolve(self._manifest(commit, ["src/secret.yml"]), self.repo_dir)
         self.assertEqual(exact.paths(), ("src/secret.yml",))
+
+    def test_digest_record_delimiter_collision_path_is_rejected(self) -> None:
+        first, second = b"first\n", b"second\n"
+        first_hash, second_hash = hashlib.sha256(first).hexdigest(), hashlib.sha256(second).hexdigest()
+        commit = self._commit_files({"a": first, "b": second}, "ordinary paths")
+        stream = f"a\t{first_hash}\nb\t{second_hash}\n".encode()
+        ambiguous_path = f"a\t{first_hash}\nb"
+        self.assertEqual(f"{ambiguous_path}\t{second_hash}\n".encode(), stream)
+        ordinary = ProductCorpusResolver().resolve(self._manifest(commit, ["*"]), self.repo_dir)
+        self.assertEqual(ordinary.corpus_digest, hashlib.sha256(stream).hexdigest())
+        blob = bytes.fromhex(run_git(["rev-parse", f"{commit}:b"], self.repo_dir).stdout.strip())
+        tree = subprocess.run(["git", "hash-object", "-t", "tree", "-w", "--stdin"],
+            input=b"100644 " + ambiguous_path.encode() + b"\0" + blob,
+            cwd=self.repo_dir, capture_output=True, check=True).stdout.decode().strip()
+        ambiguous_commit = run_git(["commit-tree", tree, "-m", "ambiguous path"], self.repo_dir).stdout.strip()
+        with self.assertRaises(CorpusResolverError):
+            ProductCorpusResolver().resolve(self._manifest(ambiguous_commit, ["*"]), self.repo_dir)
 
     def test_symlink_is_skipped_from_product_evidence_snapshot(self) -> None:
         self._commit_files({"src/real.yml": "value: real\n"}, "regular file")

@@ -177,7 +177,7 @@ def glob_to_regex(pattern: str) -> re.Pattern[str]:
             regex_parts.append(re.escape(pattern[i]))
             i += 1
     regex_parts.append("$")
-    return re.compile("".join(regex_parts))
+    return re.compile("".join(regex_parts), re.DOTALL)
 
 
 class ICorpusGitClient(Protocol):
@@ -397,6 +397,10 @@ class RepoCorpusResolver:
             excluded = any(r.fullmatch(path) for r in exclude_regexes)
             if excluded:
                 continue
+
+            # Keep the frozen path<TAB>hash<LF> digest encoding unambiguous.
+            if "\t" in path or "\n" in path:
+                raise CorpusResolverError("Selected Git path contains a corpus record delimiter.")
 
             matched_paths.append(path)
 

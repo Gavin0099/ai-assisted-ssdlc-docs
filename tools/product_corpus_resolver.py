@@ -22,6 +22,7 @@ _PRODUCT_SNAPSHOT_TOKEN = object()
 
 def _relative_path(path: Any) -> str:
     if (type(path) is not str or not path or path.startswith("/") or "\\" in path
+            or any(delimiter in path for delimiter in ("\0", "\t", "\n"))
             or re.match(r"^[A-Za-z]:", path)
             or any(part in {"", ".", ".."} for part in path.split("/"))):
         raise CorpusResolverError("Product snapshot contains an invalid relative path.")
