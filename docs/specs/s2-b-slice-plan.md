@@ -4,6 +4,8 @@
 
 ## 目前位置
 
+- B0 已由 PR #21 合併於 `df57edb`；B1 已由 PR #22 合併於 `ef0015c`，各自的 exact-head review、CI 與 main 檢查皆通過。目前進入 B2，後續維持逐刀 gate。
+
 - REPORT-4E 工具已合併；全域 skill 已安裝並重新產出真實報告。網頁視覺／互動仍待人工驗收，另外追蹤，不阻擋純靜態 S2 core 的開發。
 - S2-A 已凍結。`origin/main` 的規格 Git blob 與 `dece98a8513000ea3e2e63391eabca2b6b9add3f` 相同。
 - 本次讀取的 main 為 `a5a32163e153b247e5714399ce3d615f70937229`，候選為 `wip/s2-b-implementation-candidates` 的 `663caca91a7eb06b10a7c1e5a27f10caf97ad9b7`。
@@ -28,7 +30,7 @@ B0 先確認模組依賴；若候選有跨 slice 的 imports，只移植當刀�
 
 每刀都先完成相稱測試與獨立 review，開 PR 並處理 Codex findings；最新 head 的審查與 CI 通過後才合併。合併 gate 關閉後繼續下一刀，不逐刀重問授權。真實 Pilot 若缺產品版本或人類制定的規則，保持待輸入，不由 AI 補猜。對照與規劃不代表下一刀已被執行。
 
-## 下一刀只做 S2-B0
+## B0 最初授權範圍與停止點
 
 **目的**是將現有候選對照凍結規格，形成可執行的移植順序，不重新設計 S2。
 

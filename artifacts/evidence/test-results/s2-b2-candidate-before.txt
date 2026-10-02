@@ -1,0 +1,222 @@
+test_applicability_reason_is_required_only_for_not_applicable (test_implementation_contracts.ImplementationContractTests.test_applicability_reason_is_required_only_for_not_applicable) ... ok
+test_dataclass_replace_does_not_retain_aggregate_admission (test_implementation_contracts.ImplementationContractTests.test_dataclass_replace_does_not_retain_aggregate_admission) ... 
+  test_dataclass_replace_does_not_retain_aggregate_admission (test_implementation_contracts.ImplementationContractTests.test_dataclass_replace_does_not_retain_aggregate_admission) (type='ImplementationEvidenceRuleset') ... FAIL
+  test_dataclass_replace_does_not_retain_aggregate_admission (test_implementation_contracts.ImplementationContractTests.test_dataclass_replace_does_not_retain_aggregate_admission) (type='PolicyImplementationExpectationSet') ... FAIL
+test_digest_fields_require_lowercase_sha256 (test_implementation_contracts.ImplementationContractTests.test_digest_fields_require_lowercase_sha256) ... ok
+test_duplicate_policy_yaml_keys_fail_closed (test_implementation_contracts.ImplementationContractTests.test_duplicate_policy_yaml_keys_fail_closed) ... ok
+test_duplicate_rule_ids_and_duplicate_selectors_are_rejected (test_implementation_contracts.ImplementationContractTests.test_duplicate_rule_ids_and_duplicate_selectors_are_rejected) ... ok
+test_evidence_kinds_match_referenced_rules_in_both_directions (test_implementation_contracts.ImplementationContractTests.test_evidence_kinds_match_referenced_rules_in_both_directions) ... 
+  test_evidence_kinds_match_referenced_rules_in_both_directions (test_implementation_contracts.ImplementationContractTests.test_evidence_kinds_match_referenced_rules_in_both_directions) (kinds=['dependency_lockfile', 'release_signature']) ... FAIL
+  test_evidence_kinds_match_referenced_rules_in_both_directions (test_implementation_contracts.ImplementationContractTests.test_evidence_kinds_match_referenced_rules_in_both_directions) (kinds=['release_signature']) ... FAIL
+test_expectation_rejects_duplicate_ids_and_unknown_fields (test_implementation_contracts.ImplementationContractTests.test_expectation_rejects_duplicate_ids_and_unknown_fields) ... ok
+test_expectation_rejects_unknown_rule_and_cross_task_reference (test_implementation_contracts.ImplementationContractTests.test_expectation_rejects_unknown_rule_and_cross_task_reference) ... ok
+test_expectation_set_matches_independent_expectation_and_set_goldens (test_implementation_contracts.ImplementationContractTests.test_expectation_set_matches_independent_expectation_and_set_goldens) ... ok
+test_expectation_set_requires_exact_caller_admitted_identity (test_implementation_contracts.ImplementationContractTests.test_expectation_set_requires_exact_caller_admitted_identity) ... ok
+test_fixture_oracle_matches_the_independent_fixed_goldens (test_implementation_contracts.ImplementationContractTests.test_fixture_oracle_matches_the_independent_fixed_goldens) ... ok
+test_github_same_path_on_wrong_host_is_a_known_identity_mismatch (test_implementation_contracts.ImplementationContractTests.test_github_same_path_on_wrong_host_is_a_known_identity_mismatch) ... FAIL
+test_large_integer_digest_is_native_json_without_process_digit_limit_changes (test_implementation_contracts.ImplementationContractTests.test_large_integer_digest_is_native_json_without_process_digit_limit_changes) ... ERROR
+test_local_git_declared_path_must_match_materialized_repository (test_implementation_contracts.ImplementationContractTests.test_local_git_declared_path_must_match_materialized_repository) ... FAIL
+test_policy_admission_fails_on_duplicate_finding_identity (test_implementation_contracts.ImplementationContractTests.test_policy_admission_fails_on_duplicate_finding_identity) ... ok
+test_policy_admission_fails_on_unmaterialized_source_and_bad_target_digest (test_implementation_contracts.ImplementationContractTests.test_policy_admission_fails_on_unmaterialized_source_and_bad_target_digest) ... ok
+test_policy_admission_retains_the_actual_snapshot_and_fingerprints (test_implementation_contracts.ImplementationContractTests.test_policy_admission_retains_the_actual_snapshot_and_fingerprints) ... ERROR
+test_policy_finding_must_be_unique_and_source_ref_must_match (test_implementation_contracts.ImplementationContractTests.test_policy_finding_must_be_unique_and_source_ref_must_match) ... ok
+test_policy_parse_error_has_no_source_bearing_traceback_chain (test_implementation_contracts.ImplementationContractTests.test_policy_parse_error_has_no_source_bearing_traceback_chain) ... FAIL
+test_provenance_flag_does_not_replace_original_manifest_and_snapshot (test_implementation_contracts.ImplementationContractTests.test_provenance_flag_does_not_replace_original_manifest_and_snapshot) ... 
+  test_provenance_flag_does_not_replace_original_manifest_and_snapshot (test_implementation_contracts.ImplementationContractTests.test_provenance_flag_does_not_replace_original_manifest_and_snapshot) (manifest='None') ... ERROR
+test_recomputed_empty_selector_cannot_reenter_admitted_boundary (test_implementation_contracts.ImplementationContractTests.test_recomputed_empty_selector_cannot_reenter_admitted_boundary) ... FAIL
+test_recomputed_source_cannot_reenter_admitted_boundary (test_implementation_contracts.ImplementationContractTests.test_recomputed_source_cannot_reenter_admitted_boundary) ... FAIL
+test_rule_expectation_and_set_digests_exclude_their_own_digest_fields (test_implementation_contracts.ImplementationContractTests.test_rule_expectation_and_set_digests_exclude_their_own_digest_fields) ... ok
+test_ruleset_matches_independent_rule_and_set_goldens (test_implementation_contracts.ImplementationContractTests.test_ruleset_matches_independent_rule_and_set_goldens) ... ok
+test_set_digest_sorts_rules_and_expectations_by_primary_id (test_implementation_contracts.ImplementationContractTests.test_set_digest_sorts_rules_and_expectations_by_primary_id) ... ok
+test_unadmitted_policy_and_ruleset_objects_cannot_cross_boundary (test_implementation_contracts.ImplementationContractTests.test_unadmitted_policy_and_ruleset_objects_cannot_cross_boundary) ... ok
+test_unknown_fields_and_wrong_digest_fail_closed (test_implementation_contracts.ImplementationContractTests.test_unknown_fields_and_wrong_digest_fail_closed) ... ok
+
+======================================================================
+ERROR: test_large_integer_digest_is_native_json_without_process_digit_limit_changes (test_implementation_contracts.ImplementationContractTests.test_large_integer_digest_is_native_json_without_process_digit_limit_changes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_contracts.py", line 195, in _canonical_digest
+    encoded = json.dumps(
+              ~~~~~~~~~~^
+        payload,
+        ^^^^^^^^
+    ...<3 lines>...
+        allow_nan=False,
+        ^^^^^^^^^^^^^^^^
+    ).encode("utf-8", errors="strict")
+    ^
+  File "C:\Users\reiko\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "C:\Users\reiko\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\Users\reiko\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 261, in iterencode
+    return _iterencode(o, 0)
+ValueError: Exceeds the limit (4300 digits) for integer string conversion; use sys.set_int_max_str_digits() to increase the limit
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 684, in test_large_integer_digest_is_native_json_without_process_digit_limit_changes
+    self.assertEqual(compute_rule_digest(model), hashlib.sha256(json_bytes).hexdigest())
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_contracts.py", line 318, in compute_rule_digest
+    return _canonical_digest(_rule_semantic_payload(rule))
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_contracts.py", line 203, in _canonical_digest
+    raise ContractInputError("Canonical S2 digest payload is invalid.") from exc
+tools.implementation_contracts.ContractInputError: Canonical S2 digest payload is invalid.
+
+======================================================================
+ERROR: test_policy_admission_retains_the_actual_snapshot_and_fingerprints (test_implementation_contracts.ImplementationContractTests.test_policy_admission_retains_the_actual_snapshot_and_fingerprints)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 608, in test_policy_admission_retains_the_actual_snapshot_and_fingerprints
+    self.assertTrue(admission.policy_snapshot_integrity_verified)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'PolicyAssessmentAdmission' object has no attribute 'policy_snapshot_integrity_verified'
+
+======================================================================
+ERROR: test_provenance_flag_does_not_replace_original_manifest_and_snapshot (test_implementation_contracts.ImplementationContractTests.test_provenance_flag_does_not_replace_original_manifest_and_snapshot) (manifest='None')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 646, in test_provenance_flag_does_not_replace_original_manifest_and_snapshot
+    admit_policy_assessment(self.assessment_path, manifest,
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            self.assessment_path.parent / "policy-repo")
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_contracts.py", line 735, in admit_policy_assessment
+    manifest_file = Path(manifest_path)
+  File "C:\Users\reiko\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 503, in __init__
+    super().__init__(*args)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\reiko\AppData\Local\Programs\Python\Python313\Lib\pathlib\_local.py", line 132, in __init__
+    raise TypeError(
+    ...<2 lines>...
+        f"not {type(path).__name__!r}")
+TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'NoneType'
+
+======================================================================
+FAIL: test_dataclass_replace_does_not_retain_aggregate_admission (test_implementation_contracts.ImplementationContractTests.test_dataclass_replace_does_not_retain_aggregate_admission) (type='ImplementationEvidenceRuleset')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 583, in test_dataclass_replace_does_not_retain_aggregate_admission
+    with self.assertRaises(ContractInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_dataclass_replace_does_not_retain_aggregate_admission (test_implementation_contracts.ImplementationContractTests.test_dataclass_replace_does_not_retain_aggregate_admission) (type='PolicyImplementationExpectationSet')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 583, in test_dataclass_replace_does_not_retain_aggregate_admission
+    with self.assertRaises(ContractInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_evidence_kinds_match_referenced_rules_in_both_directions (test_implementation_contracts.ImplementationContractTests.test_evidence_kinds_match_referenced_rules_in_both_directions) (kinds=['dependency_lockfile', 'release_signature'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 572, in test_evidence_kinds_match_referenced_rules_in_both_directions
+    with self.assertRaises(ContractInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_evidence_kinds_match_referenced_rules_in_both_directions (test_implementation_contracts.ImplementationContractTests.test_evidence_kinds_match_referenced_rules_in_both_directions) (kinds=['release_signature'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 572, in test_evidence_kinds_match_referenced_rules_in_both_directions
+    with self.assertRaises(ContractInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_github_same_path_on_wrong_host_is_a_known_identity_mismatch (test_implementation_contracts.ImplementationContractTests.test_github_same_path_on_wrong_host_is_a_known_identity_mismatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 624, in test_github_same_path_on_wrong_host_is_a_known_identity_mismatch
+    with self.assertRaises(ContractInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_local_git_declared_path_must_match_materialized_repository (test_implementation_contracts.ImplementationContractTests.test_local_git_declared_path_must_match_materialized_repository)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 639, in test_local_git_declared_path_must_match_materialized_repository
+    with self.assertRaises(ContractInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_policy_parse_error_has_no_source_bearing_traceback_chain (test_implementation_contracts.ImplementationContractTests.test_policy_parse_error_has_no_source_bearing_traceback_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_contracts.py", line 738, in admit_policy_assessment
+    report, provenance_verified = ReviewReportOrchestrator().load_and_verify(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        assessment_path=assessment_file,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        allow_unverified_provenance=False,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\review_engine.py", line 501, in load_and_verify
+    raise ReviewValidationError(validation_errors)
+tools.review_engine.ReviewValidationError: invalid YAML in C:\Users\reiko\AppData\Local\Temp\tmpcnxvg7hk\assessment.yaml: while parsing a flow sequence
+  in "<unicode string>", line 1, column 13:
+    assessment: [
+                ^
+expected ',' or ']', but got '<stream end>'
+  in "<unicode string>", line 2, column 28:
+    TEST_SOURCE_MUST_NOT_ESCAPE
+                               ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 654, in test_policy_parse_error_has_no_source_bearing_traceback_chain
+    admit_policy_assessment(self.assessment_path,
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                            self.assessment_path.parent / "policy-repo" / "target-manifest.yaml",
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            self.assessment_path.parent / "policy-repo")
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_contracts.py", line 783, in admit_policy_assessment
+    raise ContractInputError(
+        "S1 policy assessment admission failed closed."
+    ) from exc
+tools.implementation_contracts.ContractInputError: S1 policy assessment admission failed closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 658, in test_policy_parse_error_has_no_source_bearing_traceback_chain
+    self.assertNotIn(secret, "".join(traceback.format_exception(error)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'TEST_SOURCE_MUST_NOT_ESCAPE' unexpectedly found in 'Traceback (most recent call last):\n  File "C:\\Users\\reiko\\.codex\\worktrees\\reporting-workflow-pr\\ai-assisted-ssdlc-docs\\tools\\implementation_contracts.py", line 738, in admit_policy_assessment\n    report, provenance_verified = ReviewReportOrchestrator().load_and_verify(\n                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        assessment_path=assessment_file,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<2 lines>...\n        allow_unverified_provenance=False,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File "C:\\Users\\reiko\\.codex\\worktrees\\reporting-workflow-pr\\ai-assisted-ssdlc-docs\\tools\\review_engine.py", line 501, in load_and_verify\n    raise ReviewValidationError(validation_errors)\ntools.review_engine.ReviewValidationError: invalid YAML in C:\\Users\\reiko\\AppData\\Local\\Temp\\tmpcnxvg7hk\\assessment.yaml: while parsing a flow sequence\n  in "<unicode string>", line 1, column 13:\n    assessment: [\n                ^\nexpected \',\' or \']\', but got \'<stream end>\'\n  in "<unicode string>", line 2, column 28:\n    TEST_SOURCE_MUST_NOT_ESCAPE\n                               ^\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File "C:\\Users\\reiko\\.codex\\worktrees\\reporting-workflow-pr\\ai-assisted-ssdlc-docs\\tests\\test_implementation_contracts.py", line 654, in test_policy_parse_error_has_no_source_bearing_traceback_chain\n    admit_policy_assessment(self.assessment_path,\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n                            self.assessment_path.parent / "policy-repo" / "target-manifest.yaml",\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                            self.assessment_path.parent / "policy-repo")\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\reiko\\.codex\\worktrees\\reporting-workflow-pr\\ai-assisted-ssdlc-docs\\tools\\implementation_contracts.py", line 783, in admit_policy_assessment\n    raise ContractInputError(\n        "S1 policy assessment admission failed closed."\n    ) from exc\ntools.implementation_contracts.ContractInputError: S1 policy assessment admission failed closed.\n'
+
+======================================================================
+FAIL: test_recomputed_empty_selector_cannot_reenter_admitted_boundary (test_implementation_contracts.ImplementationContractTests.test_recomputed_empty_selector_cannot_reenter_admitted_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 588, in test_recomputed_empty_selector_cannot_reenter_admitted_boundary
+    with self.assertRaises(ContractInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+======================================================================
+FAIL: test_recomputed_source_cannot_reenter_admitted_boundary (test_implementation_contracts.ImplementationContractTests.test_recomputed_source_cannot_reenter_admitted_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_contracts.py", line 603, in test_recomputed_source_cannot_reenter_admitted_boundary
+    with self.assertRaises(ContractInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractInputError not raised
+
+----------------------------------------------------------------------
+Ran 27 tests in 20.954s
+
+FAILED (failures=9, errors=3)
