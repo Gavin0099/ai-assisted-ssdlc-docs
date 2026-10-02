@@ -464,7 +464,7 @@ class TestArtifactRootBoundary(ContractTestCase):
 
             try:
                 with patch.object(store, "resolve", side_effect=resolve_then_swap), patch(
-                    "tools.report_data_contract.os.fdopen", side_effect=lambda *a, **k: ObservedFile(fdopen(*a, **k))
+                    "os.fdopen", side_effect=lambda *a, **k: ObservedFile(fdopen(*a, **k))
                 ):
                     # A matching hash must never authorize reading an outside file.
                     ref = ArtifactRef("race/private.txt", hashlib.sha256(outside_bytes).hexdigest())
