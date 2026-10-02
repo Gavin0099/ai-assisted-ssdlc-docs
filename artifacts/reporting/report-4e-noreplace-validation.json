@@ -46,7 +46,8 @@
   "cannot_claim": [
     "No UI visual or interaction QA.",
     "No semantic assessment, product implementation, human acceptance, sync or private company-data publication approval.",
-    "Receipt metadata alone does not prove execution; stdout and subprocess exit capture the performed test run."
+    "Receipt metadata alone does not prove execution; stdout and subprocess exit capture the performed test run.",
+    "This receipt verifies e731720 inputs and does not qualify later legacy provenance code changes."
   ],
   "baseline_regression": {
     "reviewed_commit": "5a973d6a3f4d5d088d2e32bbbb3afc2425fc68e5",
@@ -103,5 +104,5 @@
     "Linux no-replace contract: atomic renameat2 RENAME_NOREPLACE rejects concurrent empty destinations; no replacing fallback."
   ],
   "binding_scope": "All 28 source_file_sha256 values are tested committed Git blob bytes at e731720. A later evidence/PLAN/canonical-memory-only commit changes none of these inputs.",
-  "evidence_scope": "Current Linux no-replace implementation validation; earlier receipts preserve historical executions at their pinned commits."
+  "evidence_scope": "Historical e731720 Linux no-replace validation; later legacy provenance remediation is verified by report-4e-provenance-validation.json."
 }

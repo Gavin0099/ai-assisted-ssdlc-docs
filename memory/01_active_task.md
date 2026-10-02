@@ -25,3 +25,5 @@
 - REPORT-4E final implementation and committed-tree validation pass; latest-head Codex review/CI/conditional merge pending. UI QA not verified; company inputs excluded. <!-- memory_record_projection:active-task-summary:23cfaff49e3ff6817eda59a1fb537485029be63059eaccf908549fa60db19ef6 -->
 
 - REPORT-4E Linux no-replace remediation and committed-tree validation pass; updated-head Codex review/CI/conditional merge pending. UI QA not verified; company inputs excluded. <!-- memory_record_projection:active-task-summary:caeb4e617d6e1aff1b85f03f687ff9796f30aabd4e7b732365001b558fe93874 -->
+
+- REPORT-4E legacy provenance remediation and committed-tree validation pass; updated-head Codex review/CI/conditional merge pending. UI QA not verified; company inputs excluded. <!-- memory_record_projection:active-task-summary:da88cf86379e426079e0aaada60d162a97672abb57cddb7afddb3ce757222635 -->

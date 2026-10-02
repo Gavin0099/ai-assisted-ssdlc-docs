@@ -80,3 +80,14 @@
 - Validation boundary: artifacts/reporting/report-4e-noreplace-validation.json: actual Windows LF/CRLF each 316 run/313 pass/3 platform skips; independent native Ubuntu LF/CRLF each 316 run/315 pass/1 skip. Race regression fails on reviewed 733f021 with observed inode replacement and passes fixed code. Two-file independent technical review has no blocking findings; all 28 scope hashes match pinned Git blobs.
 - Next action: Push evidence and fix, request latest-head Codex review and require green CI before authorized engineering merge. UI qualification remains not verified.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:da88cf86379e426079e0aaada60d162a97672abb57cddb7afddb3ce757222635 -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E-provenance-remediation
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `da88cf86379e426079e0aaada60d162a97672abb57cddb7afddb3ce757222635`
+- Commit binding: `4a3e6e32c6202aa769919f844563ff781a656bc3` (bound)
+- Record: Closed legacy provenance attribution from incidental history/file hashes. Only unique labeled current scope binds metadata; missing, duplicate or mismatched fields fail closed. Structured admission/exact-byte authority remains. Current receipt pins implemented 4a3e6e3; prior executions remain historical.
+- Validation boundary: artifacts/reporting/report-4e-provenance-validation.json: actual Windows LF/CRLF each 319 run/316 pass/3 platform skips; independent native Ubuntu LF/CRLF each 319 run/318 pass/1 skip. New tests replay against reviewed 5c6eb14 with 9 assertion failures and zero errors; actual old CLI probes confirm wrong source attribution. Three-file independent delta review has no blocking findings. All 28 scope hashes match committed Git blobs.
+- Next action: Push remediation, obtain current-head Codex review and green CI, then merge under the already authorized engineering gate. UI qualification remains not verified.
+- PLAN reconciliation: `updated`
