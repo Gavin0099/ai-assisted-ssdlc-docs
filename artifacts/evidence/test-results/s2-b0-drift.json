@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m governance_tools.governance_drift_checker --repo ..",
+  "exit_code": 0,
+  "started_at": "2026-10-02T16:53:57Z",
+  "finished_at": "2026-10-02T16:53:58Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "a5a32163e153b247e5714399ce3d615f70937229",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b0-drift.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

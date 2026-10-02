@@ -1,0 +1,38 @@
+[governance_drift_check]
+ok                 = True
+severity           = ok
+repo_root          = C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs
+baseline_version   = 1.0.0
+framework_version  = <unknown>
+baseline_yaml      = C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\.governance\baseline.yaml
+
+[checks]
+  agents_sections_filled                 PASS
+  baseline_version_known                 PASS
+  baseline_yaml_freshness                PASS
+  baseline_yaml_present                  PASS
+  contract_agents_base_referenced        PASS
+  contract_no_placeholders               PASS
+  contract_not_framework_copy            PASS
+  contract_required_fields_present       PASS
+  expansion_boundary                     PASS
+  memory_schema_complete                 PASS
+  plan_freshness                         PASS
+  plan_inventory_current                 PASS
+  plan_required_sections_present         PASS
+  protected_file_sentinel_present        PASS
+  protected_files_present                PASS
+  protected_files_unmodified             PASS
+  source_commit_recorded                 PASS
+
+plan_section_inventory (5 sections):
+  ## Current Phase
+  ## Active Sprint
+  ## Backlog
+  ## Decision Log
+  ## Known Risks
+
+warnings (3):
+  - expansion_boundary: core hook file not found: C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\runtime_hooks\core\session_start.py
+  - expansion_boundary: core hook file not found: C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\runtime_hooks\core\pre_task_check.py
+  - expansion_boundary: core hook file not found: C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\runtime_hooks\core\post_task_check.py

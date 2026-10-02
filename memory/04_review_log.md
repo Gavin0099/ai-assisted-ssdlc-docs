@@ -91,3 +91,25 @@
 - Validation boundary: artifacts/reporting/report-4e-provenance-validation.json: actual Windows LF/CRLF each 319 run/316 pass/3 platform skips; independent native Ubuntu LF/CRLF each 319 run/318 pass/1 skip. New tests replay against reviewed 5c6eb14 with 9 assertion failures and zero errors; actual old CLI probes confirm wrong source attribution. Three-file independent delta review has no blocking findings. All 28 scope hashes match committed Git blobs.
 - Next action: Push remediation, obtain current-head Codex review and green CI, then merge under the already authorized engineering gate. UI qualification remains not verified.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:883d807b1e4e3729c52b334eeb0f9bc37b3194f49d1b82e5763ef0aff9cb0d7b -->
+### Canonical memory checkpoint — 2026-10-03-S2-B0
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `883d807b1e4e3729c52b334eeb0f9bc37b3194f49d1b82e5763ef0aff9cb0d7b`
+- Commit binding: `ab39e35` (bound)
+- Record: S2-B0 compared frozen S2-A with candidate 663caca without porting code. Recorded REUSE/FIX/REWRITE/DEFER, the 12 scenario owners and B1 two-file scope. Candidate 65 run/64 pass/one Windows skip; independent probes exposed YAML Core numeric oracle errors, admission bypasses and item invariant defects. User authorizes serial PR review and conditional merge of B0-P1; real Pilot product baseline and human-authored rules remain pending. This record is local audit evidence, not remote review/merge completion.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b0-drift.json and artifacts/evidence/test-results/s2-b0-readiness.json; candidate runs and independent probes are documented in docs/specs/s2-b0-candidate-audit.md, not S2 qualification.
+- Next action: Review latest B0 PR head, pass CI, merge conditionally; then start B1 from updated main. Await user inputs before real P1.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:bef0a1494d9e18f18c02ea397f54109d381f58b005e1d1f6f866ff0d6200bd00 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B0-durable
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `bef0a1494d9e18f18c02ea397f54109d381f58b005e1d1f6f866ff0d6200bd00`
+- Commit binding: `6ebc927` (bound)
+- Record: PR21 Codex P2 identified that the local WIP commit would not exist in fresh clones. Saved exactly 12 selected candidate Git blobs in an inert ZIP plus per-file Git IDs/SHA256 and public replay baseline; archive bytes were verified against original objects. Replayed the archive on public main baseline: implementation 43/43, product 22 run/21 pass/one Windows skip. Candidate defects remain documented; archive is not a production port or WIP acceptance. Latest-head remote re-review and merge are pending.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b0-durable-implementation.json and artifacts/evidence/test-results/s2-b0-durable-product.json; receipts retain execution-time e3a65e4 and describe archived candidate replay, not current S2 production acceptance.
+- Next action: Review final B0 archive fix, require current-head Codex/CI, merge and begin B1 from refreshed main.
+- PLAN reconciliation: `updated`
