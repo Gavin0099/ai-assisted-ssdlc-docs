@@ -4,7 +4,7 @@
 
 ## 目前位置
 
-- B0 已由 PR #21 合併於 `df57edb`，B1 由 PR #22 合併於 `ef0015c`，B2 由 PR #23 合併於 `e2caa19`，B3 由 PR #24 合併於 `c09a958`，B4 由 PR #25 合併於 `450ffc6`；各自最新版本的獨立／Codex 審查、CI 與合併後 main 檢查皆通過。目前進入 C1，後續維持逐刀 gate。
+- B0 已由 PR #21 合併於 `df57edb`，B1 由 PR #22 合併於 `ef0015c`，B2 由 PR #23 合併於 `e2caa19`，B3 由 PR #24 合併於 `c09a958`，B4 由 PR #25 合併於 `450ffc6`，C1 由 PR #26 合併於 `3986d0c`；各自最新版本的獨立／Codex 審查、CI 與合併後 main 檢查皆通過。目前進入 C2，真實 P1 仍待必要輸入。
 
 - REPORT-4E 工具已合併；全域 skill 已安裝並重新產出真實報告。網頁視覺／互動仍待人工驗收，另外追蹤，不阻擋純靜態 S2 core 的開發。
 - S2-A 已凍結。`origin/main` 的規格 Git blob 與 `dece98a8513000ea3e2e63391eabca2b6b9add3f` 相同。

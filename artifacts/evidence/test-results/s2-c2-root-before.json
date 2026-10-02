@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest tests.test_implementation_cli.ImplementationCliTests.test_markdown_root_nodes_are_distinct_from_no_nodes -v",
+  "exit_code": 1,
+  "started_at": "2026-10-02T21:33:01Z",
+  "finished_at": "2026-10-02T21:33:16Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "3986d0cfd599fc26d77fff67f645007bc3622425",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-c2-root-before.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}
