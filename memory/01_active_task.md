@@ -35,3 +35,5 @@
 - S2-B0 PR #21 merged df57edb. B1 PR #22 four review fixes committed 084fa59; focused 32 pass, full 351 run/348 pass/3 platform skips. Latest-head independent/Codex review and CI pending; B2 not started. <!-- memory_record_projection:active-task-summary:6364431ec782a9a4db8c5a46963eea361082f14522f0629fead895040fa2b2d0 -->
 
 - S2-B0 PR #21 merged. B1 PR #22 all six review defects fixed through 217440a; 34 focused pass, full 353 run/350 pass/3 platform skips. Latest-head reviews/CI pending, B2 not started. <!-- memory_record_projection:active-task-summary:c3dd09f7aaff1a8718202d70bee253b0fcfa6eeb2dba28b19b122b4449f88a33 -->
+
+- B0 merged. B1 PR #22 scalar alias amplification fixed 4cc01b1; 35 focused pass. Latest-head independent/Codex review and CI pending; B2 not started. <!-- memory_record_projection:active-task-summary:14e956235f4188850c50447ee102605d23455229df7efb6aa99ebeda07275691 -->

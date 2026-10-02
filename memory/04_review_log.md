@@ -146,3 +146,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-schema-committed-focused.json; PASS: artifacts/evidence/test-results/s2-b1-schema-fixed-full.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-schema-regression-before.json
 - Next action: Independent/Codex review current B1 head and CI; merge only after gate passes, then B2.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:14e956235f4188850c50447ee102605d23455229df7efb6aa99ebeda07275691 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-scalar-alias
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `14e956235f4188850c50447ee102605d23455229df7efb6aa99ebeda07275691`
+- Commit binding: `4cc01b19905683f1be03e0d0010cf84e6b8ad3bf` (bound)
+- Record: B1 independent review found repeated Unicode scanning of shared scalar aliases introduced by 217440a. Memoized successfully validated string identities. CountingString regression fails 394ae39 and all 35 matcher tests pass fixed 4cc01b1. Prior full suite 353 run/350 pass/3 skips; latest-head full regression is a required CI gate.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-scalar-committed-focused.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-scalar-alias-before.json
+- Next action: Complete latest-head reviews and CI for PR #22, merge B1 if clean, then start B2.
+- PLAN reconciliation: `updated`
