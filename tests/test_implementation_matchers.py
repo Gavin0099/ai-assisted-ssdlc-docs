@@ -465,6 +465,17 @@ class ImplementationMatcherTests(unittest.TestCase):
                     with self.assertRaises(InvalidEvidenceInputError):
                         evaluate_assertion(root, document)
 
+    def test_shared_float_key_alias_is_canonicalized_once(self) -> None:
+        from unittest.mock import patch
+        import tools.implementation_matchers as matchers
+
+        document = 'key: &number 1e' + '1' * 5000 + '\n'
+        document += ''.join(f'map{i}: {{*number: value}}\n' for i in range(20))
+        with patch.object(matchers, '_yaml_float_key_identity', wraps=matchers._yaml_float_key_identity) as canonicalize:
+            result = evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, ''), document)
+        self.assertTrue(result.passed)
+        self.assertEqual(canonicalize.call_count, 1)
+
     def test_yaml_empty_path_targets_document_root(self) -> None:
         result = evaluate_assertion(
             self._equals(

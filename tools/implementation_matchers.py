@@ -142,7 +142,7 @@ class _YamlTimestamp:
 
 
 @dataclass(frozen=True)
-class _YamlCollectionKey:
+class _YamlNonStringKey:
     # A document-local interned identity; never navigable as a string key.
     identity: int
 
@@ -380,15 +380,12 @@ def _construct_unique_yaml_mapping(
                 "YAML merge keys are unsupported",
                 key_node.start_mark,
             )
-        if isinstance(key_node, (yaml.SequenceNode, MappingNode)):
-            key = _YamlCollectionKey(_yaml_key_identity(loader, key_node))
-        else:
+        if isinstance(key_node, yaml.ScalarNode) and key_node.tag == "tag:yaml.org,2002:str":
             key = loader.construct_object(key_node, deep=deep)
-        # Preserve YAML tag equality; Python otherwise merges true with 1.
-        # Only literal string keys are navigable through the frozen path DSL.
-        if type(key) is not str and not isinstance(key, _YamlCollectionKey):
-            canonical = _yaml_float_key_identity(key_node.value) if type(key) is float else key
-            key = (key_node.tag, canonical)
+        else:
+            # Intern every non-string key. Shared scalar aliases then avoid
+            # repeated canonicalization and hashing of large numeric identities.
+            key = _YamlNonStringKey(_yaml_key_identity(loader, key_node))
         duplicate = key in result
         if duplicate:
             raise ConstructorError(
