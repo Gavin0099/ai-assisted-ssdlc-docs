@@ -5,6 +5,7 @@ independent queue opinion. Tests assert visible output and unchanged inputs;
 they do not establish semantic assessment correctness or human acceptance.
 """
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -139,6 +140,25 @@ class TestAssessmentMarkdown(ContractTestCase):
         self.assertIn("COVERED 1", docs["synthetic-report-summary.md"])
         self.assertIn("Only Product One; no company-wide scope.", docs["synthetic-report-summary.md"])
         self.assertIn("Only Product One; do not extrapolate company-wide.", docs["synthetic-report-technical-review.md"])
+
+    def test_crlf_templates_match_lf_output_and_keep_raw_byte_fingerprints(self):
+        template_dir = self.out.parent / "templates"
+        template_dir.mkdir()
+        raw_lf = {kind: (TEMPLATE_ROOT / name).read_bytes().replace(b"\r\n", b"\n") for kind, name in TEMPLATE_FILES.items()}
+        for kind, name in TEMPLATE_FILES.items():
+            (template_dir / name).write_bytes(raw_lf[kind])
+        before = self.snapshot()
+        with patch.object(application, "TEMPLATE_ROOT", template_dir):
+            lf = application.generate(self.root, "review-lifecycle.json", self.out.parent / "lf", date="2026-10-02")
+            for kind, name in TEMPLATE_FILES.items():
+                (template_dir / name).write_bytes(raw_lf[kind].replace(b"\n", b"\r\n"))
+            crlf = application.generate(self.root, "review-lifecycle.json", self.out.parent / "crlf", date="2026-10-02")
+        self.assertEqual(lf["output_sha256"], crlf["output_sha256"])
+        for kind, name in TEMPLATE_FILES.items():
+            self.assertEqual(lf["template_sha256"][kind], hashlib.sha256(raw_lf[kind]).hexdigest())
+            self.assertEqual(crlf["template_sha256"][kind], hashlib.sha256((template_dir / name).read_bytes()).hexdigest())
+            self.assertNotEqual(lf["template_sha256"][kind], crlf["template_sha256"][kind])
+        self.assertEqual(before, self.snapshot())
 
     def test_null_and_uncollected_fail_before_output(self):
         pristine = copy.deepcopy(self.bundle.data)

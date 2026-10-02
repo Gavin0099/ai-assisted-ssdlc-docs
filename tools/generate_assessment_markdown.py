@@ -209,7 +209,10 @@ def generate(report_root: Path, lifecycle: str, out_dir: Path, *, date: str,
     loaded = load_review_lifecycle(lifecycle, store.root, authorized_auxiliary_sources=authorized_auxiliary_sources)
     lifecycle_path = store.resolve(lifecycle)
     template_raw = {kind: (TEMPLATE_ROOT / name).read_bytes() for kind, name in TEMPLATE_FILES.items()}
-    templates = {kind: raw.decode("utf-8") for kind, raw in template_raw.items()}
+    # Preserve raw template fingerprints; match Path.read_text universal newline
+    # semantics for presentation text in normal Windows CRLF checkouts.
+    templates = {kind: raw.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+                 for kind, raw in template_raw.items()}
     docs = render_markdown(loaded, date=date, title=title, templates=templates,
                            source_links=_source_links(loaded, store, lifecycle_path, out))
     write_status = _write_bundle(out, docs)
