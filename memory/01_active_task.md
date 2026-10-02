@@ -29,3 +29,5 @@
 - REPORT-4E legacy provenance remediation and committed-tree validation pass; updated-head Codex review/CI/conditional merge pending. UI QA not verified; company inputs excluded. <!-- memory_record_projection:active-task-summary:da88cf86379e426079e0aaada60d162a97672abb57cddb7afddb3ce757222635 -->
 
 - S2-B0 audit complete locally; immutable WIP has matcher/admission/item defects assigned to B1/B2/B4. Serial PR delivery authorized; B0 review/CI/merge pending, real P1 baseline/rules pending. <!-- memory_record_projection:active-task-summary:883d807b1e4e3729c52b334eeb0f9bc37b3194f49d1b82e5763ef0aff9cb0d7b -->
+
+- B0 PR21 merged after review/CI; B1 matcher core locally complete (28 focused pass, initial347/344/3skip). B1 remote gate pending; B2 next. Real P1 product baseline and human rules still pending. <!-- memory_record_projection:active-task-summary:825df380c48c84c0e15428e9f6d72af6412c4f25ccf58649d4a9981e7b19a7cd -->

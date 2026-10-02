@@ -113,3 +113,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b0-durable-implementation.json and artifacts/evidence/test-results/s2-b0-durable-product.json; receipts retain execution-time e3a65e4 and describe archived candidate replay, not current S2 production acceptance.
 - Next action: Review final B0 archive fix, require current-head Codex/CI, merge and begin B1 from refreshed main.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:825df380c48c84c0e15428e9f6d72af6412c4f25ccf58649d4a9981e7b19a7cd -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `825df380c48c84c0e15428e9f6d72af6412c4f25ccf58649d4a9981e7b19a7cd`
+- Commit binding: `f59f41d` (bound)
+- Record: S2-B1 ports only typed matchers/tests from the inert candidate. Root cause: WIP numeric resolver and its oracle used non-Core binary/underscore forms and rejected decimal leading zeros; inherited constructors admitted YAML1.1 scalar spellings and Python merged boolean/integer keys. Corrected Core resolution and tag-aware key equality, frozen timestamp-uncomparable semantics, strict result tuples/codes/node invariants and sanitized parse failures. Initial full347 run/344pass/three inherited Windows skips; focused28 pass after final invariants. New regression against old candidate produced19 failed subcases/one key-collision error. No product/policy/evaluator/CLI changes; remote delivery remains pending.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-committed-focus.json -> 28 matcher tests, linked to f59f41d. Initial full suite and deliberate old-candidate failures are separate diagnostic receipts, not product verification.
+- Next action: Complete independent latest-head review, open B1 PR, resolve Codex findings, require CI then merge; B2 starts from updated main.
+- PLAN reconciliation: `updated`

@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest discover -s tests -p test_implementation_matchers.py -v",
+  "exit_code": 0,
+  "started_at": "2026-10-02T17:22:15Z",
+  "finished_at": "2026-10-02T17:22:15Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "f59f41d8ab360b4eeab0e8314bd7a4bb1f5822cc",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b1-committed-focus.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}
