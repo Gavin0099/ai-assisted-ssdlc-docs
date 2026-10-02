@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest tests.test_product_corpus_resolver.ProductCorpusResolverTests.test_partial_clone_missing_blob_never_fetches_or_changes_object_store -v",
+  "exit_code": 1,
+  "started_at": "2026-10-02T19:58:01Z",
+  "finished_at": "2026-10-02T19:58:03Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "28c8a90a7abfe63ffa8f7580b401083b6bdfac22",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b3-lazy-fetch-before.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

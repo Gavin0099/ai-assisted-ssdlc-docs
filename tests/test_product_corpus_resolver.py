@@ -438,6 +438,40 @@ class ProductCorpusResolverTests(unittest.TestCase):
         snapshot = ProductCorpusResolver().resolve(manifest, bare_root)
         self.assertEqual(snapshot.files[0].content, "value: one\n")
 
+    def test_partial_clone_missing_blob_never_fetches_or_changes_object_store(self) -> None:
+        commit = self._commit_files({"src/app.yml": "value: one\n"}, "partial source")
+        blob = run_git(["rev-parse", f"{commit}:src/app.yml"], self.repo_dir).stdout.strip()
+        run_git(["config", "uploadpack.allowFilter", "true"], self.repo_dir)
+        environment_before = dict(os.environ)
+        for reader in ("direct", "product"):
+            with self.subTest(reader=reader):
+                clone = self.repo_dir / f"partial-{reader}"
+                run_git(["-c", "protocol.file.allow=always", "clone", "--filter=blob:none",
+                         "--no-checkout", self.repo_dir.as_uri(), str(clone)], self.repo_dir)
+                def missing() -> bool:
+                    return subprocess.run(
+                        ["git", "--no-lazy-fetch", "cat-file", "-e", blob], cwd=clone,
+                        capture_output=True, check=False,
+                    ).returncode != 0
+                def object_store() -> dict[str, str]:
+                    root = clone / ".git/objects"
+                    return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                            for p in root.rglob("*") if p.is_file()}
+                self.assertTrue(missing(), "Fixture must start without the selected blob")
+                before = object_store()
+                with self.assertRaises(CorpusResolverError):
+                    if reader == "direct":
+                        GitCliClient().read_blob_bytes(clone, commit, "src/app.yml")
+                    else:
+                        manifest = parse_product_target_manifest({
+                            "manifest_version": "1.0",
+                            "target": {"source_type": "local_git", "repo": str(clone), "commit": commit},
+                            "authority_surface": {"include": ["src/**"]}, "mode": {"read_only": True}})
+                        ProductCorpusResolver().resolve(manifest, clone)
+                self.assertTrue(missing())
+                self.assertEqual(object_store(), before)
+                self.assertEqual(dict(os.environ), environment_before)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -201,7 +201,7 @@ class GitCliClient:
     def _run(self, args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
         try:
             return subprocess.run(
-                [self.git_binary, "--no-replace-objects"] + args,
+                [self.git_binary, "--no-replace-objects", "--no-lazy-fetch"] + args,
                 cwd=cwd,
                 capture_output=True,
                 text=True,
@@ -233,6 +233,7 @@ class GitCliClient:
         cmd = [
             self.git_binary,
             "--no-replace-objects",
+            "--no-lazy-fetch",
             "-c",
             "core.quotepath=false",
             "ls-tree",
@@ -276,7 +277,7 @@ class GitCliClient:
         return entries
 
     def read_blob_bytes(self, repo_path: Path, commit: str, rel_path: str) -> bytes:
-        cmd = [self.git_binary, "--no-replace-objects", "cat-file", "-p", f"{commit}:{rel_path}"]
+        cmd = [self.git_binary, "--no-replace-objects", "--no-lazy-fetch", "cat-file", "-p", f"{commit}:{rel_path}"]
         try:
             res = subprocess.run(cmd, cwd=repo_path, capture_output=True, check=False)
         except OSError as exc:
