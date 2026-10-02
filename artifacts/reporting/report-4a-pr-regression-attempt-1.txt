@@ -1,0 +1,24 @@
+E
+======================================================================
+ERROR: test_rekor_provider (unittest.loader._FailedTest.test_rekor_provider)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_rekor_provider
+Traceback (most recent call last):
+  File "C:\Users\reiko\AppData\Local\Programs\Python\Python313\Lib\unittest\loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "C:\Users\reiko\AppData\Local\Programs\Python\Python313\Lib\unittest\loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\report-4a-pr\ai-assisted-ssdlc-docs\ai-governance-framework\tests\test_rekor_provider.py", line 15, in <module>
+    from governance_tools.rekor_provider import (
+    ...<11 lines>...
+    )
+  File "C:\Users\reiko\.codex\worktrees\report-4a-pr\ai-assisted-ssdlc-docs\ai-governance-framework\governance_tools\rekor_provider.py", line 22, in <module>
+    from tuf.api.metadata import Metadata
+ModuleNotFoundError: No module named 'tuf'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (errors=1)

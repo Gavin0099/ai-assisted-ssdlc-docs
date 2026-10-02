@@ -2,7 +2,7 @@
 <!-- governance-baseline: overridable -->
 <!-- baseline_version: 1.0.0 -->
 
-> **最後更新**: 2026-10-01
+> **最後更新**: 2026-10-02
 > **Owner**: TODO
 > **Freshness**: Sprint (7d)
 
@@ -27,6 +27,10 @@
 - [x] S2-A: Implementation Evidence Verification Specification & Acceptance Criteria (FROZEN at dece98a).
 - [ ] S2-B: Implementation Contracts, Manifest, Corpus Resolver, Matchers & Evaluator Core (WIP isolated on branch wip/s2-b-implementation-candidates).
 - [ ] S2-C: Dual Provenance Orchestrator, CLI, Deterministic Projection & E2E Validation.
+
+- [x] REPORT-3B: Minimal Report Data Contract v0.1 accepted/frozen by the user; assessment remains unchanged, D1-D3 use report data and D4 uses separate lifecycle records. Published with REPORT-4A as its reviewed behavior source.
+- [x] REPORT-4A: Contract Models + Validation Only. Two Python modules and synthetic C1-C8 fixtures implement strict parsing, pinned ArtifactRef reads, D1-D3 cross-references and deterministic acceptance/sync validation. Complete main-based regression: 247 run, 245 pass and two Windows symlink privilege skips; Linux contract run: 50 run, 49 pass and one Windows-junction skip. Each of the 50 new tests passed on at least one platform. Drift/readiness pass; no YAML schemas, actual sidecars, report migration, Markdown/HTML generation, assessment/queue/S2 changes. Delivery through the user-authorized PR, Codex review and conditional merge; remote review/check/merge evidence remains on that PR.
+- [ ] REPORT-4B/C/D: Real-data migration, deterministic Markdown projection and HTML wiring remain separately scoped future slices; not started by REPORT-4A.
 
 - [x] S0-A: Assessment Contract definition and source-type bounding.
 - [x] S0-B: Hand-crafted Golden Fixture for 7 NIST SSDF tasks.
@@ -85,6 +89,8 @@
 - 2026-09-18: Phase S1 formally closed at main 79e33ae. Delivered fixed Target Manifest scope, deterministic repository corpus materialization, source-bound multi-file assessment contracts, fail-closed provenance validation, deterministic read-only reviewer reporting, cross-commit assessment diffing, and read-only review queue action projection. S1 does not claim exact quote/span provenance, automated end-to-end semantic assessment execution, NIST SSDF conformance, organizational compliance, implementation effectiveness, or product security.
 
 ## Known Risks
+
+- 2026-10-02: REPORT-4A admission validates structure, version relationships and declared records. It does not prove semantic assessment correctness, Git/quote-span provenance, human identity/authority, actual product execution or real report acceptance/sync. Main's pre-existing governance version/hook warnings are outside this PR; readiness passes without a framework update claim.
 
 <!-- Optional: track identified risks and mitigation status -->
 - AI-generated documentation may overclaim remediation or compliance unless validators and reviewer guide keep `Cannot Claim` boundaries visible.
