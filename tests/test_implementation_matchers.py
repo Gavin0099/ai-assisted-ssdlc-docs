@@ -476,6 +476,14 @@ class ImplementationMatcherTests(unittest.TestCase):
         self.assertTrue(result.passed)
         self.assertEqual(canonicalize.call_count, 1)
 
+    def test_yaml_map_tag_requires_mapping_node_at_root_value_and_key(self) -> None:
+        root = EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, '')
+        for document in ('!!map ""', '!!map []', '!!map [1]',
+                          'key: !!map ""', '? !!map ""\n: value'):
+            with self.subTest(document=document):
+                with self.assertRaises(InvalidEvidenceInputError):
+                    evaluate_assertion(root, document)
+
     def test_yaml_empty_path_targets_document_root(self) -> None:
         result = evaluate_assertion(
             self._equals(

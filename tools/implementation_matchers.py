@@ -371,6 +371,8 @@ def _yaml_key_identity(loader: _UniqueKeyYaml12CoreLoader, node: yaml.Node) -> i
 def _construct_unique_yaml_mapping(
     loader: _UniqueKeyYaml12CoreLoader, node: MappingNode, deep: bool = False
 ) -> dict[Any, Any]:
+    if not isinstance(node, MappingNode):
+        raise ConstructorError(None, None, "map tag requires a mapping node", node.start_mark)
     result: dict[Any, Any] = {}
     for key_node, value_node in node.value:
         if key_node.tag == "tag:yaml.org,2002:merge":
