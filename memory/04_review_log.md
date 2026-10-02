@@ -124,3 +124,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-committed-focus.json -> 28 matcher tests, linked to f59f41d. Initial full suite and deliberate old-candidate failures are separate diagnostic receipts, not product verification.
 - Next action: Complete independent latest-head review, open B1 PR, resolve Codex findings, require CI then merge; B2 starts from updated main.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:6364431ec782a9a4db8c5a46963eea361082f14522f0629fead895040fa2b2d0 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-review-fix
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `6364431ec782a9a4db8c5a46963eea361082f14522f0629fead895040fa2b2d0`
+- Commit binding: `084fa59` (bound)
+- Record: Fixed four S2-B1 independent/Codex review findings: canonical full-precision timestamp keys, linear shared-alias traversal, iterative JSON Unicode scan and sanitized parser traceback chains. Four regressions fail reviewed d977ba3 and pass fixed 084fa59. Full Windows suite 351 tests, 348 pass and 3 inherited platform skips. PR #22 still requires latest-head review and CI before merge.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-review-committed-focused.json; PASS: artifacts/evidence/test-results/s2-b1-review-fixed-full.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-review-regression-before.json
+- Next action: Review latest PR #22 head and CI, conditionally merge B1, then start B2 from updated main; real P1 still requires human product baseline and rules.
+- PLAN reconciliation: `updated`
