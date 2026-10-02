@@ -53,7 +53,7 @@ B2 不依賴 product repo；B3 不需要 evaluator。WIP evaluator imports 這�
 | 5 Unverified rejected by default | C1 | C2 |
 | 6 Multiple rules, no Task rollup | B4 / C1 | C2 |
 | 7 Identity-only opt-in | C1 | C2 |
-| 8 Missing original manifest still fatal | B2 / C1 | C2 |
+| 8 Missing Product Manifest still fatal | B3 / C1 | C2 |
 | 9 ANY/ALL files vs wildcard nodes | B1 / B4 | C2 |
 | 10 Typed scalar, no coercion | B1 | C2 |
 | 11 Duplicate/integrity failure before write | B1 / B2 / B3 / C1 | C2 |
