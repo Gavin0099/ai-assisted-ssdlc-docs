@@ -289,3 +289,14 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-tag-committed.json;61run60pass1WindowsOSskip; two before-fix Product/Policy regressions reject dc557dd.
 - Next action: Final PR24 independent/Codex/CI gate, conditional merge then B4; P1 inputs pending.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:22a99ace1889fd967ba14dea02d6058aaffe1df0b4722672f2328804330a9709 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B3-lazy-fetch
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `22a99ace1889fd967ba14dea02d6058aaffe1df0b4722672f2328804330a9709`
+- Commit binding: `192ded6aebb32686a8510f42e298043c5abf3768` (bound)
+- Record: B3 closes synthetic partial-clone lazy-fetch side effect by disabling it on all shared Git reads; missing objects fail closed without changing the object store.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b3-lazy-fetch-committed.json; 62 run,61 pass,one Windows skip. Before receipt reproduces two failed paths. Latest-head PR review/CI pending.
+- Next action: Review and merge latest B3 head, then serial B4.
+- PLAN reconciliation: `updated`
