@@ -19,3 +19,7 @@
 - REPORT-4A PR #19 已修正 Codex 對465e435提出的1 P1與2 P2；251項回歸與54項跨平台 contract tests 通過其適用案例，待最新head Codex review/CI，依使用者授權無阻擋後合併。4B/C/D未開始。 <!-- memory_record_projection:active-task-summary:f5f37fe41e4ae154b7eba1558237698810dca7f05c12510f6e2cd2cf34264c73 -->
 
 - REPORT-4E tooling implementation and synthetic validation complete; public PR review/check/merge pending; private inputs excluded, UI QA unverified. <!-- memory_record_projection:active-task-summary:7916a2fa3a90388c5f4551d0d6a94af5ecd9b516d399e3867071ba382960dfa2 -->
+
+- REPORT-4E Codex findings fixed; committed-tree validation passes; updated-head remote review/CI/conditional merge pending, UI QA unverified. <!-- memory_record_projection:active-task-summary:562e37784224243014a8392bdc623ac0a2cd93611cceb3f14b28643507f2cd4b -->
+
+- REPORT-4E final implementation and committed-tree validation pass; latest-head Codex review/CI/conditional merge pending. UI QA not verified; company inputs excluded. <!-- memory_record_projection:active-task-summary:23cfaff49e3ff6817eda59a1fb537485029be63059eaccf908549fa60db19ef6 -->

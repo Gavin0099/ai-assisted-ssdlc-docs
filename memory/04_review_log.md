@@ -47,3 +47,25 @@
 - Validation boundary: artifacts/reporting/report-4e-validation.json: independent technical review NO_BLOCKING_FINDINGS; Windows 311/309 pass/2 skips, Ubuntu 311/310 pass/1 skip; blind skill project exit 0 with four outputs and preserved draft/not_synced state; skill validator and diff check PASS.
 - Next action: Open the authorized public tooling PR, obtain current-head Codex review and green checks, then conditionally merge. Browser visual and interaction QA remains not verified.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:562e37784224243014a8392bdc623ac0a2cd93611cceb3f14b28643507f2cd4b -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E-Codex-remediation
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `562e37784224243014a8392bdc623ac0a2cd93611cceb3f14b28643507f2cd4b`
+- Commit binding: `191a5c4db24531184e644a898dba94aa4cb09801` (bound)
+- Record: Codex review remediation: preserve different existing legacy HTML, allow exact no-op and atomic no-replace publication, retain P0-P3 priorities. Replace delivery evidence with a pinned committed-tree run; historical precommit filesystem evidence is explicitly separate.
+- Validation boundary: artifacts/reporting/report-4e-committed-validation.json: actual committed-tree Windows run 314/312 pass/2 skips; all 28 displayed hashes equal Git blobs; 3 new regression tests detect defects at reviewed 5a973d6 baseline (nonzero replay).
+- Next action: Push remediation and obtain updated-head Codex review and CI before conditional engineering merge. UI QA remains not verified.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:23cfaff49e3ff6817eda59a1fb537485029be63059eaccf908549fa60db19ef6 -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4E-final-remediation
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `23cfaff49e3ff6817eda59a1fb537485029be63059eaccf908549fa60db19ef6`
+- Commit binding: `39b76c6ee2b33c69c5a00fc443003ea7ce984451` (bound)
+- Record: Finished REPORT-4E remediation including Windows CRLF template admission. Template text uses universal newlines while raw fingerprints remain exact. Final delivery evidence is pinned to implemented commit 39b76c6; earlier precommit and 191a5c4 executions are explicit historical receipts.
+- Validation boundary: artifacts/reporting/report-4e-final-validation.json: actual Windows LF and CRLF each 315/313 pass/2 skips; independent Ubuntu LF and CRLF each 315/314 pass/1 skip. Four regression cases detect old implementation defects; all 28 displayed scope hashes match Git blobs. Independent delta review APPROVED.
+- Next action: Obtain latest-head remote Codex review and green CI, then apply the already authorized engineering merge. UI qualification remains not verified.
+- PLAN reconciliation: `updated`
