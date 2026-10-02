@@ -1,0 +1,135 @@
+test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) ... 
+  test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='str', node='{ !!value "=": synthetic-value }') ... FAIL
+  test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='bool', node='{ !!value "=": true }') ... FAIL
+  test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='int', node='{ !!value "=": 1 }') ... FAIL
+  test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='float', node='{ !!value "=": 1.5 }') ... FAIL
+  test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='null', node='{ !!value "=": null }') ... FAIL
+  test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='timestamp', node='{ !!value "=": 2001-01-01 }') ... ERROR
+test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) ... FAIL
+test_decimal_conversion_uses_balanced_big_integer_multiplications (test_implementation_matchers.ImplementationMatcherTests.test_decimal_conversion_uses_balanced_big_integer_multiplications) ... ok
+test_equivalent_timestamp_keys_are_duplicates_at_full_precision (test_implementation_matchers.ImplementationMatcherTests.test_equivalent_timestamp_keys_are_duplicates_at_full_precision) ... ok
+test_expected_scalar_rejects_python_bool_as_integer (test_implementation_matchers.ImplementationMatcherTests.test_expected_scalar_rejects_python_bool_as_integer) ... ok
+test_file_exists_matcher_has_no_structured_locator (test_implementation_matchers.ImplementationMatcherTests.test_file_exists_matcher_has_no_structured_locator) ... ok
+test_float_and_collection_nodes_exist_but_are_not_comparable (test_implementation_matchers.ImplementationMatcherTests.test_float_and_collection_nodes_exist_but_are_not_comparable) ... ok
+test_invalid_path_is_rejected_before_parsing_evidence (test_implementation_matchers.ImplementationMatcherTests.test_invalid_path_is_rejected_before_parsing_evidence) ... ok
+test_invalid_yaml_formatted_traceback_contains_no_source_snippet (test_implementation_matchers.ImplementationMatcherTests.test_invalid_yaml_formatted_traceback_contains_no_source_snippet) ... ok
+test_json_duplicate_keys_non_rfc_constant_and_unpaired_surrogate_fail (test_implementation_matchers.ImplementationMatcherTests.test_json_duplicate_keys_non_rfc_constant_and_unpaired_surrogate_fail) ... ok
+test_json_pointer_array_index_requires_canonical_index (test_implementation_matchers.ImplementationMatcherTests.test_json_pointer_array_index_requires_canonical_index) ... ok
+test_json_pointer_decodes_escaped_keys_and_reports_canonical_node_path (test_implementation_matchers.ImplementationMatcherTests.test_json_pointer_decodes_escaped_keys_and_reports_canonical_node_path) ... ok
+test_json_pointer_invalid_escape_is_an_invalid_rule (test_implementation_matchers.ImplementationMatcherTests.test_json_pointer_invalid_escape_is_an_invalid_rule) ... ok
+test_json_pointer_root_and_literal_object_index_keys (test_implementation_matchers.ImplementationMatcherTests.test_json_pointer_root_and_literal_object_index_keys) ... ok
+test_json_validation_does_not_leak_recursion_errors (test_implementation_matchers.ImplementationMatcherTests.test_json_validation_does_not_leak_recursion_errors) ... ok
+test_matcher_field_combinations_are_fail_closed (test_implementation_matchers.ImplementationMatcherTests.test_matcher_field_combinations_are_fail_closed) ... ok
+test_mismatch_result_contains_no_expected_or_observed_value (test_implementation_matchers.ImplementationMatcherTests.test_mismatch_result_contains_no_expected_or_observed_value) ... ok
+test_result_requires_closed_immutable_field_types (test_implementation_matchers.ImplementationMatcherTests.test_result_requires_closed_immutable_field_types) ... ok
+test_shared_alias_dag_is_visited_once_and_cycles_remain_invalid (test_implementation_matchers.ImplementationMatcherTests.test_shared_alias_dag_is_visited_once_and_cycles_remain_invalid) ... ok
+test_shared_float_key_alias_is_canonicalized_once (test_implementation_matchers.ImplementationMatcherTests.test_shared_float_key_alias_is_canonicalized_once) ... ok
+test_shared_scalar_alias_is_validated_once (test_implementation_matchers.ImplementationMatcherTests.test_shared_scalar_alias_is_validated_once) ... ok
+test_strings_are_exact_without_trim_case_fold_or_unicode_normalization (test_implementation_matchers.ImplementationMatcherTests.test_strings_are_exact_without_trim_case_fold_or_unicode_normalization) ... ok
+test_typed_values_do_not_coerce_in_yaml_or_json (test_implementation_matchers.ImplementationMatcherTests.test_typed_values_do_not_coerce_in_yaml_or_json) ... ok
+test_valid_large_json_integer_has_no_interpreter_digit_cap (test_implementation_matchers.ImplementationMatcherTests.test_valid_large_json_integer_has_no_interpreter_digit_cap) ... ok
+test_valid_large_yaml_integer_has_no_interpreter_digit_cap (test_implementation_matchers.ImplementationMatcherTests.test_valid_large_yaml_integer_has_no_interpreter_digit_cap) ... ok
+test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed (test_implementation_matchers.ImplementationMatcherTests.test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed) ... ok
+test_yaml_12_directive_and_on_key_are_preserved (test_implementation_matchers.ImplementationMatcherTests.test_yaml_12_directive_and_on_key_are_preserved) ... ok
+test_yaml_collection_key_equality_ignores_mapping_order_and_keeps_tags (test_implementation_matchers.ImplementationMatcherTests.test_yaml_collection_key_equality_ignores_mapping_order_and_keeps_tags) ... ok
+test_yaml_collection_keys_are_valid_but_not_path_navigable (test_implementation_matchers.ImplementationMatcherTests.test_yaml_collection_keys_are_valid_but_not_path_navigable) ... ok
+test_yaml_duplicate_keys_multiple_documents_custom_tag_and_recursive_alias_fail (test_implementation_matchers.ImplementationMatcherTests.test_yaml_duplicate_keys_multiple_documents_custom_tag_and_recursive_alias_fail) ... ok
+test_yaml_empty_path_targets_document_root (test_implementation_matchers.ImplementationMatcherTests.test_yaml_empty_path_targets_document_root) ... ok
+test_yaml_equals_mismatch_reports_all_evaluated_nodes_without_values (test_implementation_matchers.ImplementationMatcherTests.test_yaml_equals_mismatch_reports_all_evaluated_nodes_without_values) ... ok
+test_yaml_equivalent_float_key_spellings_are_duplicates (test_implementation_matchers.ImplementationMatcherTests.test_yaml_equivalent_float_key_spellings_are_duplicates) ... ok
+test_yaml_float_keys_preserve_lossless_decimal_identity (test_implementation_matchers.ImplementationMatcherTests.test_yaml_float_keys_preserve_lossless_decimal_identity) ... ok
+test_yaml_integer_core_forms_are_compared_numerically (test_implementation_matchers.ImplementationMatcherTests.test_yaml_integer_core_forms_are_compared_numerically) ... ok
+test_yaml_map_tag_requires_mapping_node_at_root_value_and_key (test_implementation_matchers.ImplementationMatcherTests.test_yaml_map_tag_requires_mapping_node_at_root_value_and_key) ... ok
+test_yaml_mapping_key_equality_preserves_core_tags (test_implementation_matchers.ImplementationMatcherTests.test_yaml_mapping_key_equality_preserves_core_tags) ... ok
+test_yaml_non_core_numeric_spellings_are_literal_strings (test_implementation_matchers.ImplementationMatcherTests.test_yaml_non_core_numeric_spellings_are_literal_strings) ... ok
+test_yaml_path_exists_accepts_uncomparable_value_and_equals_does_not (test_implementation_matchers.ImplementationMatcherTests.test_yaml_path_exists_accepts_uncomparable_value_and_equals_does_not) ... ok
+test_yaml_path_rejects_unsupported_and_malformed_tokens (test_implementation_matchers.ImplementationMatcherTests.test_yaml_path_rejects_unsupported_and_malformed_tokens) ... ok
+test_yaml_path_uses_literal_keys_and_wildcard_traversal_order (test_implementation_matchers.ImplementationMatcherTests.test_yaml_path_uses_literal_keys_and_wildcard_traversal_order) ... ok
+test_yaml_path_wildcard_returns_only_matching_concrete_nodes (test_implementation_matchers.ImplementationMatcherTests.test_yaml_path_wildcard_returns_only_matching_concrete_nodes) ... ok
+test_yaml_rejects_escaped_surrogates_in_keys_and_values (test_implementation_matchers.ImplementationMatcherTests.test_yaml_rejects_escaped_surrogates_in_keys_and_values) ... ok
+test_yaml_rejects_non_core_tags_and_accepts_frozen_tags (test_implementation_matchers.ImplementationMatcherTests.test_yaml_rejects_non_core_tags_and_accepts_frozen_tags) ... ok
+test_yaml_same_tag_equivalent_numeric_keys_are_duplicates (test_implementation_matchers.ImplementationMatcherTests.test_yaml_same_tag_equivalent_numeric_keys_are_duplicates) ... ok
+test_yaml_uses_yaml_12_boolean_resolution (test_implementation_matchers.ImplementationMatcherTests.test_yaml_uses_yaml_12_boolean_resolution) ... ok
+
+======================================================================
+ERROR: test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='timestamp', node='{ !!value "=": 2001-01-01 }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 494, in test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass
+    evaluate_assertion(root, f'!!{tag} {node}')
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_matchers.py", line 702, in evaluate_assertion
+    document = _parse_yaml_document(content)
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_matchers.py", line 444, in _parse_yaml_document
+    value = loader.get_single_data()
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\constructor.py", line 51, in get_single_data
+    return self.construct_document(node)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\constructor.py", line 55, in construct_document
+    data = self.construct_object(node)
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\constructor.py", line 100, in construct_object
+    data = constructor(self, node)
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_matchers.py", line 220, in _construct_yaml_timestamp
+    parsed = loader.construct_yaml_timestamp(node)
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\constructor.py", line 324, in construct_yaml_timestamp
+    match = self.timestamp_regexp.match(node.value)
+TypeError: expected string or bytes-like object, got 'list'
+
+======================================================================
+FAIL: test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='str', node='{ !!value "=": synthetic-value }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 493, in test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+======================================================================
+FAIL: test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='bool', node='{ !!value "=": true }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 493, in test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+======================================================================
+FAIL: test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='int', node='{ !!value "=": 1 }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 493, in test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+======================================================================
+FAIL: test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='float', node='{ !!value "=": 1.5 }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 493, in test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+======================================================================
+FAIL: test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass) (tag='null', node='{ !!value "=": null }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 493, in test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+======================================================================
+FAIL: test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass (test_implementation_matchers.ImplementationMatcherTests.test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 496, in test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.062s
+
+FAILED (failures=6, errors=1)

@@ -484,6 +484,18 @@ class ImplementationMatcherTests(unittest.TestCase):
                 with self.assertRaises(InvalidEvidenceInputError):
                     evaluate_assertion(root, document)
 
+    def test_core_scalar_tags_reject_legacy_mapping_as_scalar_bypass(self) -> None:
+        root = EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, '')
+        for tag, value in (('str', 'synthetic-value'), ('bool', 'true'), ('int', '1'),
+                           ('float', '1.5'), ('null', 'null'), ('timestamp', '2001-01-01')):
+            for node in ('[]', '{}', '{ !!value "=": ' + value + ' }'):
+                with self.subTest(tag=tag, node=node):
+                    with self.assertRaises(InvalidEvidenceInputError):
+                        evaluate_assertion(root, f'!!{tag} {node}')
+        equals = self._equals(MatcherKind.YAML_PATH_EQUALS, 'value', ExpectedScalarKind.STRING, 'synthetic-value')
+        with self.assertRaises(InvalidEvidenceInputError):
+            evaluate_assertion(equals, 'value: !!str { !!value "=": !private synthetic-value }')
+
     def test_yaml_empty_path_targets_document_root(self) -> None:
         result = evaluate_assertion(
             self._equals(

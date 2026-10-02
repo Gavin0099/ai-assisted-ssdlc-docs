@@ -166,6 +166,13 @@ class _UniqueKeyYaml12CoreLoader(yaml.SafeLoader):
         self.key_identities: dict[Any, int] = {}
         self.active_key_nodes: set[int] = set()
 
+    def construct_scalar(self, node: yaml.Node) -> str:
+        # SafeConstructor's legacy !!value mapping-as-scalar path bypasses
+        # both node-kind and nested tag checks. Core scalar tags require scalars.
+        if not isinstance(node, yaml.ScalarNode):
+            raise ConstructorError(None, None, "scalar tag requires a scalar node", node.start_mark)
+        return super().construct_scalar(node)
+
 
 # YAML 1.2 Core resolution, https://yaml.org/spec/1.2.2/#1032-tag-resolution.
 _CORE_INTEGER = re.compile(r"^(?:[-+]?[0-9]+|0o[0-7]+|0x[0-9a-fA-F]+)$")
