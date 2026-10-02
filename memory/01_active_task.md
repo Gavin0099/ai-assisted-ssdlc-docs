@@ -63,3 +63,5 @@
 - B3 PR24 tag-as-commit defect fixed61fab83;61focused60pass1skip. Final-head independent/Codex/CI/merge pending. B4-C2 serial aftergate; P1 human inputs pending. <!-- memory_record_projection:active-task-summary:cc5f301490ee24eb3d5d4d05ab2c065e6b4032c1a37f18da024361bcc41f3504 -->
 
 - B3 lazy-fetch fixed; latest PR 24 review/CI pending. PLAN is current authority. <!-- memory_record_projection:active-task-summary:22a99ace1889fd967ba14dea02d6058aaffe1df0b4722672f2328804330a9709 -->
+
+- S2-B4 evaluator and index committed; exact-head PR gates pending, then C1. Real P1 awaits human inputs. <!-- memory_record_projection:active-task-summary:7aa22bb5f34e3220b9cd55743a60d15c3fafc07d082fb5986e95e6c22fdf265f -->

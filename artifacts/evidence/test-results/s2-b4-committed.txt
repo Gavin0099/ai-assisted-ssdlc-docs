@@ -1,0 +1,9 @@
+test_file_lookup_uses_one_admitted_index_not_repeated_linear_scans (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_file_lookup_uses_one_admitted_index_not_repeated_linear_scans) ... ok
+test_same_id_foreign_ruleset_cannot_replace_bound_semantics (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_same_id_foreign_ruleset_cannot_replace_bound_semantics) ... ok
+test_multi_rule_edges_remain_independent_and_ordered (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_multi_rule_edges_remain_independent_and_ordered) ... ok
+test_any_success_cannot_hide_later_invalid_evidence (tests.test_implementation_evaluator.ImplementationEvaluatorTests.test_any_success_cannot_hide_later_invalid_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 8.431s
+
+OK
