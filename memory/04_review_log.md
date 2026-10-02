@@ -113,3 +113,124 @@
 - Validation boundary: PASS: artifacts/evidence/test-results/s2-b0-durable-implementation.json and artifacts/evidence/test-results/s2-b0-durable-product.json; receipts retain execution-time e3a65e4 and describe archived candidate replay, not current S2 production acceptance.
 - Next action: Review final B0 archive fix, require current-head Codex/CI, merge and begin B1 from refreshed main.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:825df380c48c84c0e15428e9f6d72af6412c4f25ccf58649d4a9981e7b19a7cd -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `825df380c48c84c0e15428e9f6d72af6412c4f25ccf58649d4a9981e7b19a7cd`
+- Commit binding: `f59f41d` (bound)
+- Record: S2-B1 ports only typed matchers/tests from the inert candidate. Root cause: WIP numeric resolver and its oracle used non-Core binary/underscore forms and rejected decimal leading zeros; inherited constructors admitted YAML1.1 scalar spellings and Python merged boolean/integer keys. Corrected Core resolution and tag-aware key equality, frozen timestamp-uncomparable semantics, strict result tuples/codes/node invariants and sanitized parse failures. Initial full347 run/344pass/three inherited Windows skips; focused28 pass after final invariants. New regression against old candidate produced19 failed subcases/one key-collision error. No product/policy/evaluator/CLI changes; remote delivery remains pending.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-committed-focus.json -> 28 matcher tests, linked to f59f41d. Initial full suite and deliberate old-candidate failures are separate diagnostic receipts, not product verification.
+- Next action: Complete independent latest-head review, open B1 PR, resolve Codex findings, require CI then merge; B2 starts from updated main.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:6364431ec782a9a4db8c5a46963eea361082f14522f0629fead895040fa2b2d0 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-review-fix
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `6364431ec782a9a4db8c5a46963eea361082f14522f0629fead895040fa2b2d0`
+- Commit binding: `084fa59` (bound)
+- Record: Fixed four S2-B1 independent/Codex review findings: canonical full-precision timestamp keys, linear shared-alias traversal, iterative JSON Unicode scan and sanitized parser traceback chains. Four regressions fail reviewed d977ba3 and pass fixed 084fa59. Full Windows suite 351 tests, 348 pass and 3 inherited platform skips. PR #22 still requires latest-head review and CI before merge.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-review-committed-focused.json; PASS: artifacts/evidence/test-results/s2-b1-review-fixed-full.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-review-regression-before.json
+- Next action: Review latest PR #22 head and CI, conditionally merge B1, then start B2 from updated main; real P1 still requires human product baseline and rules.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:c3dd09f7aaff1a8718202d70bee253b0fcfa6eeb2dba28b19b122b4449f88a33 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-schema-fix
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `c3dd09f7aaff1a8718202d70bee253b0fcfa6eeb2dba28b19b122b4449f88a33`
+- Commit binding: `217440ae1e08e83edc4c4297ca7aca706b439cd6` (bound)
+- Record: Fixed second Codex B1 review: restrict YAML constructors to frozen Core plus timestamp and reject escaped surrogate keys/values. Two regression methods reject 45636f5 with eight failed subcases. Focused 34 pass and full Windows regression 353 run/350 pass/3 inherited skips. PR #22 requires new exact-head review and CI.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-schema-committed-focused.json; PASS: artifacts/evidence/test-results/s2-b1-schema-fixed-full.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-schema-regression-before.json
+- Next action: Independent/Codex review current B1 head and CI; merge only after gate passes, then B2.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:14e956235f4188850c50447ee102605d23455229df7efb6aa99ebeda07275691 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-scalar-alias
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `14e956235f4188850c50447ee102605d23455229df7efb6aa99ebeda07275691`
+- Commit binding: `4cc01b19905683f1be03e0d0010cf84e6b8ad3bf` (bound)
+- Record: B1 independent review found repeated Unicode scanning of shared scalar aliases introduced by 217440a. Memoized successfully validated string identities. CountingString regression fails 394ae39 and all 35 matcher tests pass fixed 4cc01b1. Prior full suite 353 run/350 pass/3 skips; latest-head full regression is a required CI gate.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-scalar-committed-focused.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-scalar-alias-before.json
+- Next action: Complete latest-head reviews and CI for PR #22, merge B1 if clean, then start B2.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:ed8b99669d766f6fb439e91307c5eb886db96dae4dba74214c34c6d9e529a475 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-integer-cap
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `ed8b99669d766f6fb439e91307c5eb886db96dae4dba74214c34c6d9e529a475`
+- Commit binding: `9f93b0dde33cdf38a0258252329342465170ab65` (bound)
+- Record: B1 Codex integer-digit-cap P2 fixed with local chunked decimal conversion for JSON and YAML; process digit limit unchanged. Arithmetic-oracle regressions reject 47e3462 with five errors; fixed 9f93b0d focused 37 pass. Current full coverage remains a required CI gate before merge.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-integer-committed-focused.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-big-integer-before.json
+- Next action: Review and CI current PR #22 head, conditional merge, then B2 from main.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:54fa42cd31551f98fc75a298bb9246b532c6e098aff22f935ad8abff6c631ce4 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-balanced-integer
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `54fa42cd31551f98fc75a298bb9246b532c6e098aff22f935ad8abff6c631ce4`
+- Commit binding: `9e13ade3410f5c697c7e27f0212cf70f2ee6d7ab` (bound)
+- Record: Fixed Codex B1 quadratic-decimal-conversion P2 with balanced splitting and cached powers. Operand-balance regression rejects 31c9ebb; fixed9e13ade has38focused PASS. Committed 800000-digit JSON root-existence diagnostic PASS in0.3553s, timing not qualification. Latest-head full CI and reviews pending.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-balanced-committed-focused.json; PASS: artifacts/evidence/test-results/s2-b1-balanced-committed-probe.json; expected old-head FAIL: artifacts/evidence/test-results/s2-b1-balanced-integer-before.json
+- Next action: Finish current-head PR #22 independent/Codex reviews and CI, merge if clean, then B2.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:fa1c62290d14d51b15d588d47235705bb8843c9dea81a190cce50ad9fe3a44fa -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-collection-keys
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `fa1c62290d14d51b15d588d47235705bb8843c9dea81a190cce50ad9fe3a44fa`
+- Commit binding: `eaf84f4` (bound)
+- Record: B1 collection-key review remediation: legal Core list/map keys use tagged structural identities with alias memoization. Duplicate, recursive, unsupported-tag and surrogate keys fail closed; frozen non-string navigation boundary retained.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-collection-key-committed.json; 40 focused pass. Full receipt359 run/356pass/3skips. Old-head regression4errors.
+- Next action: Review latest exact head; merge B1 only after independent/Codex/CI gates; then B2.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:20a2ff3c93ba720493571f46d6756535c1d7724ff34dbe274c164e44fef75326 -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-float-keys
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `20a2ff3c93ba720493571f46d6756535c1d7724ff34dbe274c164e44fef75326`
+- Commit binding: `cc833edfafb917f53e1c9f28336651cdca904e9e` (bound)
+- Record: B1 float-key P2 remediation: lossless coefficient/exponent key identity prevents binary float rounding collisions for scalars and collection keys; equivalent forms still duplicate. Float values remain uncomparable.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-float-key-committed.json;42focusedpass. Oldf6abb55 regression12errors. Latest fullCI pending.
+- Next action: Latest exact-head independent/Codex/CI before merge B1 then B2.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:7966588bbd6195111c7bec2b789aab2fa08d2572c10f75a96886e76194d32e1a -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-scalar-key-alias
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `7966588bbd6195111c7bec2b789aab2fa08d2572c10f75a96886e76194d32e1a`
+- Commit binding: `2af6883000ad2d05beeaa974f81b18e07c0c1309` (bound)
+- Record: B1 independent P2: shared scalar numeric key aliases now use interned node IDs, avoiding repeated canonicalization and bigint hashing. Lossless float identity, tagged equality and non-string navigation boundaries retained.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-float-alias-committed.json;43focusedpass. Old99bdb44 regressionFAIL20conversions versus1. LatestCI pending.
+- Next action: Latest exact-head independent/Codex/CI then merge B1 and start B2.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:ad26eb6f77c6075fa10e1de0069e7474b47391b79f2756342554294b9827e96a -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-map-node
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `ad26eb6f77c6075fa10e1de0069e7474b47391b79f2756342554294b9827e96a`
+- Commit binding: `ed9dccf5017ea565f04bea3861e646c938014ec3` (bound)
+- Record: B1 review P2: Core map constructor rejects incompatible ScalarNode/SequenceNode at root, value or key; errors sanitized. Prior scalar-key memoization remains enforced.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-map-node-committed.json;44focusedpass. Old9db7853 malformed-node regression3failures2errors.
+- Next action: Latest exact-head independent/Codex/CI gate then B1 merge and B2.
+- PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:285ad8c4d7ec1ef192506fa6c2398031bfaf506845375838a1213fda3c92d5fd -->
+### Canonical memory checkpoint — 2026-10-03-S2-B1-scalar-node
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `285ad8c4d7ec1ef192506fa6c2398031bfaf506845375838a1213fda3c92d5fd`
+- Commit binding: `78851ab081204d61ae5a898f8ffebba5745bf17d` (bound)
+- Record: B1 tag/node-kind batch remediation: shared ScalarNode constructor guard blocks SafeLoader legacy !!value mapping-as-scalar shortcut and hidden custom tags; timestamp raw TypeError is sanitized. Map-node and scalar-key memo guards retained.
+- Validation boundary: PASS: artifacts/evidence/test-results/s2-b1-scalar-node-committed.json;45focusedpass. Oldbab50a4 node/tag regression6failures1error.
+- Next action: Current-head independent/Codex/CI before B1 merge then B2.
+- PLAN reconciliation: `updated`

@@ -29,3 +29,25 @@
 - REPORT-4E legacy provenance remediation and committed-tree validation pass; updated-head Codex review/CI/conditional merge pending. UI QA not verified; company inputs excluded. <!-- memory_record_projection:active-task-summary:da88cf86379e426079e0aaada60d162a97672abb57cddb7afddb3ce757222635 -->
 
 - S2-B0 audit complete locally; immutable WIP has matcher/admission/item defects assigned to B1/B2/B4. Serial PR delivery authorized; B0 review/CI/merge pending, real P1 baseline/rules pending. <!-- memory_record_projection:active-task-summary:883d807b1e4e3729c52b334eeb0f9bc37b3194f49d1b82e5763ef0aff9cb0d7b -->
+
+- B0 PR21 merged after review/CI; B1 matcher core locally complete (28 focused pass, initial347/344/3skip). B1 remote gate pending; B2 next. Real P1 product baseline and human rules still pending. <!-- memory_record_projection:active-task-summary:825df380c48c84c0e15428e9f6d72af6412c4f25ccf58649d4a9981e7b19a7cd -->
+
+- S2-B0 PR #21 merged df57edb. B1 PR #22 four review fixes committed 084fa59; focused 32 pass, full 351 run/348 pass/3 platform skips. Latest-head independent/Codex review and CI pending; B2 not started. <!-- memory_record_projection:active-task-summary:6364431ec782a9a4db8c5a46963eea361082f14522f0629fead895040fa2b2d0 -->
+
+- S2-B0 PR #21 merged. B1 PR #22 all six review defects fixed through 217440a; 34 focused pass, full 353 run/350 pass/3 platform skips. Latest-head reviews/CI pending, B2 not started. <!-- memory_record_projection:active-task-summary:c3dd09f7aaff1a8718202d70bee253b0fcfa6eeb2dba28b19b122b4449f88a33 -->
+
+- B0 merged. B1 PR #22 scalar alias amplification fixed 4cc01b1; 35 focused pass. Latest-head independent/Codex review and CI pending; B2 not started. <!-- memory_record_projection:active-task-summary:14e956235f4188850c50447ee102605d23455229df7efb6aa99ebeda07275691 -->
+
+- B0 merged. B1 PR #22 integer cap fixed 9f93b0d; focused37pass. Latest-head independent/Codex review and CI pending; B2 not started. <!-- memory_record_projection:active-task-summary:ed8b99669d766f6fb439e91307c5eb886db96dae4dba74214c34c6d9e529a475 -->
+
+- B0 merged. B1 PR22 balanced integer fix9e13ade;38focusedPASS,800000-digit diagnosticPASS. Latest-head reviews/CI pending;B2 notstarted. <!-- memory_record_projection:active-task-summary:54fa42cd31551f98fc75a298bb9246b532c6e098aff22f935ad8abff6c631ce4 -->
+
+- B0 mergedPR21. B1 collection keys fixed;40focusedPASS/full359run356pass3skips;latest-head reviews and CI required. B2-C2 serial after B1 merge. P1 product baseline/human rules pending. <!-- memory_record_projection:active-task-summary:fa1c62290d14d51b15d588d47235705bb8843c9dea81a190cce50ad9fe3a44fa -->
+
+- B0 mergedPR21. B1 float-key fix42focusedPASS; oldf6abb55 regression12errors. Latest-head independent/Codex/CI gate pending. B2-C2 serial after merge. P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:20a2ff3c93ba720493571f46d6756535c1d7724ff34dbe274c164e44fef75326 -->
+
+- B0 mergedPR21. B1 interned shared scalar keys43focusedPASS; old99bdb44 iteration regression fails. Latest-head review/CI gate pending. B2-C2 serial after merge; P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:7966588bbd6195111c7bec2b789aab2fa08d2572c10f75a96886e76194d32e1a -->
+
+- B0 mergedPR21. B1 Core map-node guard44focusedPASS; old9db7853 regression3failures2errors. Latest-head gates pending. B2-C2 serial aftermerge;P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:ad26eb6f77c6075fa10e1de0069e7474b47391b79f2756342554294b9827e96a -->
+
+- B0 mergedPR21. B1 shared scalar-node guard45focusedPASS;oldbab node/tag regression6failures1error. Latest-head gates pending. B2-C2 aftermerge;P1 baseline/human rules pending. <!-- memory_record_projection:active-task-summary:285ad8c4d7ec1ef192506fa6c2398031bfaf506845375838a1213fda3c92d5fd -->

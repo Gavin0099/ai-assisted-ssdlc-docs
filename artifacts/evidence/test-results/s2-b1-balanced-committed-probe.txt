@@ -1,0 +1,1 @@
+{'digits': 800000, 'passed': True, 'seconds': 0.3553, 'timing_boundary': 'diagnostic_only'}

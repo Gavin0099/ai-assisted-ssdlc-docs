@@ -1,0 +1,17 @@
+{
+  "receipt_schema": "test_evidence_receipt.v0.1",
+  "status": "report_only",
+  "command": "python -X utf8 -m unittest discover -s tests -p test_implementation_matchers.py -v",
+  "exit_code": 0,
+  "started_at": "2026-10-02T18:09:27Z",
+  "finished_at": "2026-10-02T18:09:27Z",
+  "runner": "governance_tools.test_evidence_receipt_writer",
+  "linked_commit": "31c9ebb29a40bd70d5c1c72ca50f75274cb832e6",
+  "output_artifacts": [
+    "artifacts/evidence/test-results/s2-b1-balanced-integer-fixed.txt"
+  ],
+  "cannot_claim": [
+    "semantic correctness of the tested behavior",
+    "receipt authenticity: every field is fabricatable by a direct writer"
+  ]
+}

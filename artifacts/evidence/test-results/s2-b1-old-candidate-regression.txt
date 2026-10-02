@@ -1,0 +1,217 @@
+...........FFFF..FFFF....FFFEFFFFFFF....F.
+======================================================================
+ERROR: test_yaml_mapping_key_equality_preserves_core_tags (test_implementation_matchers.ImplementationMatcherTests.test_yaml_mapping_key_equality_preserves_core_tags)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_matchers.py", line 263, in _parse_yaml_document
+    value = yaml.load(content, Loader=_UniqueKeyYaml12CoreLoader)
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\__init__.py", line 81, in load
+    return loader.get_single_data()
+           ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\constructor.py", line 51, in get_single_data
+    return self.construct_document(node)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\constructor.py", line 55, in construct_document
+    data = self.construct_object(node)
+  File "C:\Users\reiko\AppData\Roaming\Python\Python313\site-packages\yaml\constructor.py", line 100, in construct_object
+    data = constructor(self, node)
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_matchers.py", line 225, in _construct_unique_yaml_mapping
+    raise ConstructorError(
+    ...<4 lines>...
+    )
+yaml.constructor.ConstructorError: while constructing a mapping
+  in "<unicode string>", line 1, column 1:
+    true: flag
+    ^
+duplicate mapping key
+  in "<unicode string>", line 2, column 1:
+    1: count
+    ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 149, in test_yaml_mapping_key_equality_preserves_core_tags
+    result = evaluate_assertion(EvidenceAssertion(MatcherKind.YAML_PATH_EXISTS, ""),
+                                'true: flag\n1: count\n"1": text\n')
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_matchers.py", line 516, in evaluate_assertion
+    document = _parse_yaml_document(content)
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tools\implementation_matchers.py", line 266, in _parse_yaml_document
+    raise InvalidEvidenceInputError("YAML evidence input is invalid.") from exc
+tools.implementation_matchers.InvalidEvidenceInputError: YAML evidence input is invalid.
+
+======================================================================
+FAIL: test_result_requires_closed_immutable_field_types (test_implementation_matchers.ImplementationMatcherTests.test_result_requires_closed_immutable_field_types) (create=<function ImplementationMatcherTests.test_result_requires_closed_immutable_field_types.<locals>.<lambda> at 0x000001CC1F73ECA0>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 247, in test_result_requires_closed_immutable_field_types
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_result_requires_closed_immutable_field_types (test_implementation_matchers.ImplementationMatcherTests.test_result_requires_closed_immutable_field_types) (create=<function ImplementationMatcherTests.test_result_requires_closed_immutable_field_types.<locals>.<lambda> at 0x000001CC1F73F380>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 247, in test_result_requires_closed_immutable_field_types
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_result_requires_closed_immutable_field_types (test_implementation_matchers.ImplementationMatcherTests.test_result_requires_closed_immutable_field_types) (create=<function ImplementationMatcherTests.test_result_requires_closed_immutable_field_types.<locals>.<lambda> at 0x000001CC1F73F420>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 247, in test_result_requires_closed_immutable_field_types
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_result_requires_closed_immutable_field_types (test_implementation_matchers.ImplementationMatcherTests.test_result_requires_closed_immutable_field_types) (create=<function ImplementationMatcherTests.test_result_requires_closed_immutable_field_types.<locals>.<lambda> at 0x000001CC1F73F4C0>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 247, in test_result_requires_closed_immutable_field_types
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed (test_implementation_matchers.ImplementationMatcherTests.test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed) (content='%YAML 1.1\n---\non: true\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 168, in test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+======================================================================
+FAIL: test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed (test_implementation_matchers.ImplementationMatcherTests.test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed) (content='value: !!bool yes\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 168, in test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+======================================================================
+FAIL: test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed (test_implementation_matchers.ImplementationMatcherTests.test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed) (content='value: !!int 0b10\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 168, in test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+======================================================================
+FAIL: test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed (test_implementation_matchers.ImplementationMatcherTests.test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed) (content='value: !!null other\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 168, in test_yaml_11_directive_and_invalid_explicit_core_scalars_fail_closed
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+======================================================================
+FAIL: test_yaml_integer_core_forms_are_compared_numerically (test_implementation_matchers.ImplementationMatcherTests.test_yaml_integer_core_forms_are_compared_numerically) (source='012')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 135, in test_yaml_integer_core_forms_are_compared_numerically
+    self.assertTrue(evaluate_assertion(assertion, f"value: {source}\n").passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_integer_core_forms_are_compared_numerically (test_implementation_matchers.ImplementationMatcherTests.test_yaml_integer_core_forms_are_compared_numerically) (source='+012')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 135, in test_yaml_integer_core_forms_are_compared_numerically
+    self.assertTrue(evaluate_assertion(assertion, f"value: {source}\n").passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_integer_core_forms_are_compared_numerically (test_implementation_matchers.ImplementationMatcherTests.test_yaml_integer_core_forms_are_compared_numerically) (source='-012')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 135, in test_yaml_integer_core_forms_are_compared_numerically
+    self.assertTrue(evaluate_assertion(assertion, f"value: {source}\n").passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_non_core_numeric_spellings_are_literal_strings (test_implementation_matchers.ImplementationMatcherTests.test_yaml_non_core_numeric_spellings_are_literal_strings) (source='0b10')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 144, in test_yaml_non_core_numeric_spellings_are_literal_strings
+    self.assertTrue(result.passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_non_core_numeric_spellings_are_literal_strings (test_implementation_matchers.ImplementationMatcherTests.test_yaml_non_core_numeric_spellings_are_literal_strings) (source='1_000')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 144, in test_yaml_non_core_numeric_spellings_are_literal_strings
+    self.assertTrue(result.passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_non_core_numeric_spellings_are_literal_strings (test_implementation_matchers.ImplementationMatcherTests.test_yaml_non_core_numeric_spellings_are_literal_strings) (source='0O10')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 144, in test_yaml_non_core_numeric_spellings_are_literal_strings
+    self.assertTrue(result.passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_non_core_numeric_spellings_are_literal_strings (test_implementation_matchers.ImplementationMatcherTests.test_yaml_non_core_numeric_spellings_are_literal_strings) (source='0X10')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 144, in test_yaml_non_core_numeric_spellings_are_literal_strings
+    self.assertTrue(result.passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_non_core_numeric_spellings_are_literal_strings (test_implementation_matchers.ImplementationMatcherTests.test_yaml_non_core_numeric_spellings_are_literal_strings) (source='-0x10')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 144, in test_yaml_non_core_numeric_spellings_are_literal_strings
+    self.assertTrue(result.passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_non_core_numeric_spellings_are_literal_strings (test_implementation_matchers.ImplementationMatcherTests.test_yaml_non_core_numeric_spellings_are_literal_strings) (source='1_0.5')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 144, in test_yaml_non_core_numeric_spellings_are_literal_strings
+    self.assertTrue(result.passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_non_core_numeric_spellings_are_literal_strings (test_implementation_matchers.ImplementationMatcherTests.test_yaml_non_core_numeric_spellings_are_literal_strings) (source='+.nan')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 144, in test_yaml_non_core_numeric_spellings_are_literal_strings
+    self.assertTrue(result.passed)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_yaml_same_tag_equivalent_numeric_keys_are_duplicates (test_implementation_matchers.ImplementationMatcherTests.test_yaml_same_tag_equivalent_numeric_keys_are_duplicates) (content='012: first\n12: second\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\reiko\.codex\worktrees\reporting-workflow-pr\ai-assisted-ssdlc-docs\tests\test_implementation_matchers.py", line 161, in test_yaml_same_tag_equivalent_numeric_keys_are_duplicates
+    with self.assertRaises(InvalidEvidenceInputError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: InvalidEvidenceInputError not raised
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.013s
+
+FAILED (failures=19, errors=1)
