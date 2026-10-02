@@ -418,6 +418,26 @@ class TestAssessmentMarkdown(ContractTestCase):
         self.assertEqual(before, self.snapshot())
         self.assertEqual({p.read_text(encoding="utf-8") for p in external.iterdir()}, {"FORGED OUTPUT"})
 
+    @unittest.skipUnless(sys.platform.startswith("linux"), "Linux rename publication boundary")
+    def test_concurrent_empty_output_directory_is_not_replaced(self):
+        before = self.snapshot()
+        appeared = []
+        # Bind the publication boundary on either the fixed or reviewed version
+        # so replay tests the race itself, not the presence of a new helper.
+        owner = application if hasattr(application, "_rename_noreplace") else application.os
+        name = "_rename_noreplace" if owner is application else "rename"
+        original = getattr(owner, name)
+        def concurrent_destination(*args, **kwargs):
+            self.out.mkdir()
+            appeared.append(self.out.stat().st_ino)
+            return original(*args, **kwargs)
+        with patch.object(owner, name, concurrent_destination):
+            with self.assertRaises(OSError):
+                self.generate()
+        self.assertEqual(self.out.stat().st_ino, appeared[0])
+        self.assertEqual(list(self.out.iterdir()), [])
+        self.assertEqual(before, self.snapshot())
+
     def test_cli_failure_is_nonzero_and_creates_no_report(self):
         process = subprocess.run([sys.executable, "-X", "utf8", "-m", "tools.generate_assessment_markdown", "--report-root", str(self.root), "--out-dir", str(self.out), "--date", "bad"], cwd=REPO, capture_output=True, text=True, encoding="utf-8")
         self.assertEqual(process.returncode, 1)

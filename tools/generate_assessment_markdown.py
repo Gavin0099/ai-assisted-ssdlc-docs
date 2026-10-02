@@ -102,6 +102,21 @@ def _write_file(stage: Path, directory_fd: int, name: str, raw: bytes) -> None:
         opened.write(raw)
 
 
+
+def _rename_noreplace(source: str, destination: str, source_fd: int, destination_fd: int) -> None:
+    """Linux atomic publication must never replace a concurrently created name."""
+    import ctypes
+    library = ctypes.CDLL(None, use_errno=True)
+    rename = getattr(library, "renameat2", None)
+    if rename is None:
+        raise MarkdownProjectionError("atomic no-replace publication is unavailable")
+    rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    rename.restype = ctypes.c_int
+    if rename(source_fd, os.fsencode(source), destination_fd, os.fsencode(destination), 1) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), destination)
+
+
 def _publish_stage(stage: Path, stage_fd: int, temp_fd: int, parent_fd: int, out: Path) -> None:
     """Publish the pinned directory, then confirm the published OS identity."""
     if ArtifactStore._opened_path(stage_fd) != stage or ArtifactStore._opened_path(parent_fd) != out.parent:
@@ -131,7 +146,7 @@ def _publish_stage(stage: Path, stage_fd: int, temp_fd: int, parent_fd: int, out
         if not kernel.SetFileInformationByHandle(msvcrt.get_osfhandle(stage_fd), 3, raw, len(raw)):
             raise ctypes.WinError(ctypes.get_last_error())
     else:
-        os.rename(stage.name, out.name, src_dir_fd=temp_fd, dst_dir_fd=parent_fd)
+        _rename_noreplace(stage.name, out.name, temp_fd, parent_fd)
         published_fd = os.open(out.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent_fd)
         try:
             original, published = os.fstat(stage_fd), os.fstat(published_fd)
