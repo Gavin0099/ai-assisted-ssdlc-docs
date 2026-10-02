@@ -25,3 +25,14 @@
 - Validation boundary: PASS: artifacts/reporting/report-4a-pr-regression.json -> exit_code=0; paired log records 247 tests in29.398s,245 pass,2 Windows symlink privilege skips. Pinned-framework drift/readiness exit0; no framework update or adoption-completion claim.
 - Next action: Push REPORT-4A implementation and companion, open PR and obtain exact-head Codex review and green CI before user-authorized merge.
 - PLAN reconciliation: `updated`
+
+<!-- memory_record_projection:review-log:f5f37fe41e4ae154b7eba1558237698810dca7f05c12510f6e2cd2cf34264c73 -->
+### Canonical memory checkpoint — 2026-10-02-REPORT-4A-REVIEW-FIX
+
+- Writer: `governance_tools.memory_record`
+- Record identity: `f5f37fe41e4ae154b7eba1558237698810dca7f05c12510f6e2cd2cf34264c73`
+- Commit binding: `8f0efdff86fb38ed997a593e3449ac028f41b25f` (bound)
+- Record: Codex GitHub reviewer chatgpt-codex-connector[bot] 對 PR19 head465e435 提出三項 findings (review5389335144; comments4163751491/1498/1504)。P1 introduced/current-decision impact yes: resolve與read分離可能讀到root外；fix now為開啟後以Windows GetFinalPathNameByHandleW或Linux procfs核對實際handle，在內容讀取前拒絕越界，失敗關閉descriptor。兩P2 introduced/current-decision impact yes:保留內容已相同但有明確not_synced紀錄的情境，並按既有S1 target規則正規化commit/manifest/corpus SHA大小寫，raw ArtifactRef與陣列順序仍不變。四項新tests;原production只有兩個模組、既有assessment/schema/queue/S2不變。後續c379877只調整race regression的觀察patch，讓同一測試能對舊reviewed bytes重播。這是修正及本地驗證，不宣稱新版Codex review已通過。
+- Validation boundary: PASS: artifacts/reporting/report-4a-pr-fix-regression.json -> exit_code=0,251 run249 pass2 Windows symlink privilege skips,linked implementation8f0efdf. PASS: artifacts/reporting/report-4a-review-regression-replay.json,three assertion failures on old465e435 prove sensitivity; first replay import/patch error is retained as attempt1 and not counted. Latest contract run54: Windows52/Linux53 pass,each platform only skips inapplicable/privilege cases. NOT CLAIMED: semantic correctness, private data/provenance/authenticity, actual product execution or updated-head remote approval.
+- Next action: Push fixes and companion, request Codex re-review for the latest exact PR19 head, verify CI and resolve review threads before conditional merge. No real migration/rendering/S2.
+- PLAN reconciliation: `updated`
